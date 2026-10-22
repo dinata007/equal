@@ -2,6 +2,7 @@
 //   npm run db:schema               schema.md, schema.json, objects.sql
 //   npm run db:schema -- --no-codes tanpa contoh nilai kode pendek (status/flag)
 //   npm run db:schema -- --no-code  tanpa definisi view/procedure/trigger (objects.sql)
+//   npm run db:schema -- --out dir  tulis ke folder lain (default docs/database)
 // Koneksi dibaca dari .env (lihat .env.example).
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import sql from 'mssql';
@@ -11,7 +12,8 @@ if (existsSync('.env')) process.loadEnvFile('.env');
 const env = process.env;
 const withCodes = !process.argv.includes('--no-codes');
 const withCode = !process.argv.includes('--no-code');
-const OUT = 'docs/database';
+const outArg = process.argv.indexOf('--out');
+const OUT = outArg > 0 && process.argv[outArg + 1] ? process.argv[outArg + 1] : 'docs/database';
 /** tabel di atas batas ini tidak dihitung nilai kodenya (agar tidak membebani server) */
 const CODE_ROW_LIMIT = 2_000_000;
 
@@ -28,6 +30,12 @@ function typeOf(c) {
 	return t;
 }
 const charLen = (c) => (['nvarchar', 'nchar'].includes(c.type) ? c.max_length / 2 : c.max_length);
+const isChar = (c) => ['char', 'varchar', 'nchar', 'nvarchar'].includes(c.type);
+/** kolom kode/jenis (mis. tipe_trans 'KIRIM TOKO', voucher_modul 'AR') → nilainya didata walau lebih dari 3 karakter */
+const isCodeName = (n) => /(^|_)(tipe|type|status|sts|jenis|flag|modul|kind)(_|$)/i.test(n);
+/** kolom nomor dokumen → hanya POLA-nya yang didata (setiap digit diganti 9), bukan nomornya */
+const isNumberName = (n) => /^(bukti|no_bukti|voucher|no_urut|nobukti|no_faktur)$|^bukti_|_bukti$/i.test(n);
+const DIGITS_AS_9 = (col) => `TRANSLATE(${col}, '0123456789', '9999999999')`;
 
 console.log(`Menghubungkan ke ${dbLabel(env)} …`);
 const pool = await new sql.ConnectionPool(dbConfig(env)).connect();
@@ -149,16 +157,44 @@ for (const t of tables.filter((x) => !isPbCatalog(x.name))) {
 			codes: undefined
 		};
 		// nilai kode pendek (mis. status 'P'/'D', flag 'Y'/'N') untuk memahami arti kolom; bukan data transaksi
-		if (withCodes && rows && rows <= CODE_ROW_LIMIT && ['char', 'varchar', 'nchar', 'nvarchar'].includes(c.type) && charLen(c) > 0 && charLen(c) <= 3 && !c.computed_def) {
+		const len = isChar(c) ? charLen(c) : 0;
+		if (withCodes && rows && rows <= CODE_ROW_LIMIT && len > 0 && !c.computed_def && (len <= 3 || (len <= 30 && isCodeName(c.name)))) {
+			const max = len <= 3 ? 12 : 25;
 			try {
-				const vals = await run(`SELECT TOP 13 ${q(c.name)} AS v, COUNT_BIG(*) AS n FROM ${q(t.sch)}.${q(t.name)} WITH (NOLOCK) GROUP BY ${q(c.name)} ORDER BY n DESC`);
-				col.codes = vals.slice(0, 12).map((v) => ({ value: v.v, count: Number(v.n) }));
-				if (vals.length > 12) col.codes.push({ value: '…', count: 0 });
+				const vals = await run(`SELECT TOP ${max + 1} ${q(c.name)} AS v, COUNT_BIG(*) AS n FROM ${q(t.sch)}.${q(t.name)} WITH (NOLOCK) GROUP BY ${q(c.name)} ORDER BY n DESC`);
+				col.codes = vals.slice(0, max).map((v) => ({ value: v.v, count: Number(v.n) }));
+				if (vals.length > max) col.codes.push({ value: '…', count: 0 });
 			} catch {
 				/* abaikan kolom yang tidak bisa di-GROUP BY */
 			}
 		}
+		if (withCodes && rows && len > 0 && len <= 60 && isNumberName(c.name)) {
+			try {
+				const vals = await run(`SELECT TOP 9 ${DIGITS_AS_9(q(c.name))} AS v, COUNT_BIG(*) AS n FROM ${q(t.sch)}.${q(t.name)} WITH (NOLOCK) WHERE ${q(c.name)} IS NOT NULL GROUP BY ${DIGITS_AS_9(q(c.name))} ORDER BY n DESC`);
+				col.patterns = vals.slice(0, 8).map((v) => ({ value: v.v, count: Number(v.n) }));
+				if (vals.length > 8) col.patterns.push({ value: '…', count: 0 });
+			} catch {
+				/* TRANSLATE butuh SQL Server 2017+ */
+			}
+		}
 		cols.push(col);
+	}
+	// pola nomor dokumen per jenis transaksi (mis. tipe_trans 'TERIMA' → 'GT9999999999')
+	let numbering;
+	const numCol = cols.find((c) => c.pk && c.patterns);
+	const kindCols = cols.filter((c) => /^(tipe_trans|voucher_modul|status|tipe_bayar|grosir)$/i.test(c.name)).map((c) => c.name);
+	if (withCodes && numCol && kindCols.length && rows <= CODE_ROW_LIMIT * 2) {
+		try {
+			const by = kindCols.map(q).join(', ');
+			const pat = `LEFT(${DIGITS_AS_9(q(numCol.name))}, 40)`;
+			numbering = {
+				column: numCol.name,
+				by: kindCols,
+				rows: (await run(`SELECT TOP 60 ${by}, ${pat} AS pattern, COUNT_BIG(*) AS n FROM ${q(t.sch)}.${q(t.name)} WITH (NOLOCK) GROUP BY ${by}, ${pat} ORDER BY n DESC`)).map((r) => ({ ...r, n: Number(r.n) }))
+			};
+		} catch {
+			/* abaikan */
+		}
 	}
 	doc.tables.push({
 		schema: t.sch,
@@ -170,7 +206,8 @@ for (const t of tables.filter((x) => !isPbCatalog(x.name))) {
 		primaryKey: pk ? pk.cols.split(', ') : [],
 		indexes: (idxBy.get(t.id) ?? []).filter((i) => !i.pk).map((i) => ({ name: i.name, unique: !!i.uq, columns: i.cols })),
 		foreignKeys: (fkBy.get(t.id) ?? []).map((f) => ({ name: f.name, columns: f.cols, references: `${f.ref_sch}.${f.ref_table}(${f.ref_cols})`, onDelete: f.on_delete })),
-		triggers: objects.filter((o) => o.kind === 'SQL_TRIGGER' && o.parent_sch === t.sch && o.parent === t.name).map((o) => ({ name: o.name, events: o.events, disabled: !!o.disabled }))
+		triggers: objects.filter((o) => o.kind === 'SQL_TRIGGER' && o.parent_sch === t.sch && o.parent === t.name).map((o) => ({ name: o.name, events: o.events, disabled: !!o.disabled })),
+		numbering
 	});
 }
 if (process.stdout.isTTY) process.stdout.write('\r'.padEnd(72) + '\r');
@@ -184,7 +221,7 @@ writeFileSync(`${OUT}/schema.json`, JSON.stringify(doc, null, 1) + '\n');
 
 const L = [];
 L.push(`# Struktur database ${info.db}`, '');
-L.push(`Dibuat otomatis oleh \`npm run db:schema\` pada ${new Date().toLocaleString('id-ID')}. Isi data tidak disertakan${withCodes ? ', kecuali contoh nilai kolom kode pendek (≤ 3 karakter, mis. status/flag) beserta jumlahnya' : ''}.`, '');
+L.push(`Dibuat otomatis oleh \`npm run db:schema\` pada ${new Date().toLocaleString('id-ID')}. Isi data tidak disertakan${withCodes ? ', kecuali nilai kolom kode (≤ 3 karakter, atau kolom tipe/status/jenis/flag) beserta jumlahnya, dan pola nomor dokumen dengan setiap digit diganti 9' : ''}.`, '');
 L.push(`- SQL Server ${info.version} (${info.edition}), compatibility level ${info.compat}, collation \`${info.collation}\``);
 L.push(`- ${doc.tables.length} tabel, ${objects.filter((o) => o.kind === 'VIEW').length} view, ${objects.filter((o) => o.kind === 'SQL_STORED_PROCEDURE').length} stored procedure, ${objects.filter((o) => o.kind.includes('FUNCTION')).length} function, ${objects.filter((o) => o.kind === 'SQL_TRIGGER').length} trigger`);
 if (pbCatalog.length) L.push(`- Katalog PowerBuilder (${pbCatalog.map((x) => '`' + x + '`').join(', ')}) tidak dirinci; label kolomnya (${fmt(pbCols.size)} entri) dipakai di kolom "Label / keterangan"`);
@@ -199,11 +236,16 @@ for (const t of doc.tables) {
 	for (const c of t.columns) {
 		const key = [c.pk && 'PK', c.identity && 'IDENTITY', c.computed && `= ${c.computed}`].filter(Boolean).join(' ');
 		const fk = t.foreignKeys.find((f) => f.columns.split(', ').includes(c.name));
-		const codes = c.codes?.map((v) => `\`${v.value === null ? 'NULL' : md(v.value) === '' ? "''" : md(v.value)}\`${v.count ? ` ${fmt(v.count)}` : ''}`).join(', ') ?? '';
+		const val = (v) => `\`${v.value === null ? 'NULL' : md(v.value) === '' ? "''" : md(v.value)}\`${v.count ? ` ${fmt(v.count)}` : ''}`;
+		const codes = [c.codes?.map(val).join(', '), c.patterns && 'pola: ' + c.patterns.map(val).join(', ')].filter(Boolean).join(' · ');
 		L.push(`| ${md(c.name)} | ${c.type} | ${c.nullable ? '✓' : ''} | ${md([key, fk && `→ ${fk.references}`].filter(Boolean).join(' '))} | ${md(c.default)} | ${md([c.pbLabel, c.description].filter(Boolean).join(' — '))} | ${codes} |`);
 	}
 	if (t.indexes.length) L.push('', '**Index:** ' + t.indexes.map((i) => `\`${md(i.name)}\` (${md(i.columns)})${i.unique ? ' unik' : ''}`).join('; '));
 	if (t.triggers.length) L.push('', '**Trigger:** ' + t.triggers.map((x) => `\`${md(x.name)}\` ${md(x.events)}${x.disabled ? ' (nonaktif)' : ''}`).join('; '));
+	if (t.numbering?.rows.length) {
+		L.push('', `**Pola nomor \`${md(t.numbering.column)}\` per jenis** (digit diganti 9):`, '', `| ${t.numbering.by.join(' | ')} | Pola | Jumlah |`, `|${t.numbering.by.map(() => '---|').join('')}---|---:|`);
+		for (const r of t.numbering.rows) L.push(`| ${t.numbering.by.map((k) => md(r[k] ?? 'NULL')).join(' | ')} | \`${md(r.pattern)}\` | ${fmt(r.n)} |`);
+	}
 }
 
 const groups = [
