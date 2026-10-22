@@ -13,7 +13,7 @@
 	let loading = $state(false);
 
 	$effect(() => {
-		if (auth.user) goto('/', { replaceState: true });
+		if (auth.user) goto('/', { replace: true });
 	});
 
 	async function submit(e: SubmitEvent) {

@@ -61,6 +61,24 @@ export function stockBalance(itemTable: string, loc: string, itemId: string, upT
 	return q;
 }
 
+/**
+ * Stok yang boleh dikeluarkan pada tanggal `from`: saldo akhir hari terendah dari `from`
+ * dan seterusnya, agar dokumen bertanggal mundur tidak membuat saldo sesudahnya minus.
+ */
+export function stockAvailable(itemTable: string, loc: string, itemId: string, from: string, excludeDocId?: string) {
+	let q = 0;
+	let min = Infinity;
+	let day = '';
+	for (const m of stockMoves(itemTable, (l) => l === loc, excludeDocId)) {
+		if (m.itemId !== itemId) continue;
+		// pergantian hari: q = saldo akhir `day`, berlaku untuk tanggal >= from yang belum lewat
+		if (m.date !== day && (day >= from || m.date > from)) min = Math.min(min, q);
+		day = m.date;
+		q += m.qty;
+	}
+	return Math.min(min, q);
+}
+
 /** Saldo semua item per lokasi: Map<itemId, qty> */
 export function stockOnHand(itemTable: string, locFilter: (loc: string) => boolean) {
 	const map = new Map<string, number>();
