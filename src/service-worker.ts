@@ -32,6 +32,8 @@ self.addEventListener('fetch', (event) => {
 	if (req.method !== 'GET') return;
 	const url = new URL(req.url);
 	if (url.origin !== location.origin) return;
+	// data dari server (database) selalu langsung ke jaringan, tidak di-cache
+	if (url.pathname.startsWith('/api/')) return;
 
 	// navigasi halaman: network-first, fallback ke shell (offline)
 	if (req.mode === 'navigate') {
