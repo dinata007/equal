@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { Database, LogOut, Moon, RotateCcw, Smartphone, Sun } from '@lucide/svelte';
+	import { Database, LogOut, Moon, RefreshCw, RotateCcw, Server, Smartphone, Sun } from '@lucide/svelte';
 	import { auth } from '#lib/erp/auth.svelte.ts';
 	import { db } from '#lib/erp/db.svelte.ts';
 	import { initials } from '#lib/erp/format.ts';
@@ -23,6 +23,23 @@
 		installEvt = null;
 	}
 	const size = $derived(Math.round(JSON.stringify(db.t).length / 1024));
+
+	/* status koneksi SQL Server (GET /api/health), khusus admin */
+	type Health = { ok: boolean; database?: string; version?: string; target?: string; error?: string };
+	let health = $state<Health | null>(null);
+	let checking = $state(false);
+	async function checkDb() {
+		checking = true;
+		try {
+			health = await (await fetch('/api/health')).json();
+		} catch {
+			health = { ok: false, error: 'Server aplikasi tidak dapat dihubungi' };
+		}
+		checking = false;
+	}
+	$effect(() => {
+		if (auth.admin) checkDb();
+	});
 </script>
 
 <svelte:window onbeforeinstallprompt={(e) => (e.preventDefault(), (installEvt = e))} />
@@ -56,6 +73,23 @@
 				<button class="btn btn-secondary btn-sm" onclick={reset}><RotateCcw class="size-3.5" /> Reset</button>
 			{/if}
 		</div>
+		{#if auth.admin}
+			<div class="flex items-center gap-3 px-5 py-4">
+				<Server class="size-5 shrink-0 text-stone-400" />
+				<div class="min-w-0 flex-1 text-sm">
+					<p class="flex items-center gap-2">
+						Server database
+						{#if health}
+							<span class="badge {health.ok ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400' : 'bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400'}">{health.ok ? 'Terhubung' : 'Tidak terhubung'}</span>
+						{/if}
+					</p>
+					<p class="truncate text-xs text-stone-400" title={health?.error}>
+						{#if !health}Memeriksa…{:else if health.ok}{health.database} · SQL Server {health.version}{:else}{health.error}{/if}
+					</p>
+				</div>
+				<button class="btn btn-ghost btn-icon btn-sm" onclick={checkDb} disabled={checking} aria-label="Cek ulang koneksi"><RefreshCw class="size-3.5 {checking ? 'animate-spin' : ''}" /></button>
+			</div>
+		{/if}
 		<button class="flex w-full items-center gap-3 px-5 py-4 text-left text-rose-600" onclick={logout}>
 			<LogOut class="size-5" />
 			<span class="flex-1 text-sm font-medium">Keluar</span>
