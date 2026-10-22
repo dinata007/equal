@@ -88,6 +88,7 @@
 			if (f.showIf && !f.showIf(form)) continue;
 			const v = form[f.key];
 			if (f.required && (v === '' || v == null)) e[f.key] = `${f.label} wajib diisi`;
+			else if ((f.type === 'number' || f.type === 'money') && +v < 0) e[f.key] = `${f.label} tidak boleh negatif`;
 			else if (f.unique && v !== '' && v != null && rows.some((r) => r.id !== form.id && String(r[f.key]).toLowerCase() === String(v).toLowerCase()))
 				e[f.key] = `${f.label} "${v}" sudah digunakan`;
 		}

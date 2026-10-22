@@ -6,7 +6,7 @@
 import { db } from './db.svelte';
 import { monthEnd } from './format';
 import { TX } from './menu';
-import type { Doc, JournalLine, Row, TxDef } from './types';
+import type { Doc, JournalLine, Line, Row, TxDef } from './types';
 
 export function computeTotals(def: TxDef, doc: Partial<Doc>) {
 	const lines = doc.lines ?? [];
@@ -77,6 +77,30 @@ export function stockAvailable(itemTable: string, loc: string, itemId: string, f
 		q += m.qty;
 	}
 	return Math.min(min, q);
+}
+
+/** harga pokok per unit: tercatat di baris saat posting, atau harga beli master */
+export const costKey = (itemTable: string) => (itemTable === 'products' ? 'buyPrice' : 'price');
+export const unitCost = (itemTable: string, l: Line) => (l.cost != null && l.cost !== '' ? +l.cost : Number(db.get(itemTable, l.itemId)?.[costKey(itemTable)]) || 0);
+
+/** Barang dalam perjalanan (sudah keluar lokasi asal, belum diterima lokasi tujuan): Map<itemId, qty> */
+export function stockInTransit() {
+	const map = new Map<string, number>();
+	for (const [src, dst] of [
+		['inv_store_shipment', 'store_receipts'],
+		['store_returns', 'inv_store_return_receipt']
+	]) {
+		const received = new Map<string, Doc>(db.all<Doc>(dst).filter((d) => d.status === 'posted' && d.sourceId).map((d) => [d.sourceId, d]));
+		for (const d of db.all<Doc>(src)) {
+			if (d.status !== 'posted') continue;
+			const r = received.get(d.id);
+			for (const l of d.lines) {
+				const got = r ? r.lines.filter((x) => x.itemId === l.itemId).reduce((s, x) => s + (+x.qty || 0), 0) : 0;
+				if (+l.qty > got) map.set(l.itemId, (map.get(l.itemId) ?? 0) + +l.qty - got);
+			}
+		}
+	}
+	return map;
 }
 
 /** Saldo semua item per lokasi: Map<itemId, qty> */
@@ -177,23 +201,29 @@ export interface CashMove {
 }
 export function cashMoves(): CashMove[] {
 	const out: CashMove[] = [];
+	// jurnal manual yang langsung memakai akun kas/bank juga mutasi kas/bank
+	const kbByCoa = new Map(db.all('cashbanks').map((k) => [k.coaId as string, k.id as string]));
 	for (const t of TX) {
 		const c = t.def.cash;
-		if (!c) continue;
 		for (const d of db.all<Doc>(t.def.table)) {
 			if (d.status !== 'posted') continue;
-			const amt = d.total ?? 0;
-			out.push({
-				date: d.date,
-				no: d.no,
-				docId: d.id,
-				path: t.path,
-				label: t.label,
-				kasbankId: d[c.field],
-				in: c.sign > 0 ? amt : 0,
-				out: c.sign < 0 ? amt : 0,
-				memo: d.from || d.to || d.lines.map((l) => l.desc).filter(Boolean).join(', ') || d.notes || ''
-			});
+			const base = { date: d.date, no: d.no, docId: d.id, path: t.path, label: t.label };
+			if (c) {
+				const amt = d.total ?? 0;
+				out.push({
+					...base,
+					kasbankId: c.kasbank ? c.kasbank(d) : d[c.field!],
+					in: c.sign > 0 ? amt : 0,
+					out: c.sign < 0 ? amt : 0,
+					memo: d.from || d.to || d.lines.map((l) => l.desc).filter(Boolean).join(', ') || d.notes || ''
+				});
+			} else if (t.def.balanced) {
+				for (const l of d.lines) {
+					const kasbankId = kbByCoa.get(l.coaId);
+					const net = (+l.debit || 0) - (+l.credit || 0);
+					if (kasbankId && net) out.push({ ...base, kasbankId, in: Math.max(0, net), out: Math.max(0, -net), memo: l.desc || d.memo || '' });
+				}
+			}
 		}
 	}
 	return out.sort(byDate);

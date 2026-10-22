@@ -128,6 +128,8 @@ export interface SourceDef {
 	filter?: (src: Doc, form: Doc) => boolean;
 	header?: (src: Doc) => Partial<Doc>;
 	line?: (l: Line) => Partial<Line>;
+	/** qty per item tidak boleh melebihi dokumen sumber & item harus ada di sumber (mutasi antar lokasi) */
+	strictQty?: boolean;
 }
 export interface JournalLine {
 	coa: string; // kode akun
@@ -148,8 +150,13 @@ export interface TxDef {
 	source?: SourceDef;
 	stock?: StockEffect;
 	ledger?: LedgerEffect[];
-	cash?: { field: string; sign: 1 | -1 };
+	/** efek kas/bank: akun dari kolom `field`, atau dihitung dengan `kasbank(doc)` */
+	cash?: { field?: string; kasbank?: (doc: Doc) => string; sign: 1 | -1 };
 	journal?: (doc: Doc) => JournalLine[];
+	/** validasi tambahan khusus transaksi ini; kembalikan pesan error atau null */
+	validate?: (doc: Doc) => string | null;
+	/** dijalankan sebelum validasi posting (mis. hitung ulang qty sistem stok opname) */
+	beforePost?: (doc: Doc) => void;
 	/** wajib seimbang debit=kredit (jurnal) */
 	balanced?: boolean;
 	closingScope?: 'MAT' | 'INV' | 'TOKO';
