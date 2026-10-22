@@ -7,6 +7,8 @@
 		onclick?: () => void;
 		danger?: boolean;
 		kbd?: string;
+		/** judul kelompok; tampil saat berganti dari item sebelumnya */
+		section?: string;
 	}
 </script>
 
@@ -40,7 +42,7 @@
 	const itemsEls = () => [...(pop?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [])];
 
 	function onbeforetoggle(e: ToggleEvent) {
-		if (e.newState === 'open') stop = float(document.getElementById(btnId)!, pop!, { placement, gap: 8 });
+		if (e.newState === 'open') stop = float(document.getElementById(btnId)!, pop!, { placement, gap: 8, maxHeight: 440 });
 		else (stop?.(), (stop = null));
 	}
 	async function ontoggle(e: ToggleEvent) {
@@ -76,13 +78,16 @@
 	{onbeforetoggle}
 	{ontoggle}
 	{onkeydown}
-	class="pop z-[90] w-64 rounded-xl border border-stone-200/80 bg-white p-1.5 shadow-2xl shadow-stone-900/10 dark:border-stone-800 dark:bg-stone-900"
+	class="pop z-[90] w-64 overflow-y-auto! overscroll-contain rounded-xl border border-stone-200/80 bg-white p-1.5 shadow-2xl shadow-stone-900/10 dark:border-stone-800 dark:bg-stone-900"
 >
 	{#if header}
 		{@render header()}
 		<div class="my-1 h-px bg-stone-100 dark:bg-stone-800"></div>
 	{/if}
-	{#each items as it (it.label + (it.href ?? ''))}
+	{#each items as it, i (it.label + (it.href ?? ''))}
+		{#if it.section && it.section !== items[i - 1]?.section}
+			<p class="px-3 pt-2.5 pb-1 text-[10px] font-semibold tracking-wider text-stone-400 uppercase {i ? 'mt-1 border-t border-stone-100 dark:border-stone-800' : ''}">{it.section}</p>
+		{/if}
 		{@const cls = `flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm outline-none transition-colors focus:bg-stone-100 hover:bg-stone-100 dark:focus:bg-stone-800 dark:hover:bg-stone-800 ${it.danger ? 'text-rose-600 focus:bg-rose-50 hover:bg-rose-50 dark:focus:bg-rose-500/10 dark:hover:bg-rose-500/10' : ''}`}
 		{#if it.href}
 			<a role="menuitem" tabindex="-1" href={it.href} class={cls} onclick={() => pop?.hidePopover()}>

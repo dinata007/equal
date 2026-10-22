@@ -288,7 +288,7 @@
 		stone: 'bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-300'
 	};
 
-	const shortcuts = $derived(LEAVES.filter((l) => l.page.kind === 'transaction' && auth.can(l.path, 'create')).map((l) => ({ label: l.label, icon: l.icon, href: `${l.path}?id=new`, kbd: l.module.label })));
+	const shortcuts = $derived(LEAVES.filter((l) => l.page.kind === 'transaction' && auth.can(l.path, 'create')).map((l) => ({ label: l.label, icon: l.icon, href: `${l.path}?id=new`, section: l.module.label })));
 	const modules = $derived(visibleTree(MENU, (pth) => auth.can(pth)));
 	const analysis = $derived(leafOf('sales-analysis'));
 	const filtered = $derived(!!channel || !!category);
