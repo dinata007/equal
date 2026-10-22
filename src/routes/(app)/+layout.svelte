@@ -14,7 +14,7 @@
 	let { children }: LayoutProps = $props();
 
 	$effect(() => {
-		if (!auth.user) goto('/login', { replaceState: true });
+		if (!auth.user) goto('/login', { replace: true });
 	});
 	// View Transitions API: perpindahan halaman memudar halus (hanya bila didukung & tidak reduced-motion)
 	onNavigate((nav) => {

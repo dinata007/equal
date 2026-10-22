@@ -7,9 +7,9 @@
 	import { auth } from '#lib/erp/auth.svelte.ts';
 	import { db } from '#lib/erp/db.svelte.ts';
 	import { date as fdate, money, num, today, uid } from '#lib/erp/format.ts';
-	import { computeTotals, lockedUntil, stockBalance } from '#lib/erp/ledger.ts';
+	import { computeTotals, lockedUntil, stockAvailable } from '#lib/erp/ledger.ts';
 	import { txByTable, type Leaf } from '#lib/erp/menu.ts';
-	import type { Doc, DocStatus, TxDef } from '#lib/erp/types.ts';
+	import type { Doc, DocStatus, Line, TxDef } from '#lib/erp/types.ts';
 	import { ask, toast } from '#lib/erp/ui.svelte.ts';
 	import Field from '#lib/components/Field.svelte';
 	import NumberInput from '#lib/components/NumberInput.svelte';
@@ -63,6 +63,9 @@
 		toast.info(`${src.lines.length} baris disalin dari ${src.no}`);
 	}
 
+	/** baris tanpa isian sama sekali — diabaikan saat validasi & dibuang saat simpan */
+	const blankLine = (l: Line) => !Object.keys(l).some((k) => k !== '_k' && l[k] !== '' && l[k] != null);
+
 	function validate(forPost: boolean): string | null {
 		for (const f of def.header) {
 			if (f.showIf && !f.showIf(doc)) continue;
@@ -74,10 +77,12 @@
 		if (def.lines) {
 			const lines = doc.lines.filter((l) => def.lines!.fields.some((f) => f.required && l[f.key]));
 			if (!lines.length) return 'Minimal satu baris detail';
-			for (const [i, l] of doc.lines.entries())
+			for (const [i, l] of doc.lines.entries()) {
+				if (blankLine(l)) continue;
 				for (const f of def.lines.fields)
 					if (f.required && (l[f.key] === '' || l[f.key] == null)) return `Baris ${i + 1}: ${f.label} wajib diisi`;
-			if (doc.lines.some((l) => 'qty' in l && !(+l.qty > 0))) return 'Qty harus lebih dari 0';
+			}
+			if (doc.lines.some((l) => !blankLine(l) && 'qty' in l && !(+l.qty > 0))) return 'Qty harus lebih dari 0';
 		}
 		if (def.balanced) {
 			if (Math.abs(balance) > 0.5) return `Jurnal tidak seimbang (selisih ${money(balance)})`;
@@ -92,8 +97,8 @@
 				if (q < 0 && l.itemId) need.set(l.itemId, (need.get(l.itemId) ?? 0) - q);
 			}
 			for (const [id, q] of need) {
-				const bal = stockBalance(s.itemTable, loc, id, undefined, doc.id);
-				if (bal < q) return `Stok ${db.name(s.itemTable, id)} tidak cukup (tersedia ${num(bal)}, butuh ${num(q)})`;
+				const bal = stockAvailable(s.itemTable, loc, id, doc.date, doc.id);
+				if (bal < q) return `Stok ${db.name(s.itemTable, id)} tidak cukup per ${fdate(doc.date)} (tersedia ${num(bal)}, butuh ${num(q)})`;
 			}
 		}
 		return null;
@@ -102,14 +107,14 @@
 	async function persist(status: DocStatus) {
 		const now = new Date().toISOString();
 		const rec = { ...($state.snapshot(doc) as Doc), ...totals, status, updatedAt: now };
-		rec.lines = rec.lines.filter((l) => Object.keys(l).some((k) => k !== '_k' && l[k] !== '' && l[k] != null));
+		rec.lines = rec.lines.filter((l) => !blankLine(l));
 		if (isNew) {
 			rec.id = uid();
 			rec.no = db.nextNo(def.table, def.prefix, rec.date);
 			rec.createdBy = auth.user!.username;
 			rec.createdAt = now;
 			await db.insert(def.table, rec);
-			await goto(`${leaf.path}?id=${rec.id}`, { replaceState: true });
+			await goto(`${leaf.path}?id=${rec.id}`, { replace: true });
 		} else {
 			await db.update(def.table, rec.id, rec);
 			doc = rec;
@@ -131,10 +136,24 @@
 		const r = await persist('posted');
 		toast.success(`${r.no} berhasil di-${label.toLowerCase()}`);
 	}
+	/** stok masuk dari dokumen ini yang sudah terpakai → pembatalan akan membuat saldo minus */
+	function voidShortage(): string | null {
+		const s = def.stock;
+		if (!s) return null;
+		const loc = s.loc(doc);
+		const items = new Set(doc.lines.filter((l) => l.itemId && s.qty(l) > 0).map((l) => l.itemId as string));
+		for (const id of items) {
+			const bal = stockAvailable(s.itemTable, loc, id, doc.date, doc.id);
+			if (bal < 0) return `stok ${db.name(s.itemTable, id)} sudah terpakai (saldo akan menjadi ${num(bal)})`;
+		}
+		return null;
+	}
 	async function voidDoc() {
 		const users = Object.entries(db.t).flatMap(([, rows]) => rows.filter((r) => r.sourceId === doc.id && r.status !== 'void'));
 		if (users.length) return toast.error(`Tidak bisa dibatalkan: sudah dipakai di ${users.map((u) => u.no).join(', ')}`);
 		if (periodLocked) return toast.error('Periode sudah di-closing');
+		const short = voidShortage();
+		if (short) return toast.error(`Tidak bisa dibatalkan: ${short}`);
 		const lbl = def.statusLabels?.void ?? 'Batalkan';
 		if (!(await ask({ title: `${lbl} dokumen ${doc.no}?`, message: 'Efek stok/saldo dari dokumen ini akan dibatalkan.', danger: true, confirmText: lbl }))) return;
 		await persist('void');
