@@ -135,6 +135,44 @@
 	display: none;
 }
 
+/* ---------- Warna grafik (palet tervalidasi CVD; urutan slot tetap, warna mengikuti entitas) ---------- */
+:root {
+	--viz-surface: #ffffff;
+	--viz-1: #2a78d6;
+	--viz-2: #eb6834;
+	--viz-3: #1baf7a;
+	--viz-4: #eda100;
+	--viz-5: #e87ba4;
+	--viz-muted: #b8b2ac;
+	--viz-grid: #efedeb;
+	/* sekuensial satu hue: sedikit → banyak */
+	--seq-0: #e6effa;
+	--seq-1: #cde2fb;
+	--seq-2: #9ec5f4;
+	--seq-3: #6da7ec;
+	--seq-4: #3987e5;
+	--seq-5: #256abf;
+	--seq-6: #184f95;
+}
+.dark {
+	--viz-surface: #1c1917;
+	--viz-1: #3987e5;
+	--viz-2: #d95926;
+	--viz-3: #199e70;
+	--viz-4: #c98500;
+	--viz-5: #d55181;
+	--viz-muted: #5e5853;
+	--viz-grid: #2c2825;
+	/* di permukaan gelap nilai kecil menyatu ke latar, nilai besar paling terang */
+	--seq-0: #232b36;
+	--seq-1: #183a63;
+	--seq-2: #1c4f8c;
+	--seq-3: #2563b0;
+	--seq-4: #3987e5;
+	--seq-5: #6da7ec;
+	--seq-6: #9ec5f4;
+}
+
 /* angka negatif → merah (ditandai otomatis oleh lib/ui/negative.ts); di luar layer agar mengalahkan warna utilitas */
 [data-neg] {
 	color: var(--color-rose-600);
