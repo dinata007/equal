@@ -1,4 +1,4 @@
--- Definisi view, procedure, function & trigger di SENJA_DEMO (dibuat 23/10/2026, 05.35.58)
+-- Definisi view, procedure, function & trigger di SENJA_DEMO (dibuat 23/10/2026, 06.15.41)
 -- PERIKSA sebelum di-commit: hapus password / connection string bila ada.
 
 -- ===== SQL_INLINE_TABLE_VALUED_FUNCTION: dbo.Get_Awal_Coa

@@ -1,6 +1,6 @@
 # Struktur database SENJA_DEMO
 
-Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tidak disertakan, kecuali contoh nilai kolom kode pendek (≤ 3 karakter, mis. status/flag) beserta jumlahnya.
+Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 06.15.41. Isi data tidak disertakan, kecuali nilai kolom kode (≤ 3 karakter, atau kolom tipe/status/jenis/flag) beserta jumlahnya, dan pola nomor dokumen dengan setiap digit diganti 9.
 
 - SQL Server 15.0.2000.5 (Enterprise Edition (64-bit)), compatibility level 140, collation `SQL_Latin1_General_CP1_CI_AS`
 - 222 tabel, 4 view, 29 stored procedure, 5 function, 0 trigger
@@ -288,7 +288,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
 | model_id | varchar(20) |  | PK |  |  |  |
-| jenis_id | varchar(5) | ✓ |  |  |  |  |
+| jenis_id | varchar(5) | ✓ |  |  |  | `00001` 5.278, `00002` 2.441, `00030` 412, `00007` 254, `00013` 190, `00014` 185, `00028` 135, `00015` 100, `00008` 98, `00009` 90, `00004` 45, `00016` 32, `00003` 26, `00020` 12, `00017` 10, `00021` 8, `00022` 8, `00010` 7, `00012` 5, `00019` 4, `00023` 2, `00018` 2, `00027` 2, `00025` 2, `00032` 1, `…` |
 
 <a id="dboaabb"></a>
 ## dbo.aabb
@@ -331,7 +331,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
 | sh | varchar(20) | ✓ |  |  |  |  |
-| kd_bukti | varchar(1) |  |  |  |  | `F` 1, `D` 1, `C` 1, `B` 1, `A` 1, `9` 1, `7` 1, `6` 1, `5` 1, `4` 1, `3` 1, `2` 1, `…` |
+| kd_bukti | varchar(1) |  |  |  |  | `F` 1, `D` 1, `C` 1, `B` 1, `A` 1, `9` 1, `7` 1, `6` 1, `5` 1, `4` 1, `3` 1, `2` 1, `…` · pola: `9` 9, `K` 1, `J` 1, `H` 1, `G` 1, `F` 1, `D` 1, `C` 1, `…` |
 | flag | char(1) | ✓ |  |  |  | `NULL` 30 |
 | ip | varchar(20) | ✓ |  |  |  |  |
 | iphm | varchar(20) | ✓ |  |  |  |  |
@@ -368,7 +368,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | marginn | numeric(18,0) | ✓ |  |  |  |  |
 | margins | numeric(18,0) | ✓ |  |  |  |  |
 | margino | numeric(18,0) | ✓ |  |  |  |  |
-| sts | char(10) | ✓ |  |  |  |  |
+| sts | char(10) | ✓ |  |  |  | `M` 2, `F` 2, `A1` 2, `O` 2, `''` 2, `S` 2, `Z` 1, `Y` 1, `T` 1, `R` 1, `Q` 1, `N` 1, `A` 1, `E` 1, `D` 1, `C` 1, `B` 1, `L` 1, `K` 1, `J` 1, `I` 1, `H` 1, `G1` 1, `G` 1 |
 | sts_mem | char(1) | ✓ |  |  |  | `F` 3, `A` 2, `''` 2, `NULL` 2, `H` 2, `K` 2, `O` 2, `X` 2, `Z` 2, `L` 1, `J` 1, `I` 1, `…` |
 | STS_NEW | char(1) | ✓ |  |  |  | `M` 3, `z` 3, `E` 2, `I` 2, `A` 2, `''` 2, `NULL` 2, `L` 2, `O` 2, `K` 1, `J` 1, `H` 1, `…` |
 
@@ -379,7 +379,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti_po | varchar(20) |  |  |  |  |  |
+| bukti_po | varchar(20) |  |  |  |  | pola: `9999999999` 2 |
 | kd_brg | varchar(20) |  |  |  |  |  |
 | qty | numeric(18,0) | ✓ |  |  |  |  |
 | spec | varchar(40) | ✓ |  |  |  |  |
@@ -396,10 +396,10 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti_po | varchar(20) |  |  |  |  |  |
+| bukti_po | varchar(20) |  |  |  |  | pola: `9999999999` 6 |
 | tgl | datetime | ✓ |  |  |  |  |
 | supp_id | varchar(20) | ✓ |  |  |  |  |
-| bukti_ref | varchar(20) | ✓ |  |  |  |  |
+| bukti_ref | varchar(20) | ✓ |  |  |  | pola: `test` 5 |
 | disc | numeric(18,0) | ✓ |  |  |  |  |
 | flag_approval | char(1) | ✓ |  |  |  | `NULL` 6 |
 | ket | varchar(40) | ✓ |  |  |  |  |
@@ -432,7 +432,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
 | flag | varchar(1) |  |  |  |  | `P` 9, `C` 1 |
-| jenis_kd | varchar(5) |  |  |  |  |  |
+| jenis_kd | varchar(5) |  |  |  |  | `P9999` 1, `P0008` 1, `P0007` 1, `P0006` 1, `P0005` 1, `P0004` 1, `P0003` 1, `P0002` 1, `P0001` 1, `C0002` 1 |
 | ket | varchar(50) | ✓ |  |  |  |  |
 | flag_qty | varchar(1) | ✓ |  |  |  | `Y` 10 |
 | flag_problem | varchar(1) | ✓ |  |  |  | `Y` 10 |
@@ -639,7 +639,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(20) |  |  |  |  |  |
+| bukti | varchar(20) |  |  |  |  | pola: `9999999999` 8 |
 | kd_brg | varchar(20) |  |  |  |  |  |
 | kd_group | varchar(20) |  |  |  |  |  |
 | spec | varchar(40) | ✓ |  |  |  |  |
@@ -650,7 +650,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | harga | numeric(18,0) | ✓ |  |  |  |  |
 | sat | varchar(10) | ✓ |  |  |  |  |
 | ket | varchar(40) | ✓ |  |  |  |  |
-| bukti_po_ref | varchar(20) | ✓ |  |  |  |  |
+| bukti_po_ref | varchar(20) | ✓ |  |  |  | pola: `9999999999` 7 |
 
 <a id="dboap_minta_hdr"></a>
 ## dbo.ap_minta_hdr
@@ -659,7 +659,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(20) |  |  |  |  |  |
+| bukti | varchar(20) |  |  |  |  | pola: `9999999999` 9 |
 | tgl | datetime | ✓ |  |  |  |  |
 | kd_peg | varchar(20) | ✓ |  |  |  |  |
 | flag_close | varchar(1) | ✓ |  |  |  | `O` 5, `NULL` 4 |
@@ -856,12 +856,12 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti_ap | varchar(25) |  | PK |  |  |  |
+| bukti_ap | varchar(25) |  | PK |  |  | pola: `999999B/BJB9999` 12.533, `999999A/BJB9999` 8.064, `999999A/RMB9999` 511, `999999C/BJB9999` 480, `999999B/RMB9999` 375, `999999H/BJB9999` 231, `999999B/BJR9999` 204, `999999A/BJR9999` 159, `…` |
 | site_id | varchar(4) |  | PK |  |  |  |
 | tgl | datetime | ✓ |  |  |  |  |
 | supp_id | varchar(15) | ✓ |  |  |  |  |
 | tipe_trans | varchar(2) | ✓ |  |  |  | `01` 22.671, `78` 13 |
-| bukti_ref | varchar(15) | ✓ |  |  |  |  |
+| bukti_ref | varchar(15) | ✓ |  |  |  | pola: `PBB99999999` 12.533, `PBA99999999` 8.064, `999999AN9999` 535, `PBC99999999` 480, `999999BN9999` 379, `PBH99999999` 231, `RTB99999999` 204, `RTA99999999` 159, `…` |
 | ket | varchar(50) | ✓ |  |  |  |  |
 | dokumen | decimal(14,2) | ✓ |  |  |  |  |
 | bayar | decimal(14,2) | ✓ |  |  |  |  |
@@ -875,6 +875,28 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | account_id | varchar(15) | ✓ |  |  |  |  |
 | trans_desc | varchar(50) | ✓ |  |  |  |  |
 | brand_id | varchar(2) |  | PK |  |  | `B` 13.116, `A` 8.758, `C` 548, `H` 262 |
+
+**Pola nomor `bukti_ap` per jenis** (digit diganti 9):
+
+| tipe_trans | Pola | Jumlah |
+|---|---|---:|
+| 01 | `999999B/BJB9999` | 12.533 |
+| 01 | `999999A/BJB9999` | 8.064 |
+| 01 | `999999A/RMB9999` | 511 |
+| 01 | `999999C/BJB9999` | 480 |
+| 01 | `999999B/RMB9999` | 375 |
+| 01 | `999999H/BJB9999` | 231 |
+| 01 | `999999B/BJR9999` | 204 |
+| 01 | `999999A/BJR9999` | 159 |
+| 01 | `999999C/RMB9999` | 39 |
+| 01 | `999999C/BJR9999` | 27 |
+| 01 | `999999H/BJR9999` | 16 |
+| 01 | `999999H/RMB9999` | 15 |
+| 01 | `999999A/RMR9999` | 13 |
+| 78 | `999999AN9999/ROL/AP` | 11 |
+| 01 | `999999B/RMR9999` | 2 |
+| 01 | `999999C/RMR9999` | 2 |
+| 78 | `999999BN9999/ROL/AP` | 2 |
 
 <a id="dboap_trans1_awal"></a>
 ## dbo.ap_trans1_awal
@@ -916,12 +938,12 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(25) |  | PK |  |  |  |
+| bukti | varchar(25) |  | PK |  |  | pola: `999999B/JBJ9999` 11.955, `999999A/JBJ9999` 8.296, `999999BN9999/JRM` 5.038, `999999AN9999/JRM` 3.484, `999999CN9999/JRM` 528, `999999C/JBJ9999` 473, `999999HN9999/JRM` 270, `999999B/JPJ9999` 199, `…` |
 | site_id | varchar(10) |  | PK |  |  |  |
 | tgl | datetime | ✓ |  |  |  |  |
 | cust_id | varchar(15) | ✓ |  |  |  |  |
 | tipe_trans | varchar(2) | ✓ |  |  |  | `70` 30.801, `71` 327 |
-| bukti_ref | varchar(15) | ✓ |  |  |  |  |
+| bukti_ref | varchar(15) | ✓ |  |  |  | pola: `SJB99999999` 11.955, `SJA99999999` 8.296, `999999BN9999` 5.084, `999999AN9999` 3.557, `999999CN9999` 549, `SJC99999999` 473, `999999HN9999` 272, `JP9999999999` 245, `…` |
 | ket | varchar(50) | ✓ |  |  |  |  |
 | tglupd | datetime | ✓ |  |  |  |  |
 | usrupd | varchar(15) | ✓ |  |  |  |  |
@@ -933,6 +955,45 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | nopajak | varchar(20) | ✓ |  |  |  |  |
 | tglpajak | datetime | ✓ |  |  |  |  |
 | brand_id | varchar(2) |  | PK |  |  | `B` 17.478, `A` 12.046, `C` 1.181, `H` 423 |
+
+**Pola nomor `bukti` per jenis** (digit diganti 9):
+
+| tipe_trans | Pola | Jumlah |
+|---|---|---:|
+| 70 | `999999B/JBJ9999` | 11.955 |
+| 70 | `999999A/JBJ9999` | 8.296 |
+| 70 | `999999BN9999/JRM` | 5.038 |
+| 70 | `999999AN9999/JRM` | 3.484 |
+| 70 | `999999CN9999/JRM` | 528 |
+| 70 | `999999C/JBJ9999` | 473 |
+| 70 | `999999HN9999/JRM` | 270 |
+| 70 | `999999B/JPJ9999` | 199 |
+| 71 | `999999A/RBJ9999` | 122 |
+| 71 | `999999C/RBJ9999` | 108 |
+| 71 | `999999B/RBJ9999` | 97 |
+| 70 | `999999B/JOJ9999` | 77 |
+| 70 | `999999AN9999/RJRM` | 60 |
+| 70 | `999999BN9999/RJRM` | 44 |
+| 70 | `999999H/JPJ9999` | 41 |
+| 70 | `999999JMBA9999` | 25 |
+| 70 | `999999JMJB9999` | 25 |
+| 70 | `999999JMBB9999` | 25 |
+| 70 | `999999JMJA9999` | 25 |
+| 70 | `999999JMJH9999` | 25 |
+| 70 | `999999JMBH9999` | 25 |
+| 70 | `999999H/JOJ9999` | 24 |
+| 70 | `999999H/JBJ9999` | 24 |
+| 70 | `999999CN9999/RJRM` | 21 |
+| 70 | `999999C/JOJ9999` | 19 |
+| 70 | `999999A/JOJ9999` | 16 |
+| 70 | `999999JMBC9999` | 16 |
+| 70 | `999999JMJC9999` | 16 |
+| 70 | `999999B/ROJ9999` | 16 |
+| 70 | `999999AN9999/ROL/AR` | 13 |
+| 70 | `999999H/ROJ9999` | 12 |
+| 70 | `999999A/JPJ9999` | 5 |
+| 70 | `999999BN9999/ROL/AR` | 2 |
+| 70 | `999999HN9999/RJRM` | 2 |
 
 <a id="dboattend"></a>
 ## dbo.attend
@@ -964,8 +1025,8 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | diffot | varchar(10) | ✓ |  |  |  |  |
 | short | varchar(10) | ✓ |  |  |  |  |
 | remark | char(30) | ✓ |  |  |  |  |
-| tipe_gaji | varchar(30) | ✓ |  |  |  |  |
-| status | varchar(10) | ✓ |  |  |  |  |
+| tipe_gaji | varchar(30) | ✓ |  |  |  | `NULL` 21.169 |
+| status | varchar(10) | ✓ |  |  |  | `NULL` 19.541, `1` 1.628 |
 | pt_id | smallint | ✓ |  |  |  |  |
 | nik | varchar(20) | ✓ |  |  |  |  |
 | nama | varchar(50) | ✓ |  |  |  |  |
@@ -1027,8 +1088,8 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | pot_izin | numeric(10,0) | ✓ |  |  |  |  |
 | pot_jam | varchar(10) | ✓ |  |  |  |  |
 | remark | char(30) | ✓ |  |  |  |  |
-| tipe_gaji | varchar(30) | ✓ |  |  |  |  |
-| status | varchar(10) | ✓ |  |  |  |  |
+| tipe_gaji | varchar(30) | ✓ |  |  |  | `NULL` 70 |
+| status | varchar(10) | ✓ |  |  |  | `1` 47, `NULL` 23 |
 | nik | varchar(20) | ✓ |  |  |  |  |
 | nama | varchar(50) | ✓ |  |  |  |  |
 | cust_id | varchar(10) | ✓ |  |  |  |  |
@@ -1098,11 +1159,11 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| no_urut | varchar(50) |  | PK |  |  |  |
+| no_urut | varchar(50) |  | PK |  |  | pola: `99/BK-99/9999/9999` 4.171, `99/BM-99/9999/9999` 2.387, `99/KK-99/9999/9999` 1.994, `99/KM-99/9999/9999` 35 |
 | site_id | varchar(4) |  | PK |  |  |  |
 | kd_bank | varchar(3) |  |  |  |  | `12` 5.306, `14` 1.249, `13` 1.118, `11` 444, `16` 442, `15` 28 |
 | tgl_trans | datetime | ✓ |  |  |  |  |
-| no_bukti | char(30) | ✓ |  |  |  |  |
+| no_bukti | char(30) | ✓ |  |  |  | pola: `99/BK-99/9999/9999` 4.171, `99/BM-99/9999/9999` 2.387, `99/KK-99/9999/9999` 1.994, `99/KM-99/9999/9999` 35 |
 | nilai_trans | decimal(18,4) | ✓ |  |  |  |  |
 | tipe_trans | char(2) | ✓ |  |  |  | `BK` 4.168, `BM` 2.387, `KK` 1.997, `KM` 35 |
 | keterangan | varchar(100) | ✓ |  |  |  |  |
@@ -1113,7 +1174,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | nilai_old_currency | decimal(18,4) | ✓ |  |  |  |  |
 | rlfe | decimal(18,4) | ✓ |  |  |  |  |
 | posttogl | char(1) | ✓ |  |  |  | `N` 8.587 |
-| tipe_bukti | char(3) | ✓ |  |  |  | `NULL` 8.587 |
+| tipe_bukti | char(3) | ✓ |  |  |  | `NULL` 8.587 · pola:  |
 | kd_giro | varchar(20) | ✓ |  |  |  |  |
 | tipe_bayar | char(2) | ✓ |  |  |  | `NULL` 8.587 |
 | cf_id | varchar(10) | ✓ |  |  |  |  |
@@ -1131,6 +1192,17 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | ket | text | ✓ |  |  |  |  |
 | brand_id | varchar(2) |  | PK |  |  | `A` 6.223, `B` 1.827, `C` 320, `H` 217 |
 
+**Pola nomor `no_urut` per jenis** (digit diganti 9):
+
+| tipe_trans | tipe_bayar | Pola | Jumlah |
+|---|---|---|---:|
+| BK | NULL | `99/BK-99/9999/9999` | 4.166 |
+| BM | NULL | `99/BM-99/9999/9999` | 2.387 |
+| KK | NULL | `99/KK-99/9999/9999` | 1.992 |
+| KM | NULL | `99/KM-99/9999/9999` | 35 |
+| KK | NULL | `99/BK-99/9999/9999` | 5 |
+| BK | NULL | `99/KK-99/9999/9999` | 2 |
+
 <a id="dbocb_journal_detail"></a>
 ## dbo.cb_journal_detail
 
@@ -1138,7 +1210,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| no_urut | varchar(50) |  | PK → dbo.cb_journal(no_urut, site_id, brand_id) |  |  |  |
+| no_urut | varchar(50) |  | PK → dbo.cb_journal(no_urut, site_id, brand_id) |  |  | pola: `99/BM-99/9999/9999` 29.192, `99/BK-99/9999/9999` 22.946, `99/KK-99/9999/9999` 4.810, `99/KM-99/9999/9999` 35 |
 | site_id | varchar(4) |  | PK → dbo.cb_journal(no_urut, site_id, brand_id) |  |  |  |
 | no_line | int |  | PK |  |  |  |
 | nilai_trans | decimal(15,4) | ✓ |  |  |  |  |
@@ -1160,6 +1232,18 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | base_debet | decimal(15,4) | ✓ |  |  |  |  |
 | base_kredit | decimal(15,4) | ✓ |  |  |  |  |
 | brand_id | varchar(2) |  | PK → dbo.cb_journal(no_urut, site_id, brand_id) |  |  | `B` 27.961, `A` 27.116, `C` 1.364, `H` 542 |
+
+**Pola nomor `no_urut` per jenis** (digit diganti 9):
+
+| tipe_trans | Pola | Jumlah |
+|---|---|---:|
+| AR | `99/BM-99/9999/9999` | 28.638 |
+| AP | `99/BK-99/9999/9999` | 20.411 |
+| LL | `99/KK-99/9999/9999` | 4.810 |
+| LL | `99/BK-99/9999/9999` | 2.535 |
+| LL | `99/BM-99/9999/9999` | 554 |
+| LL | `99/KM-99/9999/9999` | 34 |
+| AR | `99/KM-99/9999/9999` | 1 |
 
 <a id="dbocb_master"></a>
 ## dbo.cb_master
@@ -1320,15 +1404,15 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(25) |  | PK |  |  |  |
+| bukti | varchar(25) |  | PK |  |  | pola: `ASA99999999` 564, `ASB99999999` 365, `ASC99999999` 39, `ASH99999999` 15 |
 | site_id | varchar(4) |  | PK |  |  |  |
 | brand_id | varchar(10) |  | PK |  |  |  |
 | tgl | datetime | ✓ |  |  |  |  |
 | tgl_po | datetime | ✓ |  |  |  |  |
 | tgl_terima | datetime | ✓ |  |  |  |  |
 | tgl_pakai | datetime | ✓ |  |  |  |  |
-| bukti_po | varchar(25) | ✓ |  |  |  |  |
-| bukti_terima | varchar(25) | ✓ |  |  |  |  |
+| bukti_po | varchar(25) | ✓ |  |  |  | pola: `999999AN9999` 506, `999999BN9999` 365, `999999CN9999` 39, `999999HN9999` 15 |
+| bukti_terima | varchar(25) | ✓ |  |  |  | pola: `999999AN9999` 506, `999999BN9999` 365, `999999CN9999` 39, `999999HN9999` 15 |
 | art_id | varchar(25) | ✓ |  |  |  |  |
 | kd_aset | varchar(2) | ✓ |  |  |  | `FA` 983 |
 | wujud | char(1) | ✓ |  |  |  | `Y` 983 |
@@ -1359,7 +1443,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(25) |  | PK |  |  |  |
+| bukti | varchar(25) |  | PK |  |  | pola: `ASA99999999` 1.569 |
 | site_id | varchar(4) |  | PK |  |  |  |
 | brand_id | varchar(10) |  | PK |  |  |  |
 | urut | numeric(10,0) |  | PK |  |  |  |
@@ -1367,8 +1451,8 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | tgl_po | datetime | ✓ |  |  |  |  |
 | tgl_terima | datetime | ✓ |  |  |  |  |
 | tgl_pakai | datetime | ✓ |  |  |  |  |
-| bukti_po | varchar(25) | ✓ |  |  |  |  |
-| bukti_terima | varchar(25) | ✓ |  |  |  |  |
+| bukti_po | varchar(25) | ✓ |  |  |  | pola: `999999AN9999` 393 |
+| bukti_terima | varchar(25) | ✓ |  |  |  | pola: `999999AN9999` 393 |
 | art_id | varchar(25) | ✓ |  |  |  |  |
 | kd_aset | varchar(2) | ✓ |  |  |  | `FA` 1.569 |
 | wujud | char(1) | ✓ |  |  |  | `Y` 1.569 |
@@ -1392,7 +1476,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | ket | varchar(70) | ✓ |  |  |  |  |
 | usrupd | varchar(15) | ✓ |  |  |  |  |
 | usrtgl | datetime | ✓ |  |  |  |  |
-| bukti_gl | varchar(50) | ✓ |  |  |  |  |
+| bukti_gl | varchar(50) | ✓ |  |  |  | pola: `9999/ASA` 1.569 |
 
 <a id="dbogl_balance"></a>
 ## dbo.gl_balance
@@ -1566,7 +1650,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
 | site_id | varchar(4) |  | PK |  |  |  |
-| voucher | varchar(50) |  | PK |  |  |  |
+| voucher | varchar(50) |  | PK |  |  | pola: `999999B/BJB9999` 12.533, `999999B/JBJ9999` 11.955, `999999A/JBJ9999` 8.296, `999999A/BJB9999` 8.064, `999999BN9999/JRM` 5.038, `99/BK-99/9999/9999` 4.096, `999999AN9999/JRM` 3.484, `99/BM-99/9999/9999` 2.346, `…` |
 | voucher_date | datetime |  |  |  |  |  |
 | voucher_periode | datetime |  |  |  |  |  |
 | voucher_status | varchar(1) | ✓ |  |  |  | `O` 60.461, `P` 5.862, `NULL` 200 |
@@ -1579,6 +1663,71 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | keterangan | varchar(50) | ✓ |  |  |  |  |
 | brand_id | varchar(2) |  | PK |  |  | `A` 32.686, `B` 31.308, `C` 1.742, `H` 705, `''` 82 |
 
+**Pola nomor `voucher` per jenis** (digit diganti 9):
+
+| voucher_modul | Pola | Jumlah |
+|---|---|---:|
+| AP | `999999B/BJB9999` | 12.533 |
+| AR | `999999B/JBJ9999` | 11.955 |
+| AR | `999999A/JBJ9999` | 8.296 |
+| AP | `999999A/BJB9999` | 8.064 |
+| AR | `999999BN9999/JRM` | 5.038 |
+| BK | `99/BK-99/9999/9999` | 4.091 |
+| AR | `999999AN9999/JRM` | 3.484 |
+| BM | `99/BM-99/9999/9999` | 2.346 |
+| KK | `99/KK-99/9999/9999` | 1.957 |
+| AS | `9999/BASA999999999999` | 1.569 |
+| AR | `999999B/KRM9999` | 691 |
+| AR | `999999CN9999/JRM` | 528 |
+| AP | `999999A/RMB9999` | 511 |
+| AP | `999999C/BJB9999` | 480 |
+| AR | `999999C/JBJ9999` | 473 |
+| AR | `999999A/KRM9999` | 471 |
+| AP | `999999AN9999RL999` | 418 |
+| AP | `999999B/RMB9999` | 375 |
+| AR | `999999HN9999/JRM` | 270 |
+| AP | `999999H/BJB9999` | 231 |
+| AP | `999999B/BJR9999` | 204 |
+| AP | `999999B/JPJ9999` | 199 |
+| AP | `999999A/BJR9999` | 159 |
+| AR | `999999A/RBJ9999` | 121 |
+| AP | `999999BN9999RL999` | 108 |
+| AR | `999999C/RBJ9999` | 108 |
+| AR | `999999B/RBJ9999` | 97 |
+| AP | `999999B/JOJ9999` | 77 |
+| MM | `99/99/99/99/CLOSE` | 74 |
+| AP | `SORM9999999` | 74 |
+| AR | `999999AN9999/RJRM` | 60 |
+| AS | `9999/AASA999999999999` | 57 |
+| NULL | `99/MMA-99/9999/9999` | 57 |
+| NULL | `99/MMB-99/9999/9999` | 57 |
+| NULL | `99/MMC-99/9999/9999` | 56 |
+| AR | `999999BN9999/RJRM` | 44 |
+| AP | `999999H/JPJ9999` | 41 |
+| AP | `999999C/RMB9999` | 39 |
+| KM | `99/KM-99/9999/9999` | 34 |
+| NULL | `99/MMH-99/9999/9999` | 30 |
+| AP | `999999C/BJR9999` | 27 |
+| AP | `TKRSOB999999` | 27 |
+| AR | `999999B/RRM9999` | 27 |
+| AR | `999999A/RRM9999` | 26 |
+| AR | `999999JMJH9999` | 25 |
+| AR | `999999JMBH9999` | 25 |
+| AR | `999999JMBB9999` | 25 |
+| AR | `999999JMJA9999` | 25 |
+| AR | `999999JMBA9999` | 25 |
+| AR | `999999JMJB9999` | 25 |
+| AP | `TKRSOH999999` | 25 |
+| AR | `999999H/JBJ9999` | 24 |
+| AP | `999999H/JOJ9999` | 24 |
+| AR | `999999CN9999/RJRM` | 21 |
+| AR | `999999H/KRM9999` | 20 |
+| AP | `999999C/JOJ9999` | 19 |
+| AP | `999999B/ROJ9999` | 16 |
+| RF | `MEMO SUB SBLN MD9999` | 16 |
+| AR | `999999JMJC9999` | 16 |
+| AP | `999999H/BJR9999` | 16 |
+
 <a id="dbogl_journal_detail"></a>
 ## dbo.gl_journal_detail
 
@@ -1587,7 +1736,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
 | site_id | varchar(4) |  | PK → dbo.gl_journal(site_id, voucher, brand_id) |  |  |  |
-| voucher | varchar(50) |  | PK → dbo.gl_journal(site_id, voucher, brand_id) |  |  |  |
+| voucher | varchar(50) |  | PK → dbo.gl_journal(site_id, voucher, brand_id) |  |  | pola: `999999B/JBJ9999` 42.723, `99/BM-99/9999/9999` 31.191, `999999A/JBJ9999` 29.683, `99/BK-99/9999/9999` 26.855, `999999B/BJB9999` 25.066, `999999BN9999/JRM` 22.236, `999999A/BJB9999` 16.128, `999999AN9999/JRM` 14.238, `…` |
 | no_urut | int |  | PK |  |  |  |
 | account_id | varchar(15) |  | PK |  |  |  |
 | description | varchar(100) | ✓ |  |  |  |  |
@@ -1640,7 +1789,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | ledger_desc | varchar(60) | ✓ |  |  |  |  |
 | flag_dk | varchar(1) | ✓ |  |  |  | `D` 35, `K` 6 |
 | flag_active | varchar(1) | ✓ |  |  |  | `Y` 41 |
-| tipe_id | varchar(10) | ✓ |  |  |  |  |
+| tipe_id | varchar(10) | ✓ |  |  |  | `A` 31, `G` 2, `F` 2, `B` 2, `H` 1, `E` 1, `D` 1, `C` 1 |
 
 <a id="dbogl_report"></a>
 ## dbo.gl_report
@@ -1652,7 +1801,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | site_id | varchar(4) |  | PK |  |  |  |
 | report_id | varchar(4) |  | PK |  |  |  |
 | report_desc | varchar(30) | ✓ |  |  |  |  |
-| report_tipe | varchar(4) | ✓ |  |  |  |  |
+| report_tipe | varchar(4) | ✓ |  |  |  | `R` 1, `N` 1 |
 | brand_id | varchar(2) |  | PK |  |  | `A` 2 |
 
 <a id="dbogl_report_detail"></a>
@@ -1699,7 +1848,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| tipe_id | varchar(10) |  |  |  |  |  |
+| tipe_id | varchar(10) |  |  |  |  | `Z` 1, `I` 1, `H` 1, `G` 1, `F` 1, `E` 1, `D` 1, `C` 1, `B` 1, `A` 1 |
 | tipe_desc | varchar(50) | ✓ |  |  |  |  |
 | tipe_group | varchar(1) | ✓ |  |  |  | `R` 5, `N` 4, `X` 1 |
 
@@ -1911,7 +2060,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| tipe | varchar(20) |  | PK |  |  |  |
+| tipe | varchar(20) |  | PK |  |  | `BAHAN` 1, `BAHAN SUPP` 1, `GUDANG` 1, `TOKO` 1 |
 | periode | datetime | ✓ |  |  |  |  |
 
 <a id="dbom_customer"></a>
@@ -2034,7 +2183,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | tgl_lahir | datetime | ✓ |  |  |  |  |
 | tempat_lahir | varchar(50) | ✓ |  |  |  |  |
 | kelamin | char(1) | ✓ |  |  |  | `L` 45, `P` 17 |
-| status | varchar(30) | ✓ |  |  |  |  |
+| status | varchar(30) | ✓ |  |  |  | `TK` 42, `K1` 7, `K` 7, `K2` 6 |
 | pendidikan | varchar(30) | ✓ |  |  |  |  |
 | telepon | varchar(30) | ✓ |  |  |  |  |
 | no_ktp | varchar(20) | ✓ |  |  |  |  |
@@ -2047,7 +2196,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | jab_id | bigint | ✓ |  |  |  |  |
 | divisi_id | varchar(5) | ✓ |  |  |  |  |
 | shift_id | smallint | ✓ |  |  |  |  |
-| tipe_gaji_id | varchar(5) | ✓ |  |  |  |  |
+| tipe_gaji_id | varchar(5) | ✓ |  |  |  | `01` 62 |
 | gaji | numeric(15,0) | ✓ |  |  |  |  |
 | tunj_jabatan | numeric(15,0) | ✓ |  |  |  |  |
 | uang_luar_kota | numeric(15,0) | ✓ |  |  |  |  |
@@ -2063,7 +2212,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | face_id | varchar(max) | ✓ |  |  |  |  |
 | join_id | bigint | ✓ |  |  |  |  |
 | xxx | varchar(50) | ✓ |  |  |  |  |
-| sts_peg | varchar(10) | ✓ |  |  |  |  |
+| sts_peg | varchar(10) | ✓ |  |  |  | `PKWT` 62 |
 | no_absen | numeric(10,0) | ✓ |  |  |  |  |
 | nama_dkt | varchar(50) | ✓ |  |  |  |  |
 | al_dkt | varchar(50) | ✓ |  |  |  |  |
@@ -2157,7 +2306,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | group_peg_id | bigint | ✓ |  |  |  |  |
 | status_pegangan | bit | ✓ |  | ((1)) |  |  |
 | status_aktif | bit | ✓ |  | ((0)) |  |  |
-| sts_peg | varchar(10) | ✓ |  |  |  |  |
+| sts_peg | varchar(10) | ✓ |  |  |  | `PKWT` 138 |
 
 <a id="dbom_pegawai_lembur"></a>
 ## dbo.M_PEGAWAI_LEMBUR
@@ -2244,7 +2393,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | usrtgl | datetime | ✓ |  |  |  |  |
 | supp_id | varchar(5) | ✓ |  |  |  |  |
 | tipe_id | varchar(2) | ✓ | → dbo.M_PRODUK_TIPE(tipe_id) |  |  | `02` 128.725, `01` 97.739, `03` 5.042, `06` 782, `05` 308, `NULL` 214, `04` 175 |
-| jenis_id | varchar(5) | ✓ |  |  |  |  |
+| jenis_id | varchar(5) | ✓ |  |  |  | `00001` 153.835, `00002` 55.532, `00044` 5.192, `00030` 4.016, `00005` 3.680, `00014` 1.847, `00007` 1.398, `00004` 1.248, `00003` 952, `00008` 774, `00050` 550, `00045` 380, `00042` 360, `00013` 345, `00041` 340, `00039` 330, `00009` 318, `00015` 313, `00040` 280, `00051` 182, `00046` 180, `00016` 166, `00028` 157, `00047` 140, `00052` 120, `…` |
 | model_produk | varchar(25) | ✓ |  |  |  |  |
 | aps_id | varchar(2) | ✓ |  |  |  | `01` 124.657, `03` 47.125, `02` 37.830, `08` 7.676, `07` 4.085, `09` 2.225, `04` 1.918, `17` 1.456, `11` 1.014, `15` 921, `10` 899, `14` 863, `…` |
 | mall_barcode | numeric(15,0) | ✓ |  | ((0)) |  |  |
@@ -2412,7 +2561,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| jenis_id | varchar(5) |  | PK |  |  |  |
+| jenis_id | varchar(5) |  | PK |  |  | `00005` 1, `00023` 1, `00022` 1, `00003` 1, `00019` 1, `00020` 1, `00021` 1, `00056` 1, `00006` 1, `00038` 1, `00036` 1, `00037` 1, `00040` 1, `00044` 1, `00018` 1, `00031` 1, `00008` 1, `00013` 1, `00053` 1, `00039` 1, `00007` 1, `00045` 1, `00015` 1, `00042` 1, `00004` 1, `…` |
 | nama | varchar(40) | ✓ |  |  |  |  |
 | flag_aktif | bit | ✓ |  | ((0)) |  |  |
 | usrtgl | datetime | ✓ |  |  |  |  |
@@ -2450,7 +2599,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | supp_id | varchar(5) | ✓ |  |  |  |  |
 | coa_inv | varchar(15) | ✓ |  |  |  |  |
 | tipe_id | varchar(2) | ✓ |  |  |  | `02` 18.534, `01` 13.797, `03` 978, `06` 162, `05` 47, `NULL` 37, `04` 31 |
-| jenis_id | varchar(5) | ✓ |  |  |  |  |
+| jenis_id | varchar(5) | ✓ |  |  |  | `00001` 18.457, `00002` 9.567, `00014` 1.023, `00007` 946, `00044` 669, `00005` 596, `00008` 455, `00030` 387, `00004` 196, `00013` 192, `00015` 179, `00028` 135, `00009` 126, `00003` 123, `00016` 106, `00050` 55, `00010` 44, `00045` 38, `00042` 36, `00041` 34, `00039` 33, `00040` 28, `00051` 18, `00046` 18, `00024` 14, `…` |
 | aps_id | varchar(2) | ✓ |  |  |  | `01` 15.664, `03` 7.486, `02` 5.908, `08` 1.335, `09` 1.119, `07` 371, `17` 254, `04` 225, `13` 217, `14` 184, `11` 166, `15` 134, `…` |
 | model_produk | varchar(25) | ✓ |  |  |  |  |
 | mall_barcode | numeric(15,0) | ✓ |  | ((0)) |  |  |
@@ -2579,7 +2728,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | supp_id | varchar(5) | ✓ |  |  |  |  |
 | coa_inv | varchar(15) | ✓ |  |  |  |  |
 | tipe_id | varchar(2) | ✓ |  |  |  | `02` 6.889, `01` 5.980, `03` 272, `04` 20, `05` 16, `06` 13, `NULL` 1 |
-| jenis_id | varchar(5) | ✓ |  |  |  |  |
+| jenis_id | varchar(5) | ✓ |  |  |  | `00001` 7.323, `00002` 3.630, `00030` 387, `00014` 346, `00007` 332, `00013` 183, `00008` 168, `00028` 118, `00015` 95, `00009` 93, `00004` 60, `00005` 49, `00044` 46, `00050` 38, `00016` 36, `00042` 34, `00041` 30, `00003` 26, `00045` 24, `00039` 24, `00010` 22, `00040` 22, `00046` 13, `00047` 11, `00020` 11, `…` |
 | aps_id | varchar(2) | ✓ |  |  |  | `01` 5.805, `03` 4.155, `02` 1.234, `08` 629, `09` 419, `07` 305, `13` 183, `04` 175, `10` 78, `12` 54, `06` 42, `05` 40, `…` |
 | model_produk | varchar(25) | ✓ |  |  |  |  |
 | mall_barcode | numeric(15,0) | ✓ |  | ((0)) |  |  |
@@ -2616,7 +2765,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | supp_id | varchar(5) | ✓ |  |  |  |  |
 | coa_inv | varchar(15) | ✓ |  |  |  |  |
 | tipe_id | varchar(2) | ✓ |  |  |  | `2` 5.217, `1` 4.443, `3` 177, `4` 21, `5` 13 |
-| jenis_id | varchar(5) | ✓ |  |  |  |  |
+| jenis_id | varchar(5) | ✓ |  |  |  | `1` 5.552, `2` 2.601, `30` 387, `7` 274, `14` 219, `13` 191, `28` 135, `8` 110, `15` 103, `9` 91, `4` 46, `16` 38, `3` 26, `10` 14, `20` 12, `17` 10, `41` 9, `22` 8, `21` 8, `12` 6, `40` 5, `42` 5, `39` 5, `19` 4, `27` 3, `…` |
 | aps_id | varchar(2) | ✓ |  |  |  | `1` 4.136, `3` 3.410, `2` 735, `8` 467, `9` 301, `7` 300, `13` 194, `4` 170, `10` 54, `6` 42, `5` 36, `11` 14, `…` |
 | model_produk | varchar(25) | ✓ |  |  |  |  |
 | model_produk2 | varchar(25) | ✓ |  |  |  |  |
@@ -2759,8 +2908,8 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| status_id | varchar(5) |  | PK |  |  |  |
-| status_desc | varchar(20) | ✓ |  |  |  |  |
+| status_id | varchar(5) |  | PK |  |  | `TM` 1, `TK` 1, `K4` 1, `K3` 1, `K2` 1, `K1` 1, `K` 1 |
+| status_desc | varchar(20) | ✓ |  |  |  | `Tidak Menikah` 1, `Kawin Anak 4` 1, `Kawin Anak 3` 1, `Kawin Anak 2` 1, `Kawin Anak 1` 1, `KAWIN` 1, `Belum Kawin` 1 |
 | PTKP | numeric(14,0) | ✓ |  |  |  |  |
 | brand_id | varchar(2) |  | PK |  |  | `LG` 7 |
 
@@ -2879,7 +3028,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| tipe_gaji_id | varchar(5) |  | PK |  |  |  |
+| tipe_gaji_id | varchar(5) |  | PK |  |  | `01` 1, `02` 1, `03` 1 |
 | tipe_gaji_desc | varchar(50) | ✓ |  |  |  |  |
 
 <a id="dbom_tipe_pegawai"></a>
@@ -3165,7 +3314,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(25) |  | PK → dbo.ob_bahan_cost_hdr(bukti, brand_id) |  |  |  |
+| bukti | varchar(25) |  | PK → dbo.ob_bahan_cost_hdr(bukti, brand_id) |  |  | pola: `9999B999` 55.890, `9999A999` 35.443, `9999C999` 4.998, `9999H999` 1.967, `9999D999` 44, `B999` 8, `A999` 6 |
 | urut | int |  | PK |  |  |  |
 | item_id | varchar(2) | ✓ |  |  |  | `ZZ` 98.303, `EZ` 44, `BZ` 5, `AZ` 4 |
 | art_id | varchar(25) |  | PK |  |  |  |
@@ -3182,7 +3331,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(25) |  | PK |  |  |  |
+| bukti | varchar(25) |  | PK |  |  | pola: `9999B999` 17.691, `9999A999` 12.197, `9999C999` 700, `9999H999` 223, `9999D999` 16, `B999` 1, `A999` 1 |
 | tgl | datetime | ✓ |  |  |  |  |
 | article_id | varchar(20) | ✓ |  |  |  |  |
 | article_desc | varchar(100) | ✓ |  |  |  |  |
@@ -3209,7 +3358,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(20) |  | PK → dbo.ob_bahan_gd_hdr(bukti, brand_id) |  |  |  |
+| bukti | varchar(20) |  | PK → dbo.ob_bahan_gd_hdr(bukti, brand_id) |  |  | pola: `999999AN9999` 2.096, `999999B999` 1.241, `999999BN9999` 1.013, `999999A999` 1.002, `999999CN9999` 174, `999999C999` 123, `999999HN9999` 41, `999999H999` 20, `…` |
 | urut | numeric(18,0) |  | PK |  |  |  |
 | art_id | varchar(25) |  | PK → dbo.m_bahan_art(art_id, brand_id) |  |  |  |
 | art_desc | varchar(100) | ✓ |  |  |  |  |
@@ -3228,7 +3377,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | sat_id2 | char(2) | ✓ |  |  |  | `NULL` 2.391, `03` 1.627, `02` 1.102, `01` 385, `04` 143, `09` 53, `05` 5, `08` 3, `07` 1, `10` 1 |
 | con_sat | numeric(12,3) | ✓ |  |  |  |  |
 | flag | varchar(50) | ✓ |  |  |  |  |
-| bukti_ap | varchar(25) | ✓ |  |  |  |  |
+| bukti_ap | varchar(25) | ✓ |  |  |  | pola:  |
 | mata_uang | varchar(5) | ✓ |  |  |  |  |
 | kurs | numeric(14,2) | ✓ |  |  |  |  |
 | mata_uang2 | varchar(5) | ✓ |  |  |  |  |
@@ -3244,17 +3393,17 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(20) |  | PK |  |  |  |
+| bukti | varchar(20) |  | PK |  |  | pola: `999999AN9999` 783, `999999BN9999` 682, `999999B999` 67, `999999A999` 59, `999999CN9999` 59, `999999C999` 18, `999999HN9999` 15, `999999H999` 4, `…` |
 | tgl | datetime | ✓ |  |  |  |  |
 | supp_id | varchar(20) | ✓ |  |  |  |  |
 | supp_desc | varchar(50) | ✓ |  |  |  |  |
-| bukti_po | varchar(20) | ✓ |  |  |  |  |
-| bukti_ref | varchar(20) | ✓ |  |  |  |  |
+| bukti_po | varchar(20) | ✓ |  |  |  | pola: `999999AN9999` 783, `999999BN9999` 681, `999999CN9999` 59, `999999HN9999` 15, `999999BT9999` 1, `999999AT9999` 1 |
+| bukti_ref | varchar(20) | ✓ |  |  |  | pola: `NL999999` 96, `NPP99999` 53, `99999999` 22, `999999` 10, `99/99/9999` 8, `/999/NL999999` 6, `''` 6, `/999/NPP99999` 5, `…` |
 | usrupd | varchar(20) | ✓ |  |  |  |  |
 | tglupd | datetime | ✓ |  |  |  |  |
 | trans_id | varchar(2) | ✓ |  |  |  | `02` 1.523, `41` 97, `40` 51, `20` 17 |
-| bukti_ap | varchar(20) | ✓ |  |  |  |  |
-| bukti_gl | varchar(20) | ✓ |  |  |  |  |
+| bukti_ap | varchar(20) | ✓ |  |  |  | pola: `999999A/RMB9999` 742, `999999B/RMB9999` 630, `999999C/RMB9999` 39, `999999H/RMB9999` 15, `999999A/RMR9999` 13, `999999C/RMR9999` 2, `999999B/RMR9999` 2 |
+| bukti_gl | varchar(20) | ✓ |  |  |  | pola: `999999A/RMB9999` 742, `999999B/RMB9999` 630, `999999C/RMB9999` 39, `999999H/RMB9999` 15, `999999A/RMR9999` 13, `999999C/RMR9999` 2, `999999B/RMR9999` 2 |
 | account_id | varchar(20) | ✓ |  |  |  |  |
 | flag | varchar(1) | ✓ |  |  |  | `NULL` 1.688 |
 | prn | int | ✓ |  |  |  |  |
@@ -3276,7 +3425,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(20) |  | PK → dbo.ob_bahan_gdrol_hdr(bukti, brand_id) |  |  |  |
+| bukti | varchar(20) |  | PK → dbo.ob_bahan_gdrol_hdr(bukti, brand_id) |  |  | pola: `999999A9999` 525, `999999B9999` 414, `999999H9999` 136, `999999C9999` 39, `999999D9999` 4 |
 | urut | numeric(18,0) |  | PK |  |  |  |
 | art_id | varchar(25) |  | PK |  |  |  |
 | art_desc | varchar(100) | ✓ |  |  |  |  |
@@ -3293,7 +3442,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | sat_id | char(2) | ✓ |  |  |  | `03` 1.088, `02` 22, `04` 4, `NULL` 4 |
 | sat_id2 | char(2) | ✓ |  |  |  | `03` 1.088, `02` 22, `04` 4, `NULL` 4 |
 | flag | varchar(50) | ✓ |  |  |  |  |
-| bukti_ap | varchar(25) | ✓ |  |  |  |  |
+| bukti_ap | varchar(25) | ✓ |  |  |  | pola:  |
 | mata_uang | varchar(5) | ✓ |  |  |  |  |
 | kurs | numeric(14,2) | ✓ |  |  |  |  |
 | mata_uang2 | varchar(5) | ✓ |  |  |  |  |
@@ -3308,22 +3457,22 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(20) |  | PK |  |  |  |
+| bukti | varchar(20) |  | PK |  |  | pola: `999999A9999` 413, `999999B9999` 289, `999999H9999` 135, `999999C9999` 36, `999999D9999` 1 |
 | tgl | datetime | ✓ |  |  |  |  |
 | supp_id | varchar(20) | ✓ |  |  |  |  |
 | supp_desc | varchar(50) | ✓ |  |  |  |  |
-| bukti_po | varchar(20) | ✓ |  |  |  |  |
-| bukti_ref | varchar(20) | ✓ |  |  |  |  |
+| bukti_po | varchar(20) | ✓ |  |  |  | pola:  |
+| bukti_ref | varchar(20) | ✓ |  |  |  | pola: `999999AN9999` 752, `999999BN9999` 100, `999999CN9999` 14, `999999HN9999` 8 |
 | usrupd | varchar(20) | ✓ |  |  |  |  |
 | tglupd | datetime | ✓ |  |  |  |  |
 | trans_id | varchar(2) | ✓ |  |  |  | `26` 437, `27` 437 |
-| bukti_ap | varchar(20) | ✓ |  |  |  |  |
+| bukti_ap | varchar(20) | ✓ |  |  |  | pola:  |
 | account_id | varchar(20) | ✓ |  |  |  |  |
 | flag | varchar(1) | ✓ |  |  |  | `NULL` 874 |
 | prn | int | ✓ |  |  |  |  |
 | merk_id | varchar(1) | ✓ |  |  |  | `NULL` 874 |
 | no_sj | varchar(50) | ✓ |  |  |  |  |
-| sts_byr | char(10) | ✓ |  |  |  |  |
+| sts_byr | char(10) | ✓ |  |  |  | `N` 874 |
 | ket | varchar(70) | ✓ |  |  |  |  |
 | brand_id | varchar(2) |  | PK |  |  | `A` 413, `B` 289, `H` 135, `C` 36, `D` 1 |
 
@@ -3334,7 +3483,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(25) |  | PK → dbo.ob_bahan_jual_hdr(bukti, brand_id) |  |  |  |
+| bukti | varchar(25) |  | PK → dbo.ob_bahan_jual_hdr(bukti, brand_id) |  |  | pola: `999999BN9999` 18.081, `999999AN9999` 11.269, `999999CN9999` 3.265, `999999HN9999` 2.059 |
 | urut | int |  | PK |  |  |  |
 | art_id | varchar(25) | ✓ | → dbo.m_bahan_art(art_id, brand_id) |  |  |  |
 | art_desc | varchar(70) | ✓ |  |  |  |  |
@@ -3362,29 +3511,29 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(25) |  | PK |  |  |  |
+| bukti | varchar(25) |  | PK |  |  | pola: `999999BN9999` 5.139, `999999AN9999` 3.610, `999999CN9999` 549, `999999HN9999` 272 |
 | tgl | datetime | ✓ |  |  |  |  |
 | supp_id | varchar(10) | ✓ |  |  |  |  |
 | supp_desc | varchar(70) | ✓ |  |  |  |  |
 | merk_id | char(2) | ✓ |  |  |  | `NULL` 9.570 |
 | no_kirim | varchar(25) | ✓ |  |  |  |  |
-| bukti_ref | varchar(50) | ✓ |  |  |  |  |
+| bukti_ref | varchar(50) | ✓ |  |  |  | pola: `9999999999` 13, `B9J99999999999E` 12, `HMTS.BSC.SO.999` 8, `RETUR BAHAN` 6, `HMTS.OVS.999` 5, `''` 4, `B9K99999999999A` 4, `GPN.JEN.LO-999` 4, `…` |
 | tglupd | datetime | ✓ |  |  |  |  |
 | usrupd | varchar(50) | ✓ |  |  |  |  |
 | trans_id | char(2) | ✓ |  |  |  | `10` 9.443, `11` 127 |
 | no_po | varchar(50) | ✓ |  |  |  |  |
 | article_id | varchar(25) | ✓ |  |  |  |  |
 | article_desc | char(70) | ✓ |  |  |  |  |
-| sts_byr | char(10) | ✓ |  |  |  |  |
+| sts_byr | char(10) | ✓ |  |  |  | `N` 9.570 |
 | ket1 | varchar(70) | ✓ |  |  |  |  |
 | ket2 | varchar(70) | ✓ |  |  |  |  |
 | ket3 | varchar(70) | ✓ |  |  |  |  |
 | sts_trans | char(1) | ✓ |  |  |  | `A` 9.565, `N` 5 |
 | brand_id | varchar(2) |  | PK |  |  | `B` 5.139, `A` 3.610, `C` 549, `H` 272 |
-| bukti_ap | varchar(25) | ✓ |  |  |  |  |
-| bukti_gl | varchar(25) | ✓ |  |  |  |  |
-| bukti_po | varchar(25) | ✓ |  |  |  |  |
-| bukti_cost | varchar(25) | ✓ |  |  |  |  |
+| bukti_ap | varchar(25) | ✓ |  |  |  | pola: `999999BN9999/JRM` 5.038, `999999AN9999/JRM` 3.484, `999999CN9999/JRM` 528, `999999HN9999/JRM` 270, `X` 104, `999999AN9999/RJRM` 60, `999999BN9999/RJRM` 44, `999999CN9999/RJRM` 21, `…` |
+| bukti_gl | varchar(25) | ✓ |  |  |  | pola: `999999BN9999/JRM` 5.038, `999999AN9999/JRM` 3.484, `999999CN9999/JRM` 528, `999999HN9999/JRM` 270, `999999AN9999/RJRM` 60, `999999A/JRM9999` 52, `999999BN9999/RJRM` 44, `999999B/JRM9999` 43, `…` |
+| bukti_po | varchar(25) | ✓ |  |  |  | pola: `POB99999999` 4.148, `POA99999999` 2.234, `POC99999999` 409, `POH99999999` 263, `''` 204 |
+| bukti_cost | varchar(25) | ✓ |  |  |  | pola: `9999B999` 3.873, `9999A999` 2.113, `9999C999` 402, `9999H999` 219, `''` 104 |
 
 <a id="dboob_bahan_keluar_dtl"></a>
 ## dbo.ob_bahan_keluar_dtl
@@ -3464,7 +3613,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(25) |  | PK → dbo.ob_bahan_kirim_hdr(bukti, brand_id) |  |  |  |
+| bukti | varchar(25) |  | PK → dbo.ob_bahan_kirim_hdr(bukti, brand_id) |  |  | pola: `999999BN9999` 15.966, `999999AN9999` 9.032, `999999HN9999` 75, `999999CN9999` 57, `999999AT9999` 1 |
 | urut | int |  | PK |  |  |  |
 | art_id | varchar(25) |  | PK |  |  |  |
 | ART_DESC | varchar(100) | ✓ |  |  |  |  |
@@ -3479,7 +3628,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | hjual | decimal(12,3) | ✓ |  |  |  |  |
 | hjual2 | decimal(12,3) | ✓ |  |  |  |  |
 | con_sat | decimal(12,3) | ✓ |  |  |  |  |
-| bukti_ap | varchar(25) | ✓ |  |  |  |  |
+| bukti_ap | varchar(25) | ✓ |  |  |  | pola:  |
 | kurs | decimal(14,3) | ✓ |  |  |  |  |
 | mata_uang | varchar(5) | ✓ |  |  |  |  |
 | kurs2 | decimal(12,3) | ✓ |  |  |  |  |
@@ -3497,9 +3646,9 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(25) |  | PK |  |  |  |
+| bukti | varchar(25) |  | PK |  |  | pola: `999999BN9999` 3.086, `999999AN9999` 1.851, `999999HN9999` 20, `999999CN9999` 18, `999999AT9999` 1 |
 | tgl | datetime | ✓ |  |  |  |  |
-| bukti_ref | varchar(40) | ✓ |  |  |  |  |
+| bukti_ref | varchar(40) | ✓ |  |  |  | pola: `''` 13 |
 | no_sj | varchar(25) | ✓ |  |  |  |  |
 | supp_id | varchar(10) | ✓ |  |  |  |  |
 | supp_desc | varchar(50) | ✓ |  |  |  |  |
@@ -3512,11 +3661,11 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | note3 | varchar(100) | ✓ |  |  |  |  |
 | note4 | varchar(100) | ✓ |  |  |  |  |
 | note5 | varchar(100) | ✓ |  |  |  |  |
-| bukti_ap | varchar(25) | ✓ |  |  |  |  |
-| bukti_gl | varchar(25) | ✓ |  |  |  |  |
+| bukti_ap | varchar(25) | ✓ |  |  |  | pola: `X` 3.069, `999999B/KRM9999` 1.084, `999999A/KRM9999` 720, `999999B/RRM9999` 39, `999999A/RRM9999` 31, `999999H/KRM9999` 20, `999999C/KRM9999` 10, `999999C/RRM9999` 3 |
+| bukti_gl | varchar(25) | ✓ |  |  |  | pola: `999999B/KRM9999` 2.314, `999999A/KRM9999` 1.428, `999999B/RRM9999` 39, `999999A/RRM9999` 31, `999999H/KRM9999` 20, `999999C/KRM9999` 10, `999999C/RRM9999` 3 |
 | article_id | varchar(25) | ✓ |  |  |  |  |
 | article_desc | varchar(70) | ✓ |  |  |  |  |
-| bukti_po | varchar(25) | ✓ |  |  |  |  |
+| bukti_po | varchar(25) | ✓ |  |  |  | pola: `POB99999999` 2.426, `POA99999999` 1.406, `''` 156, `POH99999999` 3, `POC99999999` 1 |
 | sts | char(1) | ✓ |  |  |  | `NULL` 4.976 |
 | app | int | ✓ |  |  |  |  |
 | sts_byr | char(1) | ✓ |  |  |  | `N` 4.976 |
@@ -3529,7 +3678,17 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | trans_byr | char(1) | ✓ |  |  |  | `B` 4.918, `K` 35, `NULL` 23 |
 | model_id | varchar(25) | ✓ |  |  |  |  |
 | model_desc | varchar(70) | ✓ |  |  |  |  |
-| bukti_cost | varchar(25) | ✓ |  |  |  |  |
+| bukti_cost | varchar(25) | ✓ |  |  |  | pola: `9999B999` 1.711, `9999A999` 1.062, `''` 36, `9999C999` 1, `9999999B999` 1 |
+
+**Pola nomor `bukti` per jenis** (digit diganti 9):
+
+| status | Pola | Jumlah |
+|---|---|---:|
+| NULL | `999999BN9999` | 3.086 |
+| NULL | `999999AN9999` | 1.851 |
+| NULL | `999999HN9999` | 20 |
+| NULL | `999999CN9999` | 18 |
+| NULL | `999999AT9999` | 1 |
 
 <a id="dboob_bahan_pakai_dtl"></a>
 ## dbo.ob_bahan_pakai_dtl
@@ -3538,7 +3697,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(25) |  | PK → dbo.ob_bahan_pakai_hdr(bukti, brand_id) |  |  |  |
+| bukti | varchar(25) |  | PK → dbo.ob_bahan_pakai_hdr(bukti, brand_id) |  |  | pola: `999999BN999` 1 |
 | urut | int |  | PK |  |  |  |
 | art_id | varchar(25) | ✓ |  |  |  |  |
 | art_desc | varchar(70) | ✓ |  |  |  |  |
@@ -3564,12 +3723,12 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(25) |  | PK |  |  |  |
+| bukti | varchar(25) |  | PK |  |  | pola: `999999BN999` 1 |
 | tgl | datetime | ✓ |  |  |  |  |
 | supp_id | varchar(10) | ✓ |  |  |  |  |
 | supp_desc | varchar(70) | ✓ |  |  |  |  |
 | no_kirim | varchar(25) | ✓ |  |  |  |  |
-| bukti_ref | varchar(50) | ✓ |  |  |  |  |
+| bukti_ref | varchar(50) | ✓ |  |  |  | pola:  |
 | tglupd | datetime | ✓ |  |  |  |  |
 | usrupd | varchar(50) | ✓ |  |  |  |  |
 | trans_id | char(2) | ✓ |  |  |  | `07` 1 |
@@ -3590,7 +3749,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(25) |  | PK → dbo.ob_bahan_po_hdr(bukti) |  |  |  |
+| bukti | varchar(25) |  | PK → dbo.ob_bahan_po_hdr(bukti) |  |  | pola: `999999AN9999` 1.903, `999999BN9999` 773, `999999CN9999` 164, `999999HN9999` 41, `999999BT9999` 1, `999999AT9999` 1 |
 | art_id | varchar(25) |  | PK |  |  |  |
 | urut | numeric(18,0) |  | PK |  |  |  |
 | art_desc | varchar(100) | ✓ |  |  |  |  |
@@ -3622,17 +3781,17 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(25) |  | PK |  |  |  |
+| bukti | varchar(25) |  | PK |  |  | pola: `999999AN9999` 554, `999999BN9999` 392, `999999CN9999` 43, `999999HN9999` 15, `999999BT9999` 1, `999999AT9999` 1 |
 | tgl | datetime | ✓ |  |  |  |  |
 | supp_id | varchar(15) | ✓ |  |  |  |  |
 | supp_desc | varchar(50) | ✓ |  |  |  |  |
-| bukti_ref | varchar(20) | ✓ |  |  |  |  |
+| bukti_ref | varchar(20) | ✓ |  |  |  | pola: `BDG9999999` 11, `999999` 5, `9999999999` 5, `9999` 4, `''` 2, `99999` 2, `GRAICOM999999` 2, `GRC 99 / 999999` 2, `…` |
 | status | char(1) | ✓ |  |  |  | `R` 516, `B` 490 |
 | trans_id | char(2) | ✓ |  |  |  | `01` 1.006 |
 | disc | numeric(18,0) | ✓ |  |  |  |  |
-| flag_approval | char(10) | ✓ |  |  |  |  |
+| flag_approval | char(10) | ✓ |  |  |  | `NULL` 1.006 |
 | ket | varchar(100) | ✓ |  |  |  |  |
-| flag_close | char(10) | ✓ |  |  |  |  |
+| flag_close | char(10) | ✓ |  |  |  | `NULL` 1.006 |
 | tgl_kirim | datetime | ✓ |  |  |  |  |
 | tgl_hari | int | ✓ |  |  |  |  |
 | top_payment | int | ✓ |  |  |  |  |
@@ -3649,7 +3808,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | acc | int | ✓ |  |  |  |  |
 | acc_name | varchar(20) | ✓ |  |  |  |  |
 | jtrans | varchar(10) | ✓ |  |  |  |  |
-| bukti_temp | varchar(25) | ✓ |  |  |  |  |
+| bukti_temp | varchar(25) | ✓ |  |  |  | pola:  |
 | ppn | char(1) | ✓ |  |  |  | `NULL` 1.006 |
 | brand_id | varchar(2) | ✓ |  |  |  | `A` 555, `B` 393, `C` 43, `H` 15 |
 | acc_flag | int | ✓ |  |  |  |  |
@@ -3658,6 +3817,21 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | asset | char(1) | ✓ |  |  |  | `NULL` 993, `Y` 12, `N` 1 |
 | bln | numeric(10,0) | ✓ |  |  |  |  |
 
+**Pola nomor `bukti` per jenis** (digit diganti 9):
+
+| status | Pola | Jumlah |
+|---|---|---:|
+| B | `999999AN9999` | 350 |
+| R | `999999BN9999` | 291 |
+| R | `999999AN9999` | 204 |
+| B | `999999BN9999` | 101 |
+| B | `999999CN9999` | 35 |
+| R | `999999HN9999` | 13 |
+| R | `999999CN9999` | 8 |
+| B | `999999HN9999` | 2 |
+| B | `999999BT9999` | 1 |
+| B | `999999AT9999` | 1 |
+
 <a id="dboob_bahan_roll_dtl"></a>
 ## dbo.ob_bahan_roll_dtl
 
@@ -3665,7 +3839,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(25) |  | PK → dbo.ob_bahan_roll_hdr(bukti, brand_id) |  |  |  |
+| bukti | varchar(25) |  | PK → dbo.ob_bahan_roll_hdr(bukti, brand_id) |  |  | pola: `999999AN9999` 439, `999999BN9999` 111, `999999CN9999` 8, `999999HN9999` 4 |
 | urut | int |  | PK |  |  |  |
 | art_id | varchar(25) |  | PK |  |  |  |
 | art_desc | varchar(100) | ✓ |  |  |  |  |
@@ -3687,7 +3861,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | mata_uang2 | char(10) | ✓ |  |  |  |  |
 | ket | varchar(100) | ✓ |  |  |  |  |
 | con_sat | numeric(12,3) | ✓ |  |  |  |  |
-| bukti_ap | varchar(25) | ✓ |  |  |  |  |
+| bukti_ap | varchar(25) | ✓ |  |  |  | pola:  |
 | brand_id | varchar(2) |  | PK → dbo.ob_bahan_roll_hdr(bukti, brand_id) |  |  | `A` 439, `B` 111, `C` 8, `H` 4 |
 
 <a id="dboob_bahan_roll_hdr"></a>
@@ -3697,7 +3871,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(25) |  | PK |  |  |  |
+| bukti | varchar(25) |  | PK |  |  | pola: `999999AN9999` 379, `999999BN9999` 50, `999999CN9999` 7, `999999HN9999` 4 |
 | tgl | datetime | ✓ |  |  |  |  |
 | brand_id1 | varchar(2) | ✓ |  |  |  | `A` 379, `B` 50, `C` 7, `H` 4 |
 | supp_id1 | varchar(10) | ✓ |  |  |  |  |
@@ -3710,12 +3884,12 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | trans_id | varchar(2) | ✓ |  |  |  | `28` 440 |
 | no_sj | varchar(50) | ✓ |  |  |  |  |
 | ket | varchar(100) | ✓ |  |  |  |  |
-| bukti_tarik | varchar(25) | ✓ |  |  |  |  |
-| bukti_kirim | varchar(25) | ✓ |  |  |  |  |
+| bukti_tarik | varchar(25) | ✓ |  |  |  | pola: `999999B9999` 228, `999999H9999` 131, `999999A9999` 34, `999999C9999` 29 |
+| bukti_kirim | varchar(25) | ✓ |  |  |  | pola: `999999A9999` 364, `999999B9999` 47, `999999C9999` 7, `999999H9999` 4 |
 | flag_transfer | int | ✓ |  |  |  |  |
 | sts_byr | char(1) | ✓ |  |  |  | `N` 440 |
 | flag_trans | int | ✓ |  |  |  |  |
-| bukti_ap | varchar(25) | ✓ |  |  |  |  |
+| bukti_ap | varchar(25) | ✓ |  |  |  | pola: `999999AN9999RL999` 364, `999999BN9999RL999` 46, `999999CN9999RL999` 7, `999999HN9999RL999` 4, `999999BN9999ROL99` 1 |
 | acc | int | ✓ |  |  |  |  |
 | acc_user | varchar(30) | ✓ |  |  |  |  |
 | acc_tgl | datetime | ✓ |  |  |  |  |
@@ -4000,11 +4174,11 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(15) |  | PK |  |  |  |
+| bukti | varchar(15) |  | PK |  |  | pola: `POB99999999` 17.297, `POA99999999` 11.629, `POC99999999` 675, `PO99999999` 408, `POH99999999` 221, `POD99999999` 16 |
 | tgl | datetime | ✓ |  |  |  |  |
-| tipe_trans | varchar(20) | ✓ |  |  |  |  |
+| tipe_trans | varchar(20) | ✓ |  |  |  | `PO` 30.246 |
 | supp_id | varchar(10) | ✓ |  |  |  |  |
-| bukti_ref | varchar(15) | ✓ |  |  |  |  |
+| bukti_ref | varchar(15) | ✓ |  |  |  | pola:  |
 | remark | varchar(50) | ✓ |  |  |  |  |
 | subtotal | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | disc | numeric(10,2) | ✓ |  | ((0)) |  |  |
@@ -4042,8 +4216,8 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | ongkos_jahit | decimal(14,2) | ✓ |  |  |  |  |
 | flag_break | varchar(1) | ✓ |  |  |  | `NULL` 30.246 |
 | flag_print | int | ✓ |  |  |  |  |
-| bukti_mc | varchar(20) | ✓ |  |  |  |  |
-| bukti_cost | varchar(20) | ✓ |  |  |  |  |
+| bukti_mc | varchar(20) | ✓ |  |  |  | pola:  |
+| bukti_cost | varchar(20) | ✓ |  |  |  | pola: `9999B999` 17.395, `9999A999` 11.938, `9999C999` 675, `9999H999` 221, `9999D999` 16, `A999` 1 |
 | note1 | varchar(200) | ✓ |  |  |  |  |
 | note2 | varchar(200) | ✓ |  |  |  |  |
 | note3 | varchar(200) | ✓ |  |  |  |  |
@@ -4056,6 +4230,24 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | DP | numeric(15,0) | ✓ |  |  |  |  |
 | tipe_produk | char(1) | ✓ |  |  |  | `G` 16.964, `NULL` 11.774, `R` 1.508 |
 
+**Pola nomor `bukti` per jenis** (digit diganti 9):
+
+| tipe_trans | tipe_bayar | Pola | Jumlah |
+|---|---|---|---:|
+| PO | K | `POB99999999` | 17.281 |
+| PO | K | `POA99999999` | 11.618 |
+| PO | K | `POC99999999` | 620 |
+| PO | K | `PO99999999` | 406 |
+| PO | K | `POH99999999` | 221 |
+| PO | P | `POC99999999` | 54 |
+| PO | K | `POD99999999` | 16 |
+| PO | T | `POA99999999` | 10 |
+| PO | T | `POB99999999` | 9 |
+| PO | P | `POB99999999` | 7 |
+| PO | T | `PO99999999` | 2 |
+| PO | P | `POA99999999` | 1 |
+| PO | T | `POC99999999` | 1 |
+
 <a id="dbot_beli2"></a>
 ## dbo.T_BELI2
 
@@ -4063,7 +4255,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(15) |  | PK → dbo.T_BELI1(bukti, brand_id) |  |  |  |
+| bukti | varchar(15) |  | PK → dbo.T_BELI1(bukti, brand_id) |  |  | pola: `POB99999999` 125.992, `POA99999999` 90.510, `POC99999999` 3.168, `PO99999999` 2.076, `POH99999999` 1.006, `POD99999999` 96 |
 | produk_id | varchar(20) |  | PK |  |  |  |
 | harga | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | qty | numeric(10,0) | ✓ |  | ((0)) |  |  |
@@ -4080,19 +4272,34 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(15) |  | PK |  |  |  |
+| bukti | varchar(15) |  | PK |  |  | pola: `GTB99999999` 17.162, `GTA99999999` 12.336, `GOB99999999` 1.051, `GTC99999999` 691, `GOH99999999` 218, `GOC99999999` 94, `GOA99999999` 50, `GTH99999999` 40, `…` |
 | tgl | datetime | ✓ |  |  |  |  |
-| tipe_trans | varchar(20) | ✓ |  |  |  |  |
+| tipe_trans | varchar(20) | ✓ |  |  |  | `KIRIM` 30.239, `KIRIM TOKO` 1.415 |
 | toko_id | varchar(5) | ✓ |  |  |  |  |
-| bukti_ref | varchar(15) | ✓ |  |  |  |  |
+| bukti_ref | varchar(15) | ✓ |  |  |  | pola: `SJB99999999` 17.155, `SJA99999999` 12.336, `SOB99999999` 1.049, `SJC99999999` 691, `SOH99999999` 218, `SOC99999999` 94, `SOA99999999` 52, `SJH99999999` 40, `…` |
 | ekspedisi_id | varchar(5) | ✓ |  |  |  |  |
-| tipe_kend | varchar(30) | ✓ |  |  |  |  |
+| tipe_kend | varchar(30) | ✓ |  |  |  | `GRANDMAX` 14.753, `NULL` 9.344, `GRANMAX` 7.293, `GRAND MAX` 71, `''` 51, `-` 34, `MOTOR` 20, `GRAN MAX` 15, `AEROX` 5, `PBB21020047` 4, `GRANMAX` 4, `GRADMAX` 4, `B2E22504100621` 4, `GRADNMAX` 4, `NMAX` 3, `GRABDANAX` 3, `POB20090047` 2, `PBA21010078` 2, `GRANAMX` 2, `GRANDMAX` 2, `GRANMAXD` 2, `GRANAMAX` 2, `GRANDAX` 2, `PBB20080062` 1, `POB` 1, `…` |
 | nopol | varchar(10) | ✓ |  |  |  |  |
 | subtotal | numeric(15,0) | ✓ |  | (0) |  |  |
 | disc | numeric(10,2) | ✓ |  | (0) |  |  |
 | disc_rp | numeric(15,0) | ✓ |  | (0) |  |  |
 | total | numeric(15,0) | ✓ |  | (0) |  |  |
 | brand_id | varchar(1) | ✓ |  |  |  | `B` 18.213, `A` 12.386, `C` 785, `H` 258, `D` 10, `E` 2 |
+
+**Pola nomor `bukti` per jenis** (digit diganti 9):
+
+| tipe_trans | Pola | Jumlah |
+|---|---|---:|
+| KIRIM | `GTB99999999` | 17.162 |
+| KIRIM | `GTA99999999` | 12.336 |
+| KIRIM TOKO | `GOB99999999` | 1.051 |
+| KIRIM | `GTC99999999` | 691 |
+| KIRIM TOKO | `GOH99999999` | 218 |
+| KIRIM TOKO | `GOC99999999` | 94 |
+| KIRIM TOKO | `GOA99999999` | 50 |
+| KIRIM | `GTH99999999` | 40 |
+| KIRIM | `GTD99999999` | 10 |
+| KIRIM TOKO | `GOE99999999` | 2 |
 
 <a id="dbot_git2"></a>
 ## dbo.T_GIT2
@@ -4101,7 +4308,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(15) |  | PK → dbo.T_GIT1(bukti) |  |  |  |
+| bukti | varchar(15) |  | PK → dbo.T_GIT1(bukti) |  |  | pola: `GTB99999999` 127.826, `GTA99999999` 100.961, `GOB99999999` 3.650, `GTC99999999` 3.241, `GOH99999999` 964, `GOC99999999` 385, `GTH99999999` 138, `GOA99999999` 122, `…` |
 | produk_id | varchar(20) |  | PK |  |  |  |
 | harga | numeric(15,0) | ✓ |  | (0) |  |  |
 | qty | numeric(10,0) | ✓ |  | (0) |  |  |
@@ -4117,17 +4324,17 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(15) |  | PK |  |  |  |
+| bukti | varchar(15) |  | PK |  |  | pola: `PBB99999999` 16.665, `SJB99999999` 15.954, `SJA99999999` 11.239, `PBA99999999` 11.050, `SOB99999999` 956, `PBC99999999` 628, `SJC99999999` 621, `RTB99999999` 272, `…` |
 | tgl | datetime | ✓ |  |  |  |  |
-| tipe_trans | varchar(20) | ✓ |  |  |  |  |
+| tipe_trans | varchar(20) | ✓ |  |  |  | `TERIMA` 28.615, `KIRIM PENJUALAN` 27.845, `KIRIM TOKO` 1.292, `RETUR` 556, `RETUR PENJUALAN` 415, `KOREKSI PLUS` 60, `RETUR TOKO` 53, `KOREKSI MIN` 50 |
 | status | varchar(3) | ✓ |  |  |  | `OUT` 29.743, `IN` 29.143 |
 | supp_id | varchar(5) | ✓ |  |  |  |  |
 | toko_id | varchar(5) | ✓ |  |  |  |  |
-| bukti_ref | varchar(20) | ✓ |  |  |  |  |
-| bukti_ref_ext | varchar(20) | ✓ |  |  |  |  |
+| bukti_ref | varchar(20) | ✓ |  |  |  | pola: `POB99999999` 16.557, `JLB99999999` 15.953, `JLA99999999` 11.240, `POA99999999` 10.973, `JLC99999999` 621, `POC99999999` 621, `TR9999999999` 270, `POH99999999` 227, `…` |
+| bukti_ref_ext | varchar(20) | ✓ |  |  |  | pola: `OPG99999999` 10.274, `OPE99999999` 6.877, `999999` 6.275, `99/99/9999` 1.112, `99999` 1.016, `999` 614, `99999999` 567, `OPH99999999` 288, `…` |
 | no_sj | varchar(20) | ✓ |  |  |  |  |
 | ekspedisi_id | varchar(5) | ✓ |  |  |  |  |
-| tipe_kend | varchar(30) | ✓ |  |  |  |  |
+| tipe_kend | varchar(30) | ✓ |  |  |  | `NULL` 38.763, `GRANDMAX` 13.390, `GRANMAX` 6.505, `GRAND MAX` 67, `''` 34, `-` 33, `MOTOR` 20, `GRAN MAX` 15, `PBB21020047` 4, `GRANMAX` 4, `GRADMAX` 4, `B2E22504100621` 4, `NMAX` 3, `AEROX` 3, `GRADNMAX` 3, `POB20090047` 2, `GRANAMX` 2, `PBA21010078` 2, `GRANMAXD` 2, `GRANAMAX` 2, `JN-GTS.CMB 247 TFG` 1, `C` 1, `A2B00001500522I` 1, `PBB20080062` 1, `GRANDMAX` 1, `…` |
 | no_resi | varchar(15) | ✓ |  |  |  |  |
 | remark | varchar(50) | ✓ |  |  |  |  |
 | subtotal | numeric(15,0) | ✓ |  | ((0)) |  |  |
@@ -4138,11 +4345,50 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | brand_id | varchar(1) | ✓ |  |  |  | `B` 34.113, `A` 22.797, `C` 1.485, `H` 490, `E` 1 |
 | usrupd | varchar(15) | ✓ |  |  |  |  |
 | usrtgl | datetime | ✓ |  |  |  |  |
-| bukti_ap | varchar(40) | ✓ |  |  |  |  |
-| bukti_gl | varchar(40) | ✓ |  |  |  |  |
-| bukti_terima_toko | varchar(15) | ✓ |  |  |  |  |
+| bukti_ap | varchar(40) | ✓ |  |  |  | pola: `999999B/BJB9999` 13.088, `999999B/JBJ9999` 12.557, `X` 12.350, `999999A/JBJ9999` 8.812, `999999A/BJB9999` 8.572, `999999C/BJB9999` 504, `999999C/JBJ9999` 496, `999999H/BJB9999` 231, `…` |
+| bukti_gl | varchar(40) | ✓ |  |  |  | pola: `999999B/BJB9999` 16.045, `999999B/JBJ9999` 14.869, `999999A/BJB9999` 10.625, `999999A/JBJ9999` 10.476, `999999C/BJB9999` 628, `999999C/JBJ9999` 592, `999999B/BJR9999` 264, `999999A/BJR9999` 233, `…` |
+| bukti_terima_toko | varchar(15) | ✓ |  |  |  | pola: `RJA99999999` 106, `RJB99999999` 100, `RJC99999999` 97, `''` 41, `TGB99999999` 14, `TGH99999999` 6, `RJE99999999` 2 |
 | toko_id_sj | varchar(5) | ✓ |  |  |  |  |
-| bukti_spk | varchar(15) | ✓ |  |  |  |  |
+| bukti_spk | varchar(15) | ✓ |  |  |  | pola: `POB99999999` 918, `POH99999999` 194, `POA99999999` 23, `''` 21, `RTB99999999` 13, `RTH99999999` 8, `POC99999999` 6, `RTA99999999` 1 |
+
+**Pola nomor `bukti` per jenis** (digit diganti 9):
+
+| tipe_trans | status | Pola | Jumlah |
+|---|---|---|---:|
+| TERIMA | IN | `PBB99999999` | 16.665 |
+| KIRIM PENJUALAN | OUT | `SJB99999999` | 15.954 |
+| KIRIM PENJUALAN | OUT | `SJA99999999` | 11.239 |
+| TERIMA | IN | `PBA99999999` | 11.050 |
+| KIRIM TOKO | OUT | `SOB99999999` | 956 |
+| TERIMA | IN | `PBC99999999` | 628 |
+| KIRIM PENJUALAN | OUT | `SJC99999999` | 621 |
+| RETUR | OUT | `RTB99999999` | 272 |
+| RETUR | OUT | `RTA99999999` | 240 |
+| TERIMA | IN | `PBH99999999` | 231 |
+| KIRIM TOKO | OUT | `SOH99999999` | 205 |
+| RETUR PENJUALAN | IN | `RJA99999999` | 172 |
+| RETUR PENJUALAN | IN | `RJB99999999` | 132 |
+| RETUR PENJUALAN | IN | `RJC99999999` | 110 |
+| KIRIM TOKO | OUT | `SOC99999999` | 92 |
+| KIRIM TOKO | OUT | `SOA99999999` | 39 |
+| RETUR TOKO | IN | `TGB99999999` | 38 |
+| TERIMA | IN | `PB99999999` | 31 |
+| KOREKSI PLUS | IN | `KRPB9999999` | 31 |
+| RETUR | OUT | `RTC99999999` | 28 |
+| KOREKSI PLUS | IN | `KRPA9999999` | 27 |
+| KOREKSI MIN | OUT | `KRMB9999999` | 26 |
+| KIRIM PENJUALAN | OUT | `SJH99999999` | 24 |
+| KOREKSI MIN | OUT | `KRMA9999999` | 21 |
+| RETUR | OUT | `RTH99999999` | 16 |
+| RETUR TOKO | IN | `TGH99999999` | 14 |
+| TERIMA | IN | `PBD99999999` | 7 |
+| KIRIM PENJUALAN | OUT | `SJD99999999` | 7 |
+| KOREKSI MIN | OUT | `KRMC9999999` | 3 |
+| TERIMA | IN | `PB9999B9999` | 2 |
+| KOREKSI PLUS | IN | `KRPC9999999` | 2 |
+| RETUR TOKO | IN | `TGC99999999` | 1 |
+| TERIMA | IN | `PB9999A9999` | 1 |
+| RETUR PENJUALAN | IN | `RJE99999999` | 1 |
 
 <a id="dbot_gudang2"></a>
 ## dbo.T_GUDANG2
@@ -4151,7 +4397,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(15) |  | PK → dbo.T_GUDANG1(bukti) |  |  |  |
+| bukti | varchar(15) |  | PK → dbo.T_GUDANG1(bukti) |  |  | pola: `PBB99999999` 119.546, `SJB99999999` 117.675, `SJA99999999` 89.273, `PBA99999999` 85.938, `SOB99999999` 3.331, `PBC99999999` 2.925, `SJC99999999` 2.887, `KRPB9999999` 2.852, `…` |
 | produk_id | varchar(20) |  | PK |  |  |  |
 | harga | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | qty_po | numeric(10,0) | ✓ |  | ((0)) |  |  |
@@ -4172,7 +4418,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(15) |  | PK |  |  |  |
+| bukti | varchar(15) |  | PK |  |  | pola: `JLB99999999` 15.953, `JLA99999999` 11.240, `JLC99999999` 620, `JLH99999999` 24, `JLD99999999` 7 |
 | tgl | datetime | ✓ |  |  |  |  |
 | toko_id | varchar(5) |  |  |  |  |  |
 | remark | varchar(50) | ✓ |  |  |  |  |
@@ -4184,7 +4430,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | brand_id | varchar(1) | ✓ |  |  |  | `B` 15.961, `A` 11.239, `C` 620, `H` 24 |
 | usrupd | varchar(15) | ✓ |  |  |  |  |
 | usrtgl | datetime | ✓ |  |  |  |  |
-| bukti_terima | varchar(15) | ✓ |  |  |  |  |
+| bukti_terima | varchar(15) | ✓ |  |  |  | pola: `POB99999999` 12.372, `POA99999999` 8.677, `PBB99999999` 3.300, `PBA99999999` 2.277, `POC99999999` 481, `PBC99999999` 124, `RTB99999999` 80, `''` 71, `…` |
 
 <a id="dbot_jual2"></a>
 ## dbo.T_JUAL2
@@ -4193,7 +4439,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(15) |  | PK → dbo.T_JUAL1(bukti) |  |  |  |
+| bukti | varchar(15) |  | PK → dbo.T_JUAL1(bukti) |  |  | pola: `JLB99999999` 117.677, `JLA99999999` 89.271, `JLC99999999` 2.879, `JLH99999999` 94, `JLD99999999` 42 |
 | produk_id | varchar(20) |  | PK |  |  |  |
 | harga | numeric(15,0) | ✓ |  | (0) |  |  |
 | qty | numeric(10,0) | ✓ |  | (0) |  |  |
@@ -4279,17 +4525,27 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
 | site_id | varchar(5) |  | PK |  |  |  |
-| bukti | varchar(15) |  | PK |  |  |  |
+| bukti | varchar(15) |  | PK |  |  | pola: `PY9999999999` 13.902 |
 | tgl | datetime | ✓ |  |  |  |  |
-| bukti_ref | varchar(15) | ✓ |  |  |  |  |
+| bukti_ref | varchar(15) | ✓ |  |  |  | pola: `TJ9999999999` 13.902 |
 | tgl_tempo | datetime | ✓ |  |  |  |  |
 | bank_id | varchar(5) | ✓ |  |  |  |  |
 | norek | varchar(30) | ✓ |  |  |  |  |
 | payment | numeric(15,0) | ✓ |  |  |  |  |
 | tglupd | datetime | ✓ |  |  |  |  |
 | usrupd | varchar(15) | ✓ |  |  |  |  |
-| tipe_bayar | varchar(10) | ✓ |  |  |  |  |
+| tipe_bayar | varchar(10) | ✓ |  |  |  | `TRANSFER` 12.881, `CASH` 654, `NULL` 346, `BATAL` 19, `DEBIT` 2 |
 | ket | varchar(50) | ✓ |  |  |  |  |
+
+**Pola nomor `bukti` per jenis** (digit diganti 9):
+
+| tipe_bayar | Pola | Jumlah |
+|---|---|---:|
+| TRANSFER | `PY9999999999` | 12.881 |
+| CASH | `PY9999999999` | 654 |
+| NULL | `PY9999999999` | 346 |
+| BATAL | `PY9999999999` | 19 |
+| DEBIT | `PY9999999999` | 2 |
 
 <a id="dbot_peg_cuti"></a>
 ## dbo.T_PEG_CUTI
@@ -4381,7 +4637,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(15) |  | PK |  |  |  |
+| bukti | varchar(15) |  | PK |  |  | pola: `POB99999999` 17.401, `POA99999999` 11.704, `POC99999999` 692, `PO99999999` 426, `POH99999999` 223, `POD99999999` 16 |
 | tgl | datetime | ✓ |  |  |  |  |
 | brand_id | varchar(2) |  | PK |  |  | `B` 17.512, `A` 12.019, `C` 692, `H` 223, `D` 16 |
 | tgl_sample | smalldatetime | ✓ |  |  |  |  |
@@ -4527,6 +4783,24 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | DP | decimal(15,0) | ✓ |  |  |  |  |
 | tipe_produk | char(1) | ✓ |  |  |  | `G` 16.789, `NULL` 12.153, `R` 1.520 |
 
+**Pola nomor `bukti` per jenis** (digit diganti 9):
+
+| tipe_bayar | Pola | Jumlah |
+|---|---|---:|
+| K | `POB99999999` | 17.378 |
+| K | `POA99999999` | 11.690 |
+| K | `POC99999999` | 636 |
+| K | `PO99999999` | 424 |
+| K | `POH99999999` | 223 |
+| P | `POC99999999` | 55 |
+| K | `POD99999999` | 16 |
+| P | `POB99999999` | 14 |
+| T | `POA99999999` | 11 |
+| T | `POB99999999` | 9 |
+| P | `POA99999999` | 3 |
+| T | `PO99999999` | 2 |
+| T | `POC99999999` | 1 |
+
 <a id="dbot_pro_plan1"></a>
 ## dbo.T_PRO_PLAN1
 
@@ -4534,7 +4808,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(15) |  | PK |  |  |  |
+| bukti | varchar(15) |  | PK |  |  | pola: `9999999999` 4 |
 | tgl | smalldatetime | ✓ |  |  |  |  |
 | supp_id | varchar(10) | ✓ |  |  |  |  |
 | model_id | varchar(20) | ✓ |  |  |  |  |
@@ -4552,7 +4826,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
-| bukti | varchar(15) |  | PK |  |  |  |
+| bukti | varchar(15) |  | PK |  |  | pola: `99999999` 7.047 |
 | model_id | varchar(20) |  | PK |  |  |  |
 | produk_id | varchar(20) |  | PK |  |  |  |
 | brand_id | varchar(1) | ✓ |  |  |  | `A` 3.775, `B` 3.226, `H` 40, `C` 6 |
@@ -4634,10 +4908,10 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
 | site_id | varchar(5) |  | PK |  |  |  |
-| bukti | varchar(15) |  | PK |  |  |  |
+| bukti | varchar(15) |  | PK |  |  | pola: `RK9999999999` 195, `RM9999999999` 104 |
 | tgl | smalldatetime | ✓ |  |  |  |  |
 | status | varchar(3) | ✓ |  |  |  | `OUT` 195, `IN` 104 |
-| bukti_ref | varchar(15) | ✓ |  |  |  |  |
+| bukti_ref | varchar(15) | ✓ |  |  |  | pola: `RK9999999999` 104 |
 | toko_id | varchar(5) | ✓ |  |  |  |  |
 | toko_id_ke | varchar(5) | ✓ |  |  |  |  |
 | remark | varchar(50) | ✓ |  |  |  |  |
@@ -4650,6 +4924,13 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | usr_proses | varchar(15) | ✓ |  |  |  |  |
 | tgl_proses | smalldatetime | ✓ |  |  |  |  |
 
+**Pola nomor `bukti` per jenis** (digit diganti 9):
+
+| status | Pola | Jumlah |
+|---|---|---:|
+| OUT | `RK9999999999` | 195 |
+| IN | `RM9999999999` | 104 |
+
 <a id="dbot_rolling2"></a>
 ## dbo.T_ROLLING2
 
@@ -4658,7 +4939,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
 | site_id | varchar(5) |  | PK → dbo.T_ROLLING1(site_id, bukti) |  |  |  |
-| bukti | varchar(15) |  | PK → dbo.T_ROLLING1(site_id, bukti) |  |  |  |
+| bukti | varchar(15) |  | PK → dbo.T_ROLLING1(site_id, bukti) |  |  | pola: `RK9999999999` 8.517, `RM9999999999` 6.294 |
 | produk_id | varchar(20) |  | PK |  |  |  |
 | harga | decimal(15,0) | ✓ |  |  |  |  |
 | qty | decimal(10,0) | ✓ |  |  |  |  |
@@ -4762,21 +5043,21 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
 | site_id | varchar(4) |  | PK |  |  |  |
-| bukti | varchar(15) |  | PK |  |  |  |
+| bukti | varchar(15) |  | PK |  |  | pola: `SLM99999999999` 25.654, `SLM999999999999` 12.717, `SLM9999999999` 11.863 |
 | toko_id | varchar(10) |  |  |  |  |  |
 | pembeli_id | varchar(10) | ✓ |  |  |  |  |
 | tgl | datetime | ✓ |  |  |  |  |
-| bukti_reff | varchar(50) | ✓ |  |  |  |  |
+| bukti_reff | varchar(50) | ✓ |  |  |  | pola: `999999999999999999` 9.012, `INV/99999999/MPL/9999999999` 233, `GR99999999` 38, `INV/99999999/MPL/99999999999` 35, `99999999999999` 9, `9999999999999W` 4, `999999999999J9` 3, `99999999GY9999` 3, `…` |
 | No_Resi | varchar(50) | ✓ |  |  |  |  |
 | Ekspedisi | varchar(50) | ✓ |  |  |  |  |
 | flag_sj | bit | ✓ |  | ((0)) |  |  |
-| bukti_sj | varchar(15) | ✓ |  |  |  |  |
+| bukti_sj | varchar(15) | ✓ |  |  |  | pola:  |
 | subtotal | decimal(15,2) | ✓ |  | ((0)) |  |  |
 | total | decimal(15,2) | ✓ |  | ((0)) |  |  |
 | user_entry | varchar(15) | ✓ |  |  |  |  |
 | tgl_entry | datetime | ✓ |  |  |  |  |
 | flag_batal | bit | ✓ |  |  |  |  |
-| bukti_ttoko | varchar(15) | ✓ |  |  |  |  |
+| bukti_ttoko | varchar(15) | ✓ |  |  |  | pola:  |
 | tot_biaya | decimal(10,2) | ✓ |  |  |  |  |
 | tot_net | decimal(10,2) | ✓ |  |  |  |  |
 
@@ -4788,7 +5069,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
 | site_id | varchar(4) |  | PK → dbo.T_SALES3(site_id, bukti) |  |  |  |
-| bukti | varchar(15) |  | PK → dbo.T_SALES3(site_id, bukti) |  |  |  |
+| bukti | varchar(15) |  | PK → dbo.T_SALES3(site_id, bukti) |  |  | pola: `SLM99999999999` 29.465, `SLM999999999999` 14.294, `SLM9999999999` 13.899 |
 | produk_id | varchar(20) |  | PK |  |  |  |
 | urut | int |  | PK |  |  |  |
 | harga | decimal(15,0) | ✓ |  | ((0)) |  |  |
@@ -4807,22 +5088,22 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
 | site_id | varchar(5) |  | PK |  |  |  |
-| bukti | varchar(15) |  | PK |  |  |  |
+| bukti | varchar(15) |  | PK |  |  | pola: `JM9999999999` 50.230, `TJ9999999999` 24.136, `TT99B99999999` 15.389, `TT99A99999999` 11.010, `RM9999999999` 3.013, `TK99B99999999` 952, `RT9999999999` 597, `TR9999999999` 372, `…` |
 | tgl | datetime | ✓ |  |  |  |  |
 | cust_id | varchar(10) | ✓ |  |  |  |  |
 | grosir | bit | ✓ |  |  |  |  |
-| tipe_trans | varchar(20) | ✓ |  |  |  |  |
+| tipe_trans | varchar(20) | ✓ |  |  |  | `KIRIM MP` 50.230, `TERIMA` 26.422, `JUAL` 24.136, `RETUR MP` 3.013, `TERIMA TOKO` 1.288, `RETUR JUAL` 597, `RETUR` 372, `PROMO MP` 244, `JUAL OL` 101, `KOREKSI PLUS` 63, `RETUR TOKO` 62, `KOREKSI MIN` 42, `RJUAL OL` 13 |
 | status | varchar(3) | ✓ |  |  |  | `OUT` 75.187, `IN` 31.396 |
 | flag_retail | bit | ✓ |  | ((0)) |  |  |
 | toko_id | varchar(5) | ✓ |  | ((0)) |  |  |
-| bukti_ref | varchar(15) | ✓ |  |  |  |  |
+| bukti_ref | varchar(15) | ✓ |  |  |  | pola: `SLM99999999999` 25.653, `SJB99999999` 15.441, `SLM999999999999` 12.714, `SLM9999999999` 11.863, `SJA99999999` 11.118, `JM9999999999` 3.013, `SOB99999999` 952, `SOH99999999` 205, `…` |
 | remark | varchar(50) | ✓ |  |  |  |  |
 | subtotal | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | disc | numeric(10,2) | ✓ |  | ((0)) |  |  |
 | disc_rp | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | total | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | payment | numeric(15,0) | ✓ |  |  |  |  |
-| tipe_bayar | varchar(10) | ✓ |  |  |  |  |
+| tipe_bayar | varchar(10) | ✓ |  |  |  | `JUAL MP` 50.230, `NULL` 29.429, `CASH` 8.955, `UTANG` 7.708, `TRANSFER` 4.520, `RETUR MP` 3.013, `DEBIT` 1.350, `ONLINE` 541, `RETUR` 457, `PROMO MP` 358, `CREDIT` 10, `BOOKING` 8, `BATAL` 3, `PACKING` 1 |
 | bank_id | varchar(5) | ✓ |  |  |  |  |
 | bank_internal | varchar(5) | ✓ |  |  |  |  |
 | norek | varchar(30) | ✓ |  |  |  |  |
@@ -4849,17 +5130,80 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | no_pesan | varchar(50) | ✓ |  |  |  |  |
 | Exp | varchar(50) | ✓ |  |  |  |  |
 | sts | char(1) | ✓ |  |  |  | `NULL` 106.583 |
-| bukti_ap | varchar(40) | ✓ |  |  |  |  |
-| bukti_gl | varchar(40) | ✓ |  |  |  |  |
+| bukti_ap | varchar(40) | ✓ |  |  |  | pola: `999999JMJ` 51.401, `999999JMJ/` 6.244, `999999B/JPJ9999` 166, `999999B/JOJ9999` 66, `999999H/JPJ9999` 33, `999999H/JOJ9999` 19, `999999A/JOJ9999` 11, `999999B/ROJ9999` 7, `…` |
+| bukti_gl | varchar(40) | ✓ |  |  |  | pola: `999999JMJ` 51.401, `999999JMJ/` 6.244, `999999B/JPJ9999` 166, `999999B/JOJ9999` 66, `999999H/JPJ9999` 33, `999999H/JOJ9999` 19, `999999A/JOJ9999` 11, `999999B/ROJ9999` 7, `…` |
 | tot_qty | decimal(10,0) | ✓ |  |  |  |  |
 | tot_biaya | decimal(10,2) | ✓ |  |  |  |  |
 | tot_net | decimal(10,2) | ✓ |  |  |  |  |
 | tgl_byr | datetime | ✓ |  |  |  |  |
-| bukti_byr_ap | varchar(40) | ✓ |  |  |  |  |
-| bukti_byr_gl | varchar(40) | ✓ |  |  |  |  |
+| bukti_byr_ap | varchar(40) | ✓ |  |  |  | pola:  |
+| bukti_byr_gl | varchar(40) | ✓ |  |  |  | pola:  |
 | tot_byr | decimal(10,2) | ✓ |  |  |  |  |
 | ttot_net | decimal(10,2) | ✓ |  |  |  |  |
 | ap_biaya | varchar(40) | ✓ |  |  |  |  |
+
+**Pola nomor `bukti` per jenis** (digit diganti 9):
+
+| grosir | tipe_trans | status | tipe_bayar | Pola | Jumlah |
+|---|---|---|---|---|---:|
+| NULL | KIRIM MP | OUT | JUAL MP | `JM9999999999` | 50.230 |
+| NULL | TERIMA | IN | NULL | `TT99B99999999` | 15.389 |
+| false | TERIMA | IN | NULL | `TT99A99999999` | 10.618 |
+| true | JUAL | OUT | UTANG | `TJ9999999999` | 7.694 |
+| true | JUAL | OUT | CASH | `TJ9999999999` | 5.272 |
+| true | JUAL | OUT | TRANSFER | `TJ9999999999` | 3.904 |
+| NULL | RETUR MP | IN | RETUR MP | `RM9999999999` | 3.013 |
+| NULL | JUAL | OUT | CASH | `TJ9999999999` | 2.959 |
+| NULL | JUAL | OUT | DEBIT | `TJ9999999999` | 1.317 |
+| NULL | TERIMA TOKO | IN | NULL | `TK99B99999999` | 952 |
+| true | JUAL | OUT | NULL | `TJ9999999999` | 893 |
+| false | JUAL | OUT | CASH | `TJ9999999999` | 724 |
+| NULL | JUAL | OUT | ONLINE | `TJ9999999999` | 534 |
+| NULL | JUAL | OUT | TRANSFER | `TJ9999999999` | 478 |
+| true | RETUR JUAL | IN | RETUR | `RT9999999999` | 449 |
+| NULL | TERIMA | IN | NULL | `TT99A99999999` | 392 |
+| NULL | PROMO MP | OUT | PROMO MP | `JP9999999999` | 244 |
+| NULL | TERIMA TOKO | IN | NULL | `TK99H99999999` | 205 |
+| false | RETUR | OUT | NULL | `TR9999999999` | 188 |
+| NULL | RETUR | OUT | NULL | `TR9999999999` | 184 |
+| false | JUAL | OUT | TRANSFER | `TJ9999999999` | 138 |
+| NULL | JUAL | OUT | NULL | `TJ9999999999` | 137 |
+| NULL | JUAL OL | OUT | PROMO MP | `JO9999999999` | 101 |
+| NULL | RETUR JUAL | IN | NULL | `RT9999999999` | 95 |
+| NULL | TERIMA TOKO | IN | NULL | `TK99C99999999` | 92 |
+| NULL | RETUR TOKO | OUT | NULL | `RK9999999999` | 58 |
+| true | RETUR JUAL | IN | NULL | `RT9999999999` | 44 |
+| NULL | TERIMA TOKO | IN | NULL | `TK99A99999999` | 39 |
+| false | JUAL | OUT | DEBIT | `TJ9999999999` | 32 |
+| NULL | KOREKSI PLUS | IN | NULL | `TKRP999999999` | 29 |
+| NULL | TERIMA | IN | NULL | `TT9999999999` | 23 |
+| NULL | KOREKSI MIN | OUT | NULL | `TKRM999999999` | 15 |
+| NULL | KOREKSI PLUS | IN | NULL | `KRPB9999999` | 15 |
+| NULL | RJUAL OL | IN | PROMO MP | `RO9999999999` | 13 |
+| NULL | KOREKSI MIN | OUT | NULL | `KRMB9999999` | 13 |
+| NULL | JUAL | OUT | UTANG | `TJ9999999999` | 12 |
+| NULL | KOREKSI PLUS | IN | NULL | `KRP9999999` | 10 |
+| false | JUAL | OUT | NULL | `TJ9999999999` | 9 |
+| NULL | KOREKSI MIN | OUT | NULL | `KRM9999999` | 8 |
+| NULL | JUAL | OUT | CREDIT | `TJ9999999999` | 8 |
+| false | JUAL | OUT | ONLINE | `TJ9999999999` | 7 |
+| true | JUAL | OUT | BOOKING | `TJ9999999999` | 7 |
+| false | RETUR JUAL | IN | RETUR | `RT9999999999` | 6 |
+| false | KOREKSI PLUS | IN | NULL | `TKRP999999999` | 4 |
+| NULL | RETUR TOKO | OUT | NULL | `RK99999999` | 4 |
+| false | KOREKSI MIN | OUT | NULL | `TKRM999999999` | 4 |
+| true | JUAL | OUT | BATAL | `TJ9999999999` | 3 |
+| NULL | KOREKSI PLUS | IN | NULL | `KRPA9999999` | 3 |
+| false | KOREKSI PLUS | IN | NULL | `KRPA9999999` | 2 |
+| false | RETUR JUAL | IN | NULL | `RT9999999999` | 2 |
+| false | KOREKSI MIN | OUT | NULL | `KRMA9999999` | 2 |
+| true | JUAL | OUT | CREDIT | `TJ9999999999` | 2 |
+| false | JUAL | OUT | UTANG | `TJ9999999999` | 2 |
+| true | JUAL | OUT | PACKING | `TJ9999999999` | 1 |
+| NULL | JUAL | OUT | BOOKING | `TJ9999999999` | 1 |
+| true | JUAL | OUT | DEBIT | `TJ9999999999` | 1 |
+| true | JUAL | OUT | RETUR | `TJ9999999999` | 1 |
+| NULL | RETUR JUAL | IN | RETUR | `RT9999999999` | 1 |
 
 <a id="dbot_toko1_biaya"></a>
 ## dbo.T_TOKO1_BIAYA
@@ -4929,7 +5273,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
 | site_id | varchar(5) |  | PK → dbo.T_TOKO1(site_id, bukti) |  |  |  |
-| bukti | varchar(15) |  | PK → dbo.T_TOKO1(site_id, bukti) |  |  |  |
+| bukti | varchar(15) |  | PK → dbo.T_TOKO1(site_id, bukti) |  |  | pola: `TJ9999999999` 1.435.958, `TT99B99999999` 106.499, `TT99A99999999` 87.723, `JM9999999999` 57.651, `KRPB9999999` 27.749, `KRM9999999` 14.278, `KRMB9999999` 9.301, `TKRP999999999` 9.193, `…` |
 | produk_id | varchar(20) |  | PK |  |  |  |
 | harga | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | harga_barcode | numeric(15,0) | ✓ |  | ((0)) |  |  |
@@ -4983,7 +5327,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
 | site_id | varchar(5) |  | PK |  |  |  |
-| bukti | varchar(15) |  | PK |  |  |  |
+| bukti | varchar(15) |  | PK |  |  | pola: `TJ9999999999` 599.213, `TT99A99999999` 87.240, `KRMA9999999` 26.739, `KRPA9999999` 21.204, `TKRM999999999` 6.610, `TKRP999999999` 6.503, `RT9999999999` 2.633, `TR9999999999` 1.253 |
 | produk_id | varchar(20) |  | PK |  |  |  |
 | harga | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | harga_barcode | numeric(15,0) | ✓ |  | ((0)) |  |  |
@@ -5010,22 +5354,22 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
 | site_id | varchar(5) |  | PK |  |  |  |
-| bukti | varchar(15) |  | PK |  |  |  |
+| bukti | varchar(15) |  | PK |  |  | pola: `TT99B99999999` 5.571, `TJ9999999999` 4.435, `RT9999999999` 124, `TR9999999999` 70, `TT9999999999` 23, `KRPB9999999` 2, `KRMB9999999` 2 |
 | tgl | datetime | ✓ |  |  |  |  |
 | cust_id | varchar(10) | ✓ |  |  |  |  |
 | grosir | bit | ✓ |  |  |  |  |
-| tipe_trans | varchar(20) | ✓ |  |  |  |  |
+| tipe_trans | varchar(20) | ✓ |  |  |  | `TERIMA` 5.594, `JUAL` 4.435, `RETUR JUAL` 124, `RETUR` 70, `KOREKSI PLUS` 2, `KOREKSI MIN` 2 |
 | status | varchar(3) | ✓ |  |  |  | `IN` 5.720, `OUT` 4.507 |
 | flag_retail | bit | ✓ |  | ((0)) |  |  |
 | toko_id | varchar(5) | ✓ |  | ((0)) |  |  |
-| bukti_ref | varchar(15) | ✓ |  |  |  |  |
+| bukti_ref | varchar(15) | ✓ |  |  |  | pola: `SJB99999999` 5.626, `''` 10, `SJD99999999` 2 |
 | remark | varchar(50) | ✓ |  |  |  |  |
 | subtotal | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | disc | numeric(10,2) | ✓ |  | ((0)) |  |  |
 | disc_rp | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | total | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | payment | numeric(15,0) | ✓ |  |  |  |  |
-| tipe_bayar | varchar(10) | ✓ |  |  |  |  |
+| tipe_bayar | varchar(10) | ✓ |  |  |  | `NULL` 5.702, `UTANG` 1.925, `CASH` 1.600, `TRANSFER` 873, `RETUR` 124, `CREDIT` 2, `BOOKING` 1 |
 | bank_id | varchar(5) | ✓ |  |  |  |  |
 | bank_internal | varchar(5) | ✓ |  |  |  |  |
 | norek | varchar(30) | ✓ |  |  |  |  |
@@ -5041,6 +5385,30 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | transfer | numeric(15,0) | ✓ |  |  |  |  |
 | brand_id | varchar(1) | ✓ |  |  |  | `B` 5.668, `NULL` 4.559 |
 
+**Pola nomor `bukti` per jenis** (digit diganti 9):
+
+| grosir | tipe_trans | status | tipe_bayar | Pola | Jumlah |
+|---|---|---|---|---|---:|
+| NULL | TERIMA | IN | NULL | `TT99B99999999` | 5.571 |
+| true | JUAL | OUT | UTANG | `TJ9999999999` | 1.920 |
+| true | JUAL | OUT | CASH | `TJ9999999999` | 1.547 |
+| true | JUAL | OUT | TRANSFER | `TJ9999999999` | 871 |
+| true | RETUR JUAL | IN | RETUR | `RT9999999999` | 122 |
+| NULL | RETUR | OUT | NULL | `TR9999999999` | 70 |
+| false | JUAL | OUT | CASH | `TJ9999999999` | 53 |
+| true | JUAL | OUT | NULL | `TJ9999999999` | 32 |
+| NULL | TERIMA | IN | NULL | `TT9999999999` | 23 |
+| NULL | JUAL | OUT | UTANG | `TJ9999999999` | 5 |
+| NULL | KOREKSI PLUS | IN | NULL | `KRPB9999999` | 2 |
+| false | JUAL | OUT | TRANSFER | `TJ9999999999` | 2 |
+| NULL | KOREKSI MIN | OUT | NULL | `KRMB9999999` | 2 |
+| true | JUAL | OUT | CREDIT | `TJ9999999999` | 2 |
+| true | JUAL | OUT | RETUR | `TJ9999999999` | 1 |
+| false | RETUR JUAL | IN | RETUR | `RT9999999999` | 1 |
+| true | RETUR JUAL | IN | NULL | `RT9999999999` | 1 |
+| NULL | JUAL | OUT | NULL | `TJ9999999999` | 1 |
+| true | JUAL | OUT | BOOKING | `TJ9999999999` | 1 |
+
 <a id="dbot_tokox2"></a>
 ## dbo.T_TOKOX2
 
@@ -5049,7 +5417,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
 | site_id | varchar(5) |  | PK |  |  |  |
-| bukti | varchar(15) |  | PK |  |  |  |
+| bukti | varchar(15) |  | PK |  |  | pola: `TJ9999999999` 327.151, `TT99B99999999` 47.572, `KRPB9999999` 8.004, `KRMB9999999` 3.057, `RT9999999999` 1.830, `TR9999999999` 599, `TT9999999999` 182 |
 | produk_id | varchar(20) |  | PK |  |  |  |
 | harga | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | harga_barcode | numeric(15,0) | ✓ |  | ((0)) |  |  |
@@ -5073,22 +5441,22 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
 | site_id | varchar(5) |  | PK |  |  |  |
-| bukti | varchar(15) |  | PK |  |  |  |
+| bukti | varchar(15) |  | PK |  |  | pola: `TT99B99999999` 5.912, `TJ9999999999` 4.690, `RT9999999999` 138, `TR9999999999` 76, `TT9999999999` 23, `KRPB9999999` 2, `KRMB9999999` 2 |
 | tgl | datetime | ✓ |  |  |  |  |
 | cust_id | varchar(10) | ✓ |  |  |  |  |
 | grosir | bit | ✓ |  |  |  |  |
-| tipe_trans | varchar(20) | ✓ |  |  |  |  |
+| tipe_trans | varchar(20) | ✓ |  |  |  | `TERIMA` 5.935, `JUAL` 4.690, `RETUR JUAL` 138, `RETUR` 76, `KOREKSI PLUS` 2, `KOREKSI MIN` 2 |
 | status | varchar(3) | ✓ |  |  |  | `IN` 6.075, `OUT` 4.768 |
 | flag_retail | bit | ✓ |  | ((0)) |  |  |
 | toko_id | varchar(5) | ✓ |  | ((0)) |  |  |
-| bukti_ref | varchar(15) | ✓ |  |  |  |  |
+| bukti_ref | varchar(15) | ✓ |  |  |  | pola: `SJB99999999` 5.968, `''` 11, `SJD99999999` 2 |
 | remark | varchar(50) | ✓ |  |  |  |  |
 | subtotal | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | disc | numeric(10,2) | ✓ |  | ((0)) |  |  |
 | disc_rp | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | total | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | payment | numeric(15,0) | ✓ |  |  |  |  |
-| tipe_bayar | varchar(10) | ✓ |  |  |  |  |
+| tipe_bayar | varchar(10) | ✓ |  |  |  | `NULL` 6.055, `UTANG` 2.030, `CASH` 1.744, `TRANSFER` 873, `RETUR` 138, `CREDIT` 2, `BOOKING` 1 |
 | bank_id | varchar(5) | ✓ |  |  |  |  |
 | bank_internal | varchar(5) | ✓ |  |  |  |  |
 | norek | varchar(30) | ✓ |  |  |  |  |
@@ -5104,6 +5472,29 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | transfer | numeric(15,0) | ✓ |  |  |  |  |
 | brand_id | varchar(1) | ✓ |  |  |  | `B` 6.015, `NULL` 4.828 |
 
+**Pola nomor `bukti` per jenis** (digit diganti 9):
+
+| grosir | tipe_trans | status | tipe_bayar | Pola | Jumlah |
+|---|---|---|---|---|---:|
+| NULL | TERIMA | IN | NULL | `TT99B99999999` | 5.912 |
+| true | JUAL | OUT | UTANG | `TJ9999999999` | 2.024 |
+| true | JUAL | OUT | CASH | `TJ9999999999` | 1.687 |
+| true | JUAL | OUT | TRANSFER | `TJ9999999999` | 871 |
+| true | RETUR JUAL | IN | RETUR | `RT9999999999` | 136 |
+| NULL | RETUR | OUT | NULL | `TR9999999999` | 76 |
+| false | JUAL | OUT | CASH | `TJ9999999999` | 57 |
+| true | JUAL | OUT | NULL | `TJ9999999999` | 39 |
+| NULL | TERIMA | IN | NULL | `TT9999999999` | 23 |
+| NULL | JUAL | OUT | UTANG | `TJ9999999999` | 6 |
+| NULL | KOREKSI PLUS | IN | NULL | `KRPB9999999` | 2 |
+| false | JUAL | OUT | TRANSFER | `TJ9999999999` | 2 |
+| NULL | KOREKSI MIN | OUT | NULL | `KRMB9999999` | 2 |
+| true | JUAL | OUT | CREDIT | `TJ9999999999` | 2 |
+| true | JUAL | OUT | RETUR | `TJ9999999999` | 1 |
+| false | RETUR JUAL | IN | RETUR | `RT9999999999` | 1 |
+| true | RETUR JUAL | IN | NULL | `RT9999999999` | 1 |
+| true | JUAL | OUT | BOOKING | `TJ9999999999` | 1 |
+
 <a id="dbot_tokoxx2"></a>
 ## dbo.T_TOKOXX2
 
@@ -5112,7 +5503,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
 | site_id | varchar(5) |  | PK |  |  |  |
-| bukti | varchar(15) |  | PK |  |  |  |
+| bukti | varchar(15) |  | PK |  |  | pola: `TJ9999999999` 346.482, `TT99B99999999` 50.134, `KRPB9999999` 12.206, `KRMB9999999` 3.115, `RT9999999999` 2.029, `TR9999999999` 725, `TT9999999999` 182 |
 | produk_id | varchar(20) |  | PK |  |  |  |
 | harga | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | harga_barcode | numeric(15,0) | ✓ |  | ((0)) |  |  |
@@ -5136,22 +5527,22 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
 | site_id | varchar(5) | ✓ |  |  |  |  |
-| bukti | varchar(15) |  | PK |  |  |  |
+| bukti | varchar(15) |  | PK |  |  | pola: `TK99B99999999` 932, `TK99H99999999` 202, `TK99C99999999` 92, `RK9999999999` 56, `TK99A99999999` 38, `RK99999999` 4 |
 | tgl | datetime | ✓ |  |  |  |  |
 | cust_id | varchar(10) | ✓ |  |  |  |  |
 | grosir | bit | ✓ |  |  |  |  |
-| tipe_trans | varchar(20) | ✓ |  |  |  |  |
+| tipe_trans | varchar(20) | ✓ |  |  |  | `TERIMA TOKO` 1.264, `RETUR TOKO` 60 |
 | status | varchar(3) | ✓ |  |  |  | `IN` 1.264, `OUT` 60 |
 | flag_retail | bit | ✓ |  | ((0)) |  |  |
 | toko_id | varchar(5) | ✓ |  | ((0)) |  |  |
-| bukti_ref | varchar(15) | ✓ |  |  |  |  |
+| bukti_ref | varchar(15) | ✓ |  |  |  | pola: `SOB99999999` 932, `SOH99999999` 202, `SOC99999999` 92, `SOA99999999` 38 |
 | remark | varchar(50) | ✓ |  |  |  |  |
 | subtotal | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | disc | numeric(10,2) | ✓ |  | ((0)) |  |  |
 | disc_rp | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | total | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | payment | numeric(15,0) | ✓ |  |  |  |  |
-| tipe_bayar | varchar(10) | ✓ |  |  |  |  |
+| tipe_bayar | varchar(10) | ✓ |  |  |  | `NULL` 1.324 |
 | bank_id | varchar(5) | ✓ |  |  |  |  |
 | bank_internal | varchar(5) | ✓ |  |  |  |  |
 | norek | varchar(30) | ✓ |  |  |  |  |
@@ -5178,17 +5569,28 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | no_pesan | varchar(50) | ✓ |  |  |  |  |
 | Exp | varchar(50) | ✓ |  |  |  |  |
 | sts | char(1) | ✓ |  |  |  | `NULL` 1.324 |
-| bukti_ap | varchar(40) | ✓ |  |  |  |  |
-| bukti_gl | varchar(40) | ✓ |  |  |  |  |
+| bukti_ap | varchar(40) | ✓ |  |  |  | pola: `999999JMJ/` 541, `999999JMJ` 44 |
+| bukti_gl | varchar(40) | ✓ |  |  |  | pola: `999999JMJ/` 541, `999999JMJ` 44 |
 | tot_qty | decimal(10,0) | ✓ |  |  |  |  |
 | tot_biaya | decimal(10,2) | ✓ |  |  |  |  |
 | tot_net | decimal(10,2) | ✓ |  |  |  |  |
 | tgl_byr | datetime | ✓ |  |  |  |  |
-| bukti_byr_ap | varchar(40) | ✓ |  |  |  |  |
-| bukti_byr_gl | varchar(40) | ✓ |  |  |  |  |
+| bukti_byr_ap | varchar(40) | ✓ |  |  |  | pola:  |
+| bukti_byr_gl | varchar(40) | ✓ |  |  |  | pola:  |
 | tot_byr | decimal(10,2) | ✓ |  |  |  |  |
 | ttot_net | decimal(10,2) | ✓ |  |  |  |  |
 | ap_biaya | varchar(40) | ✓ |  |  |  |  |
+
+**Pola nomor `bukti` per jenis** (digit diganti 9):
+
+| grosir | tipe_trans | status | tipe_bayar | Pola | Jumlah |
+|---|---|---|---|---|---:|
+| NULL | TERIMA TOKO | IN | NULL | `TK99B99999999` | 932 |
+| NULL | TERIMA TOKO | IN | NULL | `TK99H99999999` | 202 |
+| NULL | TERIMA TOKO | IN | NULL | `TK99C99999999` | 92 |
+| NULL | RETUR TOKO | OUT | NULL | `RK9999999999` | 56 |
+| NULL | TERIMA TOKO | IN | NULL | `TK99A99999999` | 38 |
+| NULL | RETUR TOKO | OUT | NULL | `RK99999999` | 4 |
 
 <a id="dbot_tokoxxx2"></a>
 ## dbo.T_TOKOXXX2
@@ -5198,7 +5600,7 @@ Dibuat otomatis oleh `npm run db:schema` pada 23/10/2026, 05.35.58. Isi data tid
 | Kolom | Tipe | Null | Kunci | Default | Label / keterangan | Nilai kode |
 |---|---|:-:|---|---|---|---|
 | site_id | varchar(5) | ✓ |  |  |  |  |
-| bukti | varchar(15) |  | PK |  |  |  |
+| bukti | varchar(15) |  | PK |  |  | pola: `TK99B99999999` 3.263, `TK99H99999999` 893, `TK99C99999999` 375, `RK9999999999` 281, `TK99A99999999` 85, `RK99999999` 48 |
 | produk_id | varchar(20) |  | PK |  |  |  |
 | harga | numeric(15,0) | ✓ |  | ((0)) |  |  |
 | harga_barcode | numeric(15,0) | ✓ |  | ((0)) |  |  |

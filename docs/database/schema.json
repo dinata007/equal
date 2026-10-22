@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-22T22:35:37.033Z",
+ "generatedAt": "2026-10-22T23:15:04.076Z",
  "database": "SENJA_DEMO",
  "version": "15.0.2000.5",
  "edition": "Enterprise Edition (64-bit)",
@@ -187,7 +187,113 @@
      "type": "varchar(5)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "00001",
+       "count": 5278
+      },
+      {
+       "value": "00002",
+       "count": 2441
+      },
+      {
+       "value": "00030",
+       "count": 412
+      },
+      {
+       "value": "00007",
+       "count": 254
+      },
+      {
+       "value": "00013",
+       "count": 190
+      },
+      {
+       "value": "00014",
+       "count": 185
+      },
+      {
+       "value": "00028",
+       "count": 135
+      },
+      {
+       "value": "00015",
+       "count": 100
+      },
+      {
+       "value": "00008",
+       "count": 98
+      },
+      {
+       "value": "00009",
+       "count": 90
+      },
+      {
+       "value": "00004",
+       "count": 45
+      },
+      {
+       "value": "00016",
+       "count": 32
+      },
+      {
+       "value": "00003",
+       "count": 26
+      },
+      {
+       "value": "00020",
+       "count": 12
+      },
+      {
+       "value": "00017",
+       "count": 10
+      },
+      {
+       "value": "00021",
+       "count": 8
+      },
+      {
+       "value": "00022",
+       "count": 8
+      },
+      {
+       "value": "00010",
+       "count": 7
+      },
+      {
+       "value": "00012",
+       "count": 5
+      },
+      {
+       "value": "00019",
+       "count": 4
+      },
+      {
+       "value": "00023",
+       "count": 2
+      },
+      {
+       "value": "00018",
+       "count": 2
+      },
+      {
+       "value": "00027",
+       "count": 2
+      },
+      {
+       "value": "00025",
+       "count": 2
+      },
+      {
+       "value": "00032",
+       "count": 1
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     }
    ],
    "primaryKey": [
@@ -439,6 +545,44 @@
       },
       {
        "value": "2",
+       "count": 1
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ],
+     "patterns": [
+      {
+       "value": "9",
+       "count": 9
+      },
+      {
+       "value": "K",
+       "count": 1
+      },
+      {
+       "value": "J",
+       "count": 1
+      },
+      {
+       "value": "H",
+       "count": 1
+      },
+      {
+       "value": "G",
+       "count": 1
+      },
+      {
+       "value": "F",
+       "count": 1
+      },
+      {
+       "value": "D",
+       "count": 1
+      },
+      {
+       "value": "C",
        "count": 1
       },
       {
@@ -710,7 +854,105 @@
      "type": "char(10)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "M         ",
+       "count": 2
+      },
+      {
+       "value": "F         ",
+       "count": 2
+      },
+      {
+       "value": "A1        ",
+       "count": 2
+      },
+      {
+       "value": "O         ",
+       "count": 2
+      },
+      {
+       "value": "          ",
+       "count": 2
+      },
+      {
+       "value": "S         ",
+       "count": 2
+      },
+      {
+       "value": "Z         ",
+       "count": 1
+      },
+      {
+       "value": "Y         ",
+       "count": 1
+      },
+      {
+       "value": "T         ",
+       "count": 1
+      },
+      {
+       "value": "R         ",
+       "count": 1
+      },
+      {
+       "value": "Q         ",
+       "count": 1
+      },
+      {
+       "value": "N         ",
+       "count": 1
+      },
+      {
+       "value": "A         ",
+       "count": 1
+      },
+      {
+       "value": "E         ",
+       "count": 1
+      },
+      {
+       "value": "D         ",
+       "count": 1
+      },
+      {
+       "value": "C         ",
+       "count": 1
+      },
+      {
+       "value": "B         ",
+       "count": 1
+      },
+      {
+       "value": "L         ",
+       "count": 1
+      },
+      {
+       "value": "K         ",
+       "count": 1
+      },
+      {
+       "value": "J         ",
+       "count": 1
+      },
+      {
+       "value": "I         ",
+       "count": 1
+      },
+      {
+       "value": "H         ",
+       "count": 1
+      },
+      {
+       "value": "G1        ",
+       "count": 1
+      },
+      {
+       "value": "G         ",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "sts_mem",
@@ -851,7 +1093,13 @@
      "type": "varchar(20)",
      "nullable": false,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "9999999999",
+       "count": 2
+      }
+     ]
     },
     {
      "name": "kd_brg",
@@ -926,7 +1174,13 @@
      "type": "varchar(20)",
      "nullable": false,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "9999999999",
+       "count": 6
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -947,7 +1201,13 @@
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "test",
+       "count": 5
+      }
+     ]
     },
     {
      "name": "disc",
@@ -1135,7 +1395,49 @@
      "type": "varchar(5)",
      "nullable": false,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "P9999",
+       "count": 1
+      },
+      {
+       "value": "P0008",
+       "count": 1
+      },
+      {
+       "value": "P0007",
+       "count": 1
+      },
+      {
+       "value": "P0006",
+       "count": 1
+      },
+      {
+       "value": "P0005",
+       "count": 1
+      },
+      {
+       "value": "P0004",
+       "count": 1
+      },
+      {
+       "value": "P0003",
+       "count": 1
+      },
+      {
+       "value": "P0002",
+       "count": 1
+      },
+      {
+       "value": "P0001",
+       "count": 1
+      },
+      {
+       "value": "C0002",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "ket",
@@ -2217,7 +2519,13 @@
      "type": "varchar(20)",
      "nullable": false,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "9999999999",
+       "count": 8
+      }
+     ]
     },
     {
      "name": "kd_brg",
@@ -2294,7 +2602,13 @@
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "9999999999",
+       "count": 7
+      }
+     ]
     }
    ],
    "primaryKey": [],
@@ -2313,7 +2627,13 @@
      "type": "varchar(20)",
      "nullable": false,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "9999999999",
+       "count": 9
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -3272,7 +3592,45 @@
      "type": "varchar(25)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "999999B/BJB9999",
+       "count": 12533
+      },
+      {
+       "value": "999999A/BJB9999",
+       "count": 8064
+      },
+      {
+       "value": "999999A/RMB9999",
+       "count": 511
+      },
+      {
+       "value": "999999C/BJB9999",
+       "count": 480
+      },
+      {
+       "value": "999999B/RMB9999",
+       "count": 375
+      },
+      {
+       "value": "999999H/BJB9999",
+       "count": 231
+      },
+      {
+       "value": "999999B/BJR9999",
+       "count": 204
+      },
+      {
+       "value": "999999A/BJR9999",
+       "count": 159
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "site_id",
@@ -3317,7 +3675,45 @@
      "type": "varchar(15)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "PBB99999999",
+       "count": 12533
+      },
+      {
+       "value": "PBA99999999",
+       "count": 8064
+      },
+      {
+       "value": "999999AN9999",
+       "count": 535
+      },
+      {
+       "value": "PBC99999999",
+       "count": 480
+      },
+      {
+       "value": "999999BN9999",
+       "count": 379
+      },
+      {
+       "value": "PBH99999999",
+       "count": 231
+      },
+      {
+       "value": "RTB99999999",
+       "count": 204
+      },
+      {
+       "value": "RTA99999999",
+       "count": 159
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "ket",
@@ -3446,7 +3842,100 @@
    ],
    "indexes": [],
    "foreignKeys": [],
-   "triggers": []
+   "triggers": [],
+   "numbering": {
+    "column": "bukti_ap",
+    "by": [
+     "tipe_trans"
+    ],
+    "rows": [
+     {
+      "tipe_trans": "01",
+      "pattern": "999999B/BJB9999",
+      "n": 12533
+     },
+     {
+      "tipe_trans": "01",
+      "pattern": "999999A/BJB9999",
+      "n": 8064
+     },
+     {
+      "tipe_trans": "01",
+      "pattern": "999999A/RMB9999",
+      "n": 511
+     },
+     {
+      "tipe_trans": "01",
+      "pattern": "999999C/BJB9999",
+      "n": 480
+     },
+     {
+      "tipe_trans": "01",
+      "pattern": "999999B/RMB9999",
+      "n": 375
+     },
+     {
+      "tipe_trans": "01",
+      "pattern": "999999H/BJB9999",
+      "n": 231
+     },
+     {
+      "tipe_trans": "01",
+      "pattern": "999999B/BJR9999",
+      "n": 204
+     },
+     {
+      "tipe_trans": "01",
+      "pattern": "999999A/BJR9999",
+      "n": 159
+     },
+     {
+      "tipe_trans": "01",
+      "pattern": "999999C/RMB9999",
+      "n": 39
+     },
+     {
+      "tipe_trans": "01",
+      "pattern": "999999C/BJR9999",
+      "n": 27
+     },
+     {
+      "tipe_trans": "01",
+      "pattern": "999999H/BJR9999",
+      "n": 16
+     },
+     {
+      "tipe_trans": "01",
+      "pattern": "999999H/RMB9999",
+      "n": 15
+     },
+     {
+      "tipe_trans": "01",
+      "pattern": "999999A/RMR9999",
+      "n": 13
+     },
+     {
+      "tipe_trans": "78",
+      "pattern": "999999AN9999/ROL/AP",
+      "n": 11
+     },
+     {
+      "tipe_trans": "01",
+      "pattern": "999999B/RMR9999",
+      "n": 2
+     },
+     {
+      "tipe_trans": "01",
+      "pattern": "999999C/RMR9999",
+      "n": 2
+     },
+     {
+      "tipe_trans": "78",
+      "pattern": "999999BN9999/ROL/AP",
+      "n": 2
+     }
+    ]
+   }
   },
   {
    "schema": "dbo",
@@ -3602,7 +4091,45 @@
      "type": "varchar(25)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "999999B/JBJ9999",
+       "count": 11955
+      },
+      {
+       "value": "999999A/JBJ9999",
+       "count": 8296
+      },
+      {
+       "value": "999999BN9999/JRM",
+       "count": 5038
+      },
+      {
+       "value": "999999AN9999/JRM",
+       "count": 3484
+      },
+      {
+       "value": "999999CN9999/JRM",
+       "count": 528
+      },
+      {
+       "value": "999999C/JBJ9999",
+       "count": 473
+      },
+      {
+       "value": "999999HN9999/JRM",
+       "count": 270
+      },
+      {
+       "value": "999999B/JPJ9999",
+       "count": 199
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "site_id",
@@ -3647,7 +4174,45 @@
      "type": "varchar(15)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "SJB99999999",
+       "count": 11955
+      },
+      {
+       "value": "SJA99999999",
+       "count": 8296
+      },
+      {
+       "value": "999999BN9999",
+       "count": 5084
+      },
+      {
+       "value": "999999AN9999",
+       "count": 3557
+      },
+      {
+       "value": "999999CN9999",
+       "count": 549
+      },
+      {
+       "value": "SJC99999999",
+       "count": 473
+      },
+      {
+       "value": "999999HN9999",
+       "count": 272
+      },
+      {
+       "value": "JP9999999999",
+       "count": 245
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "ket",
@@ -3752,7 +4317,185 @@
    ],
    "indexes": [],
    "foreignKeys": [],
-   "triggers": []
+   "triggers": [],
+   "numbering": {
+    "column": "bukti",
+    "by": [
+     "tipe_trans"
+    ],
+    "rows": [
+     {
+      "tipe_trans": "70",
+      "pattern": "999999B/JBJ9999",
+      "n": 11955
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999A/JBJ9999",
+      "n": 8296
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999BN9999/JRM",
+      "n": 5038
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999AN9999/JRM",
+      "n": 3484
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999CN9999/JRM",
+      "n": 528
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999C/JBJ9999",
+      "n": 473
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999HN9999/JRM",
+      "n": 270
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999B/JPJ9999",
+      "n": 199
+     },
+     {
+      "tipe_trans": "71",
+      "pattern": "999999A/RBJ9999",
+      "n": 122
+     },
+     {
+      "tipe_trans": "71",
+      "pattern": "999999C/RBJ9999",
+      "n": 108
+     },
+     {
+      "tipe_trans": "71",
+      "pattern": "999999B/RBJ9999",
+      "n": 97
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999B/JOJ9999",
+      "n": 77
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999AN9999/RJRM",
+      "n": 60
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999BN9999/RJRM",
+      "n": 44
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999H/JPJ9999",
+      "n": 41
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999JMBA9999",
+      "n": 25
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999JMJB9999",
+      "n": 25
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999JMBB9999",
+      "n": 25
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999JMJA9999",
+      "n": 25
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999JMJH9999",
+      "n": 25
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999JMBH9999",
+      "n": 25
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999H/JOJ9999",
+      "n": 24
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999H/JBJ9999",
+      "n": 24
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999CN9999/RJRM",
+      "n": 21
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999C/JOJ9999",
+      "n": 19
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999A/JOJ9999",
+      "n": 16
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999JMBC9999",
+      "n": 16
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999JMJC9999",
+      "n": 16
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999B/ROJ9999",
+      "n": 16
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999AN9999/ROL/AR",
+      "n": 13
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999H/ROJ9999",
+      "n": 12
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999A/JPJ9999",
+      "n": 5
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999BN9999/ROL/AR",
+      "n": 2
+     },
+     {
+      "tipe_trans": "70",
+      "pattern": "999999HN9999/RJRM",
+      "n": 2
+     }
+    ]
+   }
   },
   {
    "schema": "dbo",
@@ -3926,14 +4669,30 @@
      "type": "varchar(30)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": null,
+       "count": 21169
+      }
+     ]
     },
     {
      "name": "status",
      "type": "varchar(10)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": null,
+       "count": 19541
+      },
+      {
+       "value": "1",
+       "count": 1628
+      }
+     ]
     },
     {
      "name": "pt_id",
@@ -4325,14 +5084,30 @@
      "type": "varchar(30)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": null,
+       "count": 70
+      }
+     ]
     },
     {
      "name": "status",
      "type": "varchar(10)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "1",
+       "count": 47
+      },
+      {
+       "value": null,
+       "count": 23
+      }
+     ]
     },
     {
      "name": "nik",
@@ -4716,7 +5491,25 @@
      "type": "varchar(50)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "99/BK-99/9999/9999",
+       "count": 4171
+      },
+      {
+       "value": "99/BM-99/9999/9999",
+       "count": 2387
+      },
+      {
+       "value": "99/KK-99/9999/9999",
+       "count": 1994
+      },
+      {
+       "value": "99/KM-99/9999/9999",
+       "count": 35
+      }
+     ]
     },
     {
      "name": "site_id",
@@ -4770,7 +5563,25 @@
      "type": "char(30)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "99/BK-99/9999/9999            ",
+       "count": 4171
+      },
+      {
+       "value": "99/BM-99/9999/9999            ",
+       "count": 2387
+      },
+      {
+       "value": "99/KK-99/9999/9999            ",
+       "count": 1994
+      },
+      {
+       "value": "99/KM-99/9999/9999            ",
+       "count": 35
+      }
+     ]
     },
     {
      "name": "nilai_trans",
@@ -4883,7 +5694,8 @@
        "value": null,
        "count": 8587
       }
-     ]
+     ],
+     "patterns": []
     },
     {
      "name": "kd_giro",
@@ -5057,7 +5869,52 @@
    ],
    "indexes": [],
    "foreignKeys": [],
-   "triggers": []
+   "triggers": [],
+   "numbering": {
+    "column": "no_urut",
+    "by": [
+     "tipe_trans",
+     "tipe_bayar"
+    ],
+    "rows": [
+     {
+      "tipe_trans": "BK",
+      "tipe_bayar": null,
+      "pattern": "99/BK-99/9999/9999",
+      "n": 4166
+     },
+     {
+      "tipe_trans": "BM",
+      "tipe_bayar": null,
+      "pattern": "99/BM-99/9999/9999",
+      "n": 2387
+     },
+     {
+      "tipe_trans": "KK",
+      "tipe_bayar": null,
+      "pattern": "99/KK-99/9999/9999",
+      "n": 1992
+     },
+     {
+      "tipe_trans": "KM",
+      "tipe_bayar": null,
+      "pattern": "99/KM-99/9999/9999",
+      "n": 35
+     },
+     {
+      "tipe_trans": "KK",
+      "tipe_bayar": null,
+      "pattern": "99/BK-99/9999/9999",
+      "n": 5
+     },
+     {
+      "tipe_trans": "BK",
+      "tipe_bayar": null,
+      "pattern": "99/KK-99/9999/9999",
+      "n": 2
+     }
+    ]
+   }
   },
   {
    "schema": "dbo",
@@ -5070,7 +5927,25 @@
      "type": "varchar(50)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "99/BM-99/9999/9999",
+       "count": 29192
+      },
+      {
+       "value": "99/BK-99/9999/9999",
+       "count": 22946
+      },
+      {
+       "value": "99/KK-99/9999/9999",
+       "count": 4810
+      },
+      {
+       "value": "99/KM-99/9999/9999",
+       "count": 35
+      }
+     ]
     },
     {
      "name": "site_id",
@@ -5273,7 +6148,50 @@
      "onDelete": "CASCADE"
     }
    ],
-   "triggers": []
+   "triggers": [],
+   "numbering": {
+    "column": "no_urut",
+    "by": [
+     "tipe_trans"
+    ],
+    "rows": [
+     {
+      "tipe_trans": "AR",
+      "pattern": "99/BM-99/9999/9999",
+      "n": 28638
+     },
+     {
+      "tipe_trans": "AP",
+      "pattern": "99/BK-99/9999/9999",
+      "n": 20411
+     },
+     {
+      "tipe_trans": "LL",
+      "pattern": "99/KK-99/9999/9999",
+      "n": 4810
+     },
+     {
+      "tipe_trans": "LL",
+      "pattern": "99/BK-99/9999/9999",
+      "n": 2535
+     },
+     {
+      "tipe_trans": "LL",
+      "pattern": "99/BM-99/9999/9999",
+      "n": 554
+     },
+     {
+      "tipe_trans": "LL",
+      "pattern": "99/KM-99/9999/9999",
+      "n": 34
+     },
+     {
+      "tipe_trans": "AR",
+      "pattern": "99/KM-99/9999/9999",
+      "n": 1
+     }
+    ]
+   }
   },
   {
    "schema": "dbo",
@@ -6097,7 +7015,25 @@
      "type": "varchar(25)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "ASA99999999",
+       "count": 564
+      },
+      {
+       "value": "ASB99999999",
+       "count": 365
+      },
+      {
+       "value": "ASC99999999",
+       "count": 39
+      },
+      {
+       "value": "ASH99999999",
+       "count": 15
+      }
+     ]
     },
     {
      "name": "site_id",
@@ -6146,14 +7082,50 @@
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999AN9999",
+       "count": 506
+      },
+      {
+       "value": "999999BN9999",
+       "count": 365
+      },
+      {
+       "value": "999999CN9999",
+       "count": 39
+      },
+      {
+       "value": "999999HN9999",
+       "count": 15
+      }
+     ]
     },
     {
      "name": "bukti_terima",
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999AN9999",
+       "count": 506
+      },
+      {
+       "value": "999999BN9999",
+       "count": 365
+      },
+      {
+       "value": "999999CN9999",
+       "count": 39
+      },
+      {
+       "value": "999999HN9999",
+       "count": 15
+      }
+     ]
     },
     {
      "name": "art_id",
@@ -6342,7 +7314,13 @@
      "type": "varchar(25)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "ASA99999999",
+       "count": 1569
+      }
+     ]
     },
     {
      "name": "site_id",
@@ -6398,14 +7376,26 @@
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999AN9999",
+       "count": 393
+      }
+     ]
     },
     {
      "name": "bukti_terima",
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999AN9999",
+       "count": 393
+      }
+     ]
     },
     {
      "name": "art_id",
@@ -6585,7 +7575,13 @@
      "type": "varchar(50)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "9999/ASA",
+       "count": 1569
+      }
+     ]
     }
    ],
    "primaryKey": [
@@ -7437,7 +8433,45 @@
      "type": "varchar(50)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "999999B/BJB9999",
+       "count": 12533
+      },
+      {
+       "value": "999999B/JBJ9999",
+       "count": 11955
+      },
+      {
+       "value": "999999A/JBJ9999",
+       "count": 8296
+      },
+      {
+       "value": "999999A/BJB9999",
+       "count": 8064
+      },
+      {
+       "value": "999999BN9999/JRM",
+       "count": 5038
+      },
+      {
+       "value": "99/BK-99/9999/9999",
+       "count": 4096
+      },
+      {
+       "value": "999999AN9999/JRM",
+       "count": 3484
+      },
+      {
+       "value": "99/BM-99/9999/9999",
+       "count": 2346
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "voucher_date",
@@ -7662,7 +8696,315 @@
    ],
    "indexes": [],
    "foreignKeys": [],
-   "triggers": []
+   "triggers": [],
+   "numbering": {
+    "column": "voucher",
+    "by": [
+     "voucher_modul"
+    ],
+    "rows": [
+     {
+      "voucher_modul": "AP",
+      "pattern": "999999B/BJB9999",
+      "n": 12533
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999B/JBJ9999",
+      "n": 11955
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999A/JBJ9999",
+      "n": 8296
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "999999A/BJB9999",
+      "n": 8064
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999BN9999/JRM",
+      "n": 5038
+     },
+     {
+      "voucher_modul": "BK",
+      "pattern": "99/BK-99/9999/9999",
+      "n": 4091
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999AN9999/JRM",
+      "n": 3484
+     },
+     {
+      "voucher_modul": "BM",
+      "pattern": "99/BM-99/9999/9999",
+      "n": 2346
+     },
+     {
+      "voucher_modul": "KK",
+      "pattern": "99/KK-99/9999/9999",
+      "n": 1957
+     },
+     {
+      "voucher_modul": "AS",
+      "pattern": "9999/BASA999999999999",
+      "n": 1569
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999B/KRM9999",
+      "n": 691
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999CN9999/JRM",
+      "n": 528
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "999999A/RMB9999",
+      "n": 511
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "999999C/BJB9999",
+      "n": 480
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999C/JBJ9999",
+      "n": 473
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999A/KRM9999",
+      "n": 471
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "999999AN9999RL999",
+      "n": 418
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "999999B/RMB9999",
+      "n": 375
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999HN9999/JRM",
+      "n": 270
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "999999H/BJB9999",
+      "n": 231
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "999999B/BJR9999",
+      "n": 204
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "999999B/JPJ9999",
+      "n": 199
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "999999A/BJR9999",
+      "n": 159
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999A/RBJ9999",
+      "n": 121
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "999999BN9999RL999",
+      "n": 108
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999C/RBJ9999",
+      "n": 108
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999B/RBJ9999",
+      "n": 97
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "999999B/JOJ9999",
+      "n": 77
+     },
+     {
+      "voucher_modul": "MM",
+      "pattern": "99/99/99/99/CLOSE",
+      "n": 74
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "SORM9999999",
+      "n": 74
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999AN9999/RJRM",
+      "n": 60
+     },
+     {
+      "voucher_modul": "AS",
+      "pattern": "9999/AASA999999999999",
+      "n": 57
+     },
+     {
+      "voucher_modul": null,
+      "pattern": "99/MMA-99/9999/9999",
+      "n": 57
+     },
+     {
+      "voucher_modul": null,
+      "pattern": "99/MMB-99/9999/9999",
+      "n": 57
+     },
+     {
+      "voucher_modul": null,
+      "pattern": "99/MMC-99/9999/9999",
+      "n": 56
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999BN9999/RJRM",
+      "n": 44
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "999999H/JPJ9999",
+      "n": 41
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "999999C/RMB9999",
+      "n": 39
+     },
+     {
+      "voucher_modul": "KM",
+      "pattern": "99/KM-99/9999/9999",
+      "n": 34
+     },
+     {
+      "voucher_modul": null,
+      "pattern": "99/MMH-99/9999/9999",
+      "n": 30
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "999999C/BJR9999",
+      "n": 27
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "TKRSOB999999",
+      "n": 27
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999B/RRM9999",
+      "n": 27
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999A/RRM9999",
+      "n": 26
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999JMJH9999",
+      "n": 25
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999JMBH9999",
+      "n": 25
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999JMBB9999",
+      "n": 25
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999JMJA9999",
+      "n": 25
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999JMBA9999",
+      "n": 25
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999JMJB9999",
+      "n": 25
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "TKRSOH999999",
+      "n": 25
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999H/JBJ9999",
+      "n": 24
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "999999H/JOJ9999",
+      "n": 24
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999CN9999/RJRM",
+      "n": 21
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999H/KRM9999",
+      "n": 20
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "999999C/JOJ9999",
+      "n": 19
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "999999B/ROJ9999",
+      "n": 16
+     },
+     {
+      "voucher_modul": "RF",
+      "pattern": "MEMO SUB SBLN MD9999",
+      "n": 16
+     },
+     {
+      "voucher_modul": "AR",
+      "pattern": "999999JMJC9999",
+      "n": 16
+     },
+     {
+      "voucher_modul": "AP",
+      "pattern": "999999H/BJR9999",
+      "n": 16
+     }
+    ]
+   }
   },
   {
    "schema": "dbo",
@@ -7682,7 +9024,45 @@
      "type": "varchar(50)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "999999B/JBJ9999",
+       "count": 42723
+      },
+      {
+       "value": "99/BM-99/9999/9999            ",
+       "count": 31191
+      },
+      {
+       "value": "999999A/JBJ9999",
+       "count": 29683
+      },
+      {
+       "value": "99/BK-99/9999/9999            ",
+       "count": 26855
+      },
+      {
+       "value": "999999B/BJB9999",
+       "count": 25066
+      },
+      {
+       "value": "999999BN9999/JRM",
+       "count": 22236
+      },
+      {
+       "value": "999999A/BJB9999",
+       "count": 16128
+      },
+      {
+       "value": "999999AN9999/JRM",
+       "count": 14238
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "no_urut",
@@ -7982,7 +9362,41 @@
      "type": "varchar(10)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "A",
+       "count": 31
+      },
+      {
+       "value": "G",
+       "count": 2
+      },
+      {
+       "value": "F",
+       "count": 2
+      },
+      {
+       "value": "B",
+       "count": 2
+      },
+      {
+       "value": "H",
+       "count": 1
+      },
+      {
+       "value": "E",
+       "count": 1
+      },
+      {
+       "value": "D",
+       "count": 1
+      },
+      {
+       "value": "C",
+       "count": 1
+      }
+     ]
     }
    ],
    "primaryKey": [],
@@ -8022,7 +9436,17 @@
      "type": "varchar(4)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "R",
+       "count": 1
+      },
+      {
+       "value": "N",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "brand_id",
@@ -8336,7 +9760,49 @@
      "type": "varchar(10)",
      "nullable": false,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "Z",
+       "count": 1
+      },
+      {
+       "value": "I",
+       "count": 1
+      },
+      {
+       "value": "H",
+       "count": 1
+      },
+      {
+       "value": "G",
+       "count": 1
+      },
+      {
+       "value": "F",
+       "count": 1
+      },
+      {
+       "value": "E",
+       "count": 1
+      },
+      {
+       "value": "D",
+       "count": 1
+      },
+      {
+       "value": "C",
+       "count": 1
+      },
+      {
+       "value": "B",
+       "count": 1
+      },
+      {
+       "value": "A",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "tipe_desc",
@@ -10342,7 +11808,25 @@
      "type": "varchar(20)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "codes": [
+      {
+       "value": "BAHAN",
+       "count": 1
+      },
+      {
+       "value": "BAHAN SUPP",
+       "count": 1
+      },
+      {
+       "value": "GUDANG",
+       "count": 1
+      },
+      {
+       "value": "TOKO",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "periode",
@@ -11003,7 +12487,25 @@
      "type": "varchar(30)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "TK",
+       "count": 42
+      },
+      {
+       "value": "K1",
+       "count": 7
+      },
+      {
+       "value": "K",
+       "count": 7
+      },
+      {
+       "value": "K2",
+       "count": 6
+      }
+     ]
     },
     {
      "name": "pendidikan",
@@ -11094,7 +12596,13 @@
      "type": "varchar(5)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "01",
+       "count": 62
+      }
+     ]
     },
     {
      "name": "gaji",
@@ -11217,7 +12725,13 @@
      "type": "varchar(10)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "PKWT",
+       "count": 62
+      }
+     ]
     },
     {
      "name": "no_absen",
@@ -11682,7 +13196,13 @@
      "type": "varchar(10)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "PKWT",
+       "count": 138
+      }
+     ]
     }
    ],
    "primaryKey": [
@@ -12419,7 +13939,113 @@
      "type": "varchar(5)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "00001",
+       "count": 153835
+      },
+      {
+       "value": "00002",
+       "count": 55532
+      },
+      {
+       "value": "00044",
+       "count": 5192
+      },
+      {
+       "value": "00030",
+       "count": 4016
+      },
+      {
+       "value": "00005",
+       "count": 3680
+      },
+      {
+       "value": "00014",
+       "count": 1847
+      },
+      {
+       "value": "00007",
+       "count": 1398
+      },
+      {
+       "value": "00004",
+       "count": 1248
+      },
+      {
+       "value": "00003",
+       "count": 952
+      },
+      {
+       "value": "00008",
+       "count": 774
+      },
+      {
+       "value": "00050",
+       "count": 550
+      },
+      {
+       "value": "00045",
+       "count": 380
+      },
+      {
+       "value": "00042",
+       "count": 360
+      },
+      {
+       "value": "00013",
+       "count": 345
+      },
+      {
+       "value": "00041",
+       "count": 340
+      },
+      {
+       "value": "00039",
+       "count": 330
+      },
+      {
+       "value": "00009",
+       "count": 318
+      },
+      {
+       "value": "00015",
+       "count": 313
+      },
+      {
+       "value": "00040",
+       "count": 280
+      },
+      {
+       "value": "00051",
+       "count": 182
+      },
+      {
+       "value": "00046",
+       "count": 180
+      },
+      {
+       "value": "00016",
+       "count": 166
+      },
+      {
+       "value": "00028",
+       "count": 157
+      },
+      {
+       "value": "00047",
+       "count": 140
+      },
+      {
+       "value": "00052",
+       "count": 120
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "model_produk",
@@ -13398,7 +15024,113 @@
      "type": "varchar(5)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "codes": [
+      {
+       "value": "00005",
+       "count": 1
+      },
+      {
+       "value": "00023",
+       "count": 1
+      },
+      {
+       "value": "00022",
+       "count": 1
+      },
+      {
+       "value": "00003",
+       "count": 1
+      },
+      {
+       "value": "00019",
+       "count": 1
+      },
+      {
+       "value": "00020",
+       "count": 1
+      },
+      {
+       "value": "00021",
+       "count": 1
+      },
+      {
+       "value": "00056",
+       "count": 1
+      },
+      {
+       "value": "00006",
+       "count": 1
+      },
+      {
+       "value": "00038",
+       "count": 1
+      },
+      {
+       "value": "00036",
+       "count": 1
+      },
+      {
+       "value": "00037",
+       "count": 1
+      },
+      {
+       "value": "00040",
+       "count": 1
+      },
+      {
+       "value": "00044",
+       "count": 1
+      },
+      {
+       "value": "00018",
+       "count": 1
+      },
+      {
+       "value": "00031",
+       "count": 1
+      },
+      {
+       "value": "00008",
+       "count": 1
+      },
+      {
+       "value": "00013",
+       "count": 1
+      },
+      {
+       "value": "00053",
+       "count": 1
+      },
+      {
+       "value": "00039",
+       "count": 1
+      },
+      {
+       "value": "00007",
+       "count": 1
+      },
+      {
+       "value": "00045",
+       "count": 1
+      },
+      {
+       "value": "00015",
+       "count": 1
+      },
+      {
+       "value": "00042",
+       "count": 1
+      },
+      {
+       "value": "00004",
+       "count": 1
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "nama",
@@ -13796,7 +15528,113 @@
      "type": "varchar(5)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "00001",
+       "count": 18457
+      },
+      {
+       "value": "00002",
+       "count": 9567
+      },
+      {
+       "value": "00014",
+       "count": 1023
+      },
+      {
+       "value": "00007",
+       "count": 946
+      },
+      {
+       "value": "00044",
+       "count": 669
+      },
+      {
+       "value": "00005",
+       "count": 596
+      },
+      {
+       "value": "00008",
+       "count": 455
+      },
+      {
+       "value": "00030",
+       "count": 387
+      },
+      {
+       "value": "00004",
+       "count": 196
+      },
+      {
+       "value": "00013",
+       "count": 192
+      },
+      {
+       "value": "00015",
+       "count": 179
+      },
+      {
+       "value": "00028",
+       "count": 135
+      },
+      {
+       "value": "00009",
+       "count": 126
+      },
+      {
+       "value": "00003",
+       "count": 123
+      },
+      {
+       "value": "00016",
+       "count": 106
+      },
+      {
+       "value": "00050",
+       "count": 55
+      },
+      {
+       "value": "00010",
+       "count": 44
+      },
+      {
+       "value": "00045",
+       "count": 38
+      },
+      {
+       "value": "00042",
+       "count": 36
+      },
+      {
+       "value": "00041",
+       "count": 34
+      },
+      {
+       "value": "00039",
+       "count": 33
+      },
+      {
+       "value": "00040",
+       "count": 28
+      },
+      {
+       "value": "00051",
+       "count": 18
+      },
+      {
+       "value": "00046",
+       "count": 18
+      },
+      {
+       "value": "00024",
+       "count": 14
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "aps_id",
@@ -14926,7 +16764,113 @@
      "type": "varchar(5)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "00001",
+       "count": 7323
+      },
+      {
+       "value": "00002",
+       "count": 3630
+      },
+      {
+       "value": "00030",
+       "count": 387
+      },
+      {
+       "value": "00014",
+       "count": 346
+      },
+      {
+       "value": "00007",
+       "count": 332
+      },
+      {
+       "value": "00013",
+       "count": 183
+      },
+      {
+       "value": "00008",
+       "count": 168
+      },
+      {
+       "value": "00028",
+       "count": 118
+      },
+      {
+       "value": "00015",
+       "count": 95
+      },
+      {
+       "value": "00009",
+       "count": 93
+      },
+      {
+       "value": "00004",
+       "count": 60
+      },
+      {
+       "value": "00005",
+       "count": 49
+      },
+      {
+       "value": "00044",
+       "count": 46
+      },
+      {
+       "value": "00050",
+       "count": 38
+      },
+      {
+       "value": "00016",
+       "count": 36
+      },
+      {
+       "value": "00042",
+       "count": 34
+      },
+      {
+       "value": "00041",
+       "count": 30
+      },
+      {
+       "value": "00003",
+       "count": 26
+      },
+      {
+       "value": "00045",
+       "count": 24
+      },
+      {
+       "value": "00039",
+       "count": 24
+      },
+      {
+       "value": "00010",
+       "count": 22
+      },
+      {
+       "value": "00040",
+       "count": 22
+      },
+      {
+       "value": "00046",
+       "count": 13
+      },
+      {
+       "value": "00047",
+       "count": 11
+      },
+      {
+       "value": "00020",
+       "count": 11
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "aps_id",
@@ -15368,7 +17312,113 @@
      "type": "varchar(5)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "1",
+       "count": 5552
+      },
+      {
+       "value": "2",
+       "count": 2601
+      },
+      {
+       "value": "30",
+       "count": 387
+      },
+      {
+       "value": "7",
+       "count": 274
+      },
+      {
+       "value": "14",
+       "count": 219
+      },
+      {
+       "value": "13",
+       "count": 191
+      },
+      {
+       "value": "28",
+       "count": 135
+      },
+      {
+       "value": "8",
+       "count": 110
+      },
+      {
+       "value": "15",
+       "count": 103
+      },
+      {
+       "value": "9",
+       "count": 91
+      },
+      {
+       "value": "4",
+       "count": 46
+      },
+      {
+       "value": "16",
+       "count": 38
+      },
+      {
+       "value": "3",
+       "count": 26
+      },
+      {
+       "value": "10",
+       "count": 14
+      },
+      {
+       "value": "20",
+       "count": 12
+      },
+      {
+       "value": "17",
+       "count": 10
+      },
+      {
+       "value": "41",
+       "count": 9
+      },
+      {
+       "value": "22",
+       "count": 8
+      },
+      {
+       "value": "21",
+       "count": 8
+      },
+      {
+       "value": "12",
+       "count": 6
+      },
+      {
+       "value": "40",
+       "count": 5
+      },
+      {
+       "value": "42",
+       "count": 5
+      },
+      {
+       "value": "39",
+       "count": 5
+      },
+      {
+       "value": "19",
+       "count": 4
+      },
+      {
+       "value": "27",
+       "count": 3
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "aps_id",
@@ -16202,14 +18252,74 @@
      "type": "varchar(5)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "codes": [
+      {
+       "value": "TM",
+       "count": 1
+      },
+      {
+       "value": "TK",
+       "count": 1
+      },
+      {
+       "value": "K4",
+       "count": 1
+      },
+      {
+       "value": "K3",
+       "count": 1
+      },
+      {
+       "value": "K2",
+       "count": 1
+      },
+      {
+       "value": "K1",
+       "count": 1
+      },
+      {
+       "value": "K",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "status_desc",
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "Tidak Menikah",
+       "count": 1
+      },
+      {
+       "value": "Kawin Anak 4",
+       "count": 1
+      },
+      {
+       "value": "Kawin Anak 3",
+       "count": 1
+      },
+      {
+       "value": "Kawin Anak 2",
+       "count": 1
+      },
+      {
+       "value": "Kawin Anak 1",
+       "count": 1
+      },
+      {
+       "value": "KAWIN     ",
+       "count": 1
+      },
+      {
+       "value": "Belum Kawin",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "PTKP",
@@ -16759,7 +18869,21 @@
      "type": "varchar(5)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "codes": [
+      {
+       "value": "01",
+       "count": 1
+      },
+      {
+       "value": "02",
+       "count": 1
+      },
+      {
+       "value": "03",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "tipe_gaji_desc",
@@ -18121,7 +20245,37 @@
      "type": "varchar(25)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "9999B999",
+       "count": 55890
+      },
+      {
+       "value": "9999A999",
+       "count": 35443
+      },
+      {
+       "value": "9999C999",
+       "count": 4998
+      },
+      {
+       "value": "9999H999",
+       "count": 1967
+      },
+      {
+       "value": "9999D999",
+       "count": 44
+      },
+      {
+       "value": "B999",
+       "count": 8
+      },
+      {
+       "value": "A999",
+       "count": 6
+      }
+     ]
     },
     {
      "name": "urut",
@@ -18258,7 +20412,37 @@
      "type": "varchar(25)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "9999B999",
+       "count": 17691
+      },
+      {
+       "value": "9999A999",
+       "count": 12197
+      },
+      {
+       "value": "9999C999",
+       "count": 700
+      },
+      {
+       "value": "9999H999",
+       "count": 223
+      },
+      {
+       "value": "9999D999",
+       "count": 16
+      },
+      {
+       "value": "B999",
+       "count": 1
+      },
+      {
+       "value": "A999",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -18424,7 +20608,45 @@
      "type": "varchar(20)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "999999AN9999",
+       "count": 2096
+      },
+      {
+       "value": "999999B999",
+       "count": 1241
+      },
+      {
+       "value": "999999BN9999",
+       "count": 1013
+      },
+      {
+       "value": "999999A999",
+       "count": 1002
+      },
+      {
+       "value": "999999CN9999",
+       "count": 174
+      },
+      {
+       "value": "999999C999",
+       "count": 123
+      },
+      {
+       "value": "999999HN9999",
+       "count": 41
+      },
+      {
+       "value": "999999H999",
+       "count": 20
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "urut",
@@ -18639,7 +20861,8 @@
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": []
     },
     {
      "name": "mata_uang",
@@ -18757,7 +20980,45 @@
      "type": "varchar(20)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "999999AN9999",
+       "count": 783
+      },
+      {
+       "value": "999999BN9999",
+       "count": 682
+      },
+      {
+       "value": "999999B999",
+       "count": 67
+      },
+      {
+       "value": "999999A999",
+       "count": 59
+      },
+      {
+       "value": "999999CN9999",
+       "count": 59
+      },
+      {
+       "value": "999999C999",
+       "count": 18
+      },
+      {
+       "value": "999999HN9999",
+       "count": 15
+      },
+      {
+       "value": "999999H999",
+       "count": 4
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -18785,14 +21046,78 @@
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999AN9999",
+       "count": 783
+      },
+      {
+       "value": "999999BN9999",
+       "count": 681
+      },
+      {
+       "value": "999999CN9999",
+       "count": 59
+      },
+      {
+       "value": "999999HN9999",
+       "count": 15
+      },
+      {
+       "value": "999999BT9999",
+       "count": 1
+      },
+      {
+       "value": "999999AT9999",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "bukti_ref",
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "NL999999",
+       "count": 96
+      },
+      {
+       "value": "NPP99999",
+       "count": 53
+      },
+      {
+       "value": "99999999",
+       "count": 22
+      },
+      {
+       "value": "999999",
+       "count": 10
+      },
+      {
+       "value": "99/99/9999",
+       "count": 8
+      },
+      {
+       "value": "/999/NL999999",
+       "count": 6
+      },
+      {
+       "value": "",
+       "count": 6
+      },
+      {
+       "value": "/999/NPP99999",
+       "count": 5
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "usrupd",
@@ -18838,14 +21163,74 @@
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999A/RMB9999",
+       "count": 742
+      },
+      {
+       "value": "999999B/RMB9999",
+       "count": 630
+      },
+      {
+       "value": "999999C/RMB9999",
+       "count": 39
+      },
+      {
+       "value": "999999H/RMB9999",
+       "count": 15
+      },
+      {
+       "value": "999999A/RMR9999",
+       "count": 13
+      },
+      {
+       "value": "999999C/RMR9999",
+       "count": 2
+      },
+      {
+       "value": "999999B/RMR9999",
+       "count": 2
+      }
+     ]
     },
     {
      "name": "bukti_gl",
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999A/RMB9999",
+       "count": 742
+      },
+      {
+       "value": "999999B/RMB9999",
+       "count": 630
+      },
+      {
+       "value": "999999C/RMB9999",
+       "count": 39
+      },
+      {
+       "value": "999999H/RMB9999",
+       "count": 15
+      },
+      {
+       "value": "999999A/RMR9999",
+       "count": 13
+      },
+      {
+       "value": "999999C/RMR9999",
+       "count": 2
+      },
+      {
+       "value": "999999B/RMR9999",
+       "count": 2
+      }
+     ]
     },
     {
      "name": "account_id",
@@ -19026,7 +21411,29 @@
      "type": "varchar(20)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "999999A9999",
+       "count": 525
+      },
+      {
+       "value": "999999B9999",
+       "count": 414
+      },
+      {
+       "value": "999999H9999",
+       "count": 136
+      },
+      {
+       "value": "999999C9999",
+       "count": 39
+      },
+      {
+       "value": "999999D9999",
+       "count": 4
+      }
+     ]
     },
     {
      "name": "urut",
@@ -19187,7 +21594,8 @@
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": []
     },
     {
      "name": "mata_uang",
@@ -19282,7 +21690,29 @@
      "type": "varchar(20)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "999999A9999",
+       "count": 413
+      },
+      {
+       "value": "999999B9999",
+       "count": 289
+      },
+      {
+       "value": "999999H9999",
+       "count": 135
+      },
+      {
+       "value": "999999C9999",
+       "count": 36
+      },
+      {
+       "value": "999999D9999",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -19310,14 +21740,33 @@
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": []
     },
     {
      "name": "bukti_ref",
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999AN9999",
+       "count": 752
+      },
+      {
+       "value": "999999BN9999",
+       "count": 100
+      },
+      {
+       "value": "999999CN9999",
+       "count": 14
+      },
+      {
+       "value": "999999HN9999",
+       "count": 8
+      }
+     ]
     },
     {
      "name": "usrupd",
@@ -19355,7 +21804,8 @@
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": []
     },
     {
      "name": "account_id",
@@ -19409,7 +21859,13 @@
      "type": "char(10)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "N         ",
+       "count": 874
+      }
+     ]
     },
     {
      "name": "ket",
@@ -19467,7 +21923,25 @@
      "type": "varchar(25)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "999999BN9999",
+       "count": 18081
+      },
+      {
+       "value": "999999AN9999",
+       "count": 11269
+      },
+      {
+       "value": "999999CN9999",
+       "count": 3265
+      },
+      {
+       "value": "999999HN9999",
+       "count": 2059
+      }
+     ]
     },
     {
      "name": "urut",
@@ -19654,7 +22128,25 @@
      "type": "varchar(25)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "999999BN9999",
+       "count": 5139
+      },
+      {
+       "value": "999999AN9999",
+       "count": 3610
+      },
+      {
+       "value": "999999CN9999",
+       "count": 549
+      },
+      {
+       "value": "999999HN9999",
+       "count": 272
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -19702,7 +22194,45 @@
      "type": "varchar(50)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "9999999999",
+       "count": 13
+      },
+      {
+       "value": "B9J99999999999E",
+       "count": 12
+      },
+      {
+       "value": "HMTS.BSC.SO.999",
+       "count": 8
+      },
+      {
+       "value": "RETUR BAHAN",
+       "count": 6
+      },
+      {
+       "value": "HMTS.OVS.999",
+       "count": 5
+      },
+      {
+       "value": " ",
+       "count": 4
+      },
+      {
+       "value": "B9K99999999999A",
+       "count": 4
+      },
+      {
+       "value": "GPN.JEN.LO-999",
+       "count": 4
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "tglupd",
@@ -19761,7 +22291,13 @@
      "type": "char(10)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "N         ",
+       "count": 9570
+      }
+     ]
     },
     {
      "name": "ket1",
@@ -19831,28 +22367,148 @@
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999BN9999/JRM",
+       "count": 5038
+      },
+      {
+       "value": "999999AN9999/JRM",
+       "count": 3484
+      },
+      {
+       "value": "999999CN9999/JRM",
+       "count": 528
+      },
+      {
+       "value": "999999HN9999/JRM",
+       "count": 270
+      },
+      {
+       "value": "X",
+       "count": 104
+      },
+      {
+       "value": "999999AN9999/RJRM",
+       "count": 60
+      },
+      {
+       "value": "999999BN9999/RJRM",
+       "count": 44
+      },
+      {
+       "value": "999999CN9999/RJRM",
+       "count": 21
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "bukti_gl",
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999BN9999/JRM",
+       "count": 5038
+      },
+      {
+       "value": "999999AN9999/JRM",
+       "count": 3484
+      },
+      {
+       "value": "999999CN9999/JRM",
+       "count": 528
+      },
+      {
+       "value": "999999HN9999/JRM",
+       "count": 270
+      },
+      {
+       "value": "999999AN9999/RJRM",
+       "count": 60
+      },
+      {
+       "value": "999999A/JRM9999",
+       "count": 52
+      },
+      {
+       "value": "999999BN9999/RJRM",
+       "count": 44
+      },
+      {
+       "value": "999999B/JRM9999",
+       "count": 43
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "bukti_po",
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "POB99999999",
+       "count": 4148
+      },
+      {
+       "value": "POA99999999",
+       "count": 2234
+      },
+      {
+       "value": "POC99999999",
+       "count": 409
+      },
+      {
+       "value": "POH99999999",
+       "count": 263
+      },
+      {
+       "value": "",
+       "count": 204
+      }
+     ]
     },
     {
      "name": "bukti_cost",
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "9999B999",
+       "count": 3873
+      },
+      {
+       "value": "9999A999",
+       "count": 2113
+      },
+      {
+       "value": "9999C999",
+       "count": 402
+      },
+      {
+       "value": "9999H999",
+       "count": 219
+      },
+      {
+       "value": "",
+       "count": 104
+      }
+     ]
     }
    ],
    "primaryKey": [
@@ -20304,7 +22960,29 @@
      "type": "varchar(25)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "999999BN9999",
+       "count": 15966
+      },
+      {
+       "value": "999999AN9999",
+       "count": 9032
+      },
+      {
+       "value": "999999HN9999",
+       "count": 75
+      },
+      {
+       "value": "999999CN9999",
+       "count": 57
+      },
+      {
+       "value": "999999AT9999",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "urut",
@@ -20409,7 +23087,8 @@
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": []
     },
     {
      "name": "kurs",
@@ -20521,7 +23200,29 @@
      "type": "varchar(25)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "999999BN9999",
+       "count": 3086
+      },
+      {
+       "value": "999999AN9999",
+       "count": 1851
+      },
+      {
+       "value": "999999HN9999",
+       "count": 20
+      },
+      {
+       "value": "999999CN9999",
+       "count": 18
+      },
+      {
+       "value": "999999AT9999",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -20535,7 +23236,13 @@
      "type": "varchar(40)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "",
+       "count": 13
+      }
+     ]
     },
     {
      "name": "no_sj",
@@ -20642,14 +23349,78 @@
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "X",
+       "count": 3069
+      },
+      {
+       "value": "999999B/KRM9999",
+       "count": 1084
+      },
+      {
+       "value": "999999A/KRM9999",
+       "count": 720
+      },
+      {
+       "value": "999999B/RRM9999",
+       "count": 39
+      },
+      {
+       "value": "999999A/RRM9999",
+       "count": 31
+      },
+      {
+       "value": "999999H/KRM9999",
+       "count": 20
+      },
+      {
+       "value": "999999C/KRM9999",
+       "count": 10
+      },
+      {
+       "value": "999999C/RRM9999",
+       "count": 3
+      }
+     ]
     },
     {
      "name": "bukti_gl",
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999B/KRM9999",
+       "count": 2314
+      },
+      {
+       "value": "999999A/KRM9999",
+       "count": 1428
+      },
+      {
+       "value": "999999B/RRM9999",
+       "count": 39
+      },
+      {
+       "value": "999999A/RRM9999",
+       "count": 31
+      },
+      {
+       "value": "999999H/KRM9999",
+       "count": 20
+      },
+      {
+       "value": "999999C/KRM9999",
+       "count": 10
+      },
+      {
+       "value": "999999C/RRM9999",
+       "count": 3
+      }
+     ]
     },
     {
      "name": "article_id",
@@ -20670,7 +23441,29 @@
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "POB99999999",
+       "count": 2426
+      },
+      {
+       "value": "POA99999999",
+       "count": 1406
+      },
+      {
+       "value": "",
+       "count": 156
+      },
+      {
+       "value": "POH99999999",
+       "count": 3
+      },
+      {
+       "value": "POC99999999",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "sts",
@@ -20827,7 +23620,29 @@
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "9999B999",
+       "count": 1711
+      },
+      {
+       "value": "9999A999",
+       "count": 1062
+      },
+      {
+       "value": "",
+       "count": 36
+      },
+      {
+       "value": "9999C999",
+       "count": 1
+      },
+      {
+       "value": "9999999B999",
+       "count": 1
+      }
+     ]
     }
    ],
    "primaryKey": [
@@ -20836,7 +23651,40 @@
    ],
    "indexes": [],
    "foreignKeys": [],
-   "triggers": []
+   "triggers": [],
+   "numbering": {
+    "column": "bukti",
+    "by": [
+     "status"
+    ],
+    "rows": [
+     {
+      "status": null,
+      "pattern": "999999BN9999",
+      "n": 3086
+     },
+     {
+      "status": null,
+      "pattern": "999999AN9999",
+      "n": 1851
+     },
+     {
+      "status": null,
+      "pattern": "999999HN9999",
+      "n": 20
+     },
+     {
+      "status": null,
+      "pattern": "999999CN9999",
+      "n": 18
+     },
+     {
+      "status": null,
+      "pattern": "999999AT9999",
+      "n": 1
+     }
+    ]
+   }
   },
   {
    "schema": "dbo",
@@ -20849,7 +23697,13 @@
      "type": "varchar(25)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "999999BN999",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "urut",
@@ -21004,7 +23858,13 @@
      "type": "varchar(25)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "999999BN999",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -21039,7 +23899,8 @@
      "type": "varchar(50)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": []
     },
     {
      "name": "tglupd",
@@ -21169,7 +24030,33 @@
      "type": "varchar(25)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "999999AN9999",
+       "count": 1903
+      },
+      {
+       "value": "999999BN9999",
+       "count": 773
+      },
+      {
+       "value": "999999CN9999",
+       "count": 164
+      },
+      {
+       "value": "999999HN9999",
+       "count": 41
+      },
+      {
+       "value": "999999BT9999",
+       "count": 1
+      },
+      {
+       "value": "999999AT9999",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "art_id",
@@ -21468,7 +24355,33 @@
      "type": "varchar(25)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "999999AN9999",
+       "count": 554
+      },
+      {
+       "value": "999999BN9999",
+       "count": 392
+      },
+      {
+       "value": "999999CN9999",
+       "count": 43
+      },
+      {
+       "value": "999999HN9999",
+       "count": 15
+      },
+      {
+       "value": "999999BT9999",
+       "count": 1
+      },
+      {
+       "value": "999999AT9999",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -21496,7 +24409,45 @@
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "BDG9999999",
+       "count": 11
+      },
+      {
+       "value": "999999",
+       "count": 5
+      },
+      {
+       "value": "9999999999",
+       "count": 5
+      },
+      {
+       "value": "9999",
+       "count": 4
+      },
+      {
+       "value": "",
+       "count": 2
+      },
+      {
+       "value": "99999",
+       "count": 2
+      },
+      {
+       "value": "GRAICOM999999",
+       "count": 2
+      },
+      {
+       "value": "GRC 99 / 999999",
+       "count": 2
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "status",
@@ -21540,7 +24491,13 @@
      "type": "char(10)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": null,
+       "count": 1006
+      }
+     ]
     },
     {
      "name": "ket",
@@ -21554,7 +24511,13 @@
      "type": "char(10)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": null,
+       "count": 1006
+      }
+     ]
     },
     {
      "name": "tgl_kirim",
@@ -21693,7 +24656,8 @@
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": []
     },
     {
      "name": "ppn",
@@ -21788,7 +24752,65 @@
    ],
    "indexes": [],
    "foreignKeys": [],
-   "triggers": []
+   "triggers": [],
+   "numbering": {
+    "column": "bukti",
+    "by": [
+     "status"
+    ],
+    "rows": [
+     {
+      "status": "B",
+      "pattern": "999999AN9999",
+      "n": 350
+     },
+     {
+      "status": "R",
+      "pattern": "999999BN9999",
+      "n": 291
+     },
+     {
+      "status": "R",
+      "pattern": "999999AN9999",
+      "n": 204
+     },
+     {
+      "status": "B",
+      "pattern": "999999BN9999",
+      "n": 101
+     },
+     {
+      "status": "B",
+      "pattern": "999999CN9999",
+      "n": 35
+     },
+     {
+      "status": "R",
+      "pattern": "999999HN9999",
+      "n": 13
+     },
+     {
+      "status": "R",
+      "pattern": "999999CN9999",
+      "n": 8
+     },
+     {
+      "status": "B",
+      "pattern": "999999HN9999",
+      "n": 2
+     },
+     {
+      "status": "B",
+      "pattern": "999999BT9999",
+      "n": 1
+     },
+     {
+      "status": "B",
+      "pattern": "999999AT9999",
+      "n": 1
+     }
+    ]
+   }
   },
   {
    "schema": "dbo",
@@ -21801,7 +24823,25 @@
      "type": "varchar(25)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "999999AN9999",
+       "count": 439
+      },
+      {
+       "value": "999999BN9999",
+       "count": 111
+      },
+      {
+       "value": "999999CN9999",
+       "count": 8
+      },
+      {
+       "value": "999999HN9999",
+       "count": 4
+      }
+     ]
     },
     {
      "name": "urut",
@@ -21995,7 +25035,8 @@
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": []
     },
     {
      "name": "brand_id",
@@ -22052,7 +25093,25 @@
      "type": "varchar(25)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "999999AN9999",
+       "count": 379
+      },
+      {
+       "value": "999999BN9999",
+       "count": 50
+      },
+      {
+       "value": "999999CN9999",
+       "count": 7
+      },
+      {
+       "value": "999999HN9999",
+       "count": 4
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -22189,14 +25248,50 @@
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999B9999",
+       "count": 228
+      },
+      {
+       "value": "999999H9999",
+       "count": 131
+      },
+      {
+       "value": "999999A9999",
+       "count": 34
+      },
+      {
+       "value": "999999C9999",
+       "count": 29
+      }
+     ]
     },
     {
      "name": "bukti_kirim",
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999A9999",
+       "count": 364
+      },
+      {
+       "value": "999999B9999",
+       "count": 47
+      },
+      {
+       "value": "999999C9999",
+       "count": 7
+      },
+      {
+       "value": "999999H9999",
+       "count": 4
+      }
+     ]
     },
     {
      "name": "flag_transfer",
@@ -22230,7 +25325,29 @@
      "type": "varchar(25)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999AN9999RL999",
+       "count": 364
+      },
+      {
+       "value": "999999BN9999RL999",
+       "count": 46
+      },
+      {
+       "value": "999999CN9999RL999",
+       "count": 7
+      },
+      {
+       "value": "999999HN9999RL999",
+       "count": 4
+      },
+      {
+       "value": "999999BN9999ROL99",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "acc",
@@ -24051,7 +27168,33 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "POB99999999",
+       "count": 17297
+      },
+      {
+       "value": "POA99999999",
+       "count": 11629
+      },
+      {
+       "value": "POC99999999",
+       "count": 675
+      },
+      {
+       "value": "PO99999999",
+       "count": 408
+      },
+      {
+       "value": "POH99999999",
+       "count": 221
+      },
+      {
+       "value": "POD99999999",
+       "count": 16
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -24065,7 +27208,13 @@
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "PO",
+       "count": 30246
+      }
+     ]
     },
     {
      "name": "supp_id",
@@ -24079,7 +27228,8 @@
      "type": "varchar(15)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": []
     },
     {
      "name": "remark",
@@ -24491,14 +27641,41 @@
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": []
     },
     {
      "name": "bukti_cost",
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "9999B999",
+       "count": 17395
+      },
+      {
+       "value": "9999A999",
+       "count": 11938
+      },
+      {
+       "value": "9999C999",
+       "count": 675
+      },
+      {
+       "value": "9999H999",
+       "count": 221
+      },
+      {
+       "value": "9999D999",
+       "count": 16
+      },
+      {
+       "value": "A999",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "note1",
@@ -24616,7 +27793,94 @@
    ],
    "indexes": [],
    "foreignKeys": [],
-   "triggers": []
+   "triggers": [],
+   "numbering": {
+    "column": "bukti",
+    "by": [
+     "tipe_trans",
+     "tipe_bayar"
+    ],
+    "rows": [
+     {
+      "tipe_trans": "PO",
+      "tipe_bayar": "K",
+      "pattern": "POB99999999",
+      "n": 17281
+     },
+     {
+      "tipe_trans": "PO",
+      "tipe_bayar": "K",
+      "pattern": "POA99999999",
+      "n": 11618
+     },
+     {
+      "tipe_trans": "PO",
+      "tipe_bayar": "K",
+      "pattern": "POC99999999",
+      "n": 620
+     },
+     {
+      "tipe_trans": "PO",
+      "tipe_bayar": "K",
+      "pattern": "PO99999999",
+      "n": 406
+     },
+     {
+      "tipe_trans": "PO",
+      "tipe_bayar": "K",
+      "pattern": "POH99999999",
+      "n": 221
+     },
+     {
+      "tipe_trans": "PO",
+      "tipe_bayar": "P",
+      "pattern": "POC99999999",
+      "n": 54
+     },
+     {
+      "tipe_trans": "PO",
+      "tipe_bayar": "K",
+      "pattern": "POD99999999",
+      "n": 16
+     },
+     {
+      "tipe_trans": "PO",
+      "tipe_bayar": "T",
+      "pattern": "POA99999999",
+      "n": 10
+     },
+     {
+      "tipe_trans": "PO",
+      "tipe_bayar": "T",
+      "pattern": "POB99999999",
+      "n": 9
+     },
+     {
+      "tipe_trans": "PO",
+      "tipe_bayar": "P",
+      "pattern": "POB99999999",
+      "n": 7
+     },
+     {
+      "tipe_trans": "PO",
+      "tipe_bayar": "T",
+      "pattern": "PO99999999",
+      "n": 2
+     },
+     {
+      "tipe_trans": "PO",
+      "tipe_bayar": "P",
+      "pattern": "POA99999999",
+      "n": 1
+     },
+     {
+      "tipe_trans": "PO",
+      "tipe_bayar": "T",
+      "pattern": "POC99999999",
+      "n": 1
+     }
+    ]
+   }
   },
   {
    "schema": "dbo",
@@ -24629,7 +27893,33 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "POB99999999",
+       "count": 125992
+      },
+      {
+       "value": "POA99999999",
+       "count": 90510
+      },
+      {
+       "value": "POC99999999",
+       "count": 3168
+      },
+      {
+       "value": "PO99999999",
+       "count": 2076
+      },
+      {
+       "value": "POH99999999",
+       "count": 1006
+      },
+      {
+       "value": "POD99999999",
+       "count": 96
+      }
+     ]
     },
     {
      "name": "produk_id",
@@ -24739,7 +28029,45 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "GTB99999999",
+       "count": 17162
+      },
+      {
+       "value": "GTA99999999",
+       "count": 12336
+      },
+      {
+       "value": "GOB99999999",
+       "count": 1051
+      },
+      {
+       "value": "GTC99999999",
+       "count": 691
+      },
+      {
+       "value": "GOH99999999",
+       "count": 218
+      },
+      {
+       "value": "GOC99999999",
+       "count": 94
+      },
+      {
+       "value": "GOA99999999",
+       "count": 50
+      },
+      {
+       "value": "GTH99999999",
+       "count": 40
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -24753,7 +28081,17 @@
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "KIRIM",
+       "count": 30239
+      },
+      {
+       "value": "KIRIM TOKO",
+       "count": 1415
+      }
+     ]
     },
     {
      "name": "toko_id",
@@ -24767,7 +28105,45 @@
      "type": "varchar(15)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "SJB99999999",
+       "count": 17155
+      },
+      {
+       "value": "SJA99999999",
+       "count": 12336
+      },
+      {
+       "value": "SOB99999999",
+       "count": 1049
+      },
+      {
+       "value": "SJC99999999",
+       "count": 691
+      },
+      {
+       "value": "SOH99999999",
+       "count": 218
+      },
+      {
+       "value": "SOC99999999",
+       "count": 94
+      },
+      {
+       "value": "SOA99999999",
+       "count": 52
+      },
+      {
+       "value": "SJH99999999",
+       "count": 40
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "ekspedisi_id",
@@ -24781,7 +28157,113 @@
      "type": "varchar(30)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "GRANDMAX",
+       "count": 14753
+      },
+      {
+       "value": null,
+       "count": 9344
+      },
+      {
+       "value": "GRANMAX",
+       "count": 7293
+      },
+      {
+       "value": "GRAND MAX",
+       "count": 71
+      },
+      {
+       "value": "",
+       "count": 51
+      },
+      {
+       "value": "-",
+       "count": 34
+      },
+      {
+       "value": "MOTOR",
+       "count": 20
+      },
+      {
+       "value": "GRAN MAX",
+       "count": 15
+      },
+      {
+       "value": "AEROX",
+       "count": 5
+      },
+      {
+       "value": "PBB21020047",
+       "count": 4
+      },
+      {
+       "value": " GRANMAX",
+       "count": 4
+      },
+      {
+       "value": "GRADMAX",
+       "count": 4
+      },
+      {
+       "value": "B2E22504100621",
+       "count": 4
+      },
+      {
+       "value": "GRADNMAX",
+       "count": 4
+      },
+      {
+       "value": "NMAX",
+       "count": 3
+      },
+      {
+       "value": "GRABDANAX",
+       "count": 3
+      },
+      {
+       "value": "POB20090047",
+       "count": 2
+      },
+      {
+       "value": "PBA21010078",
+       "count": 2
+      },
+      {
+       "value": "GRANAMX",
+       "count": 2
+      },
+      {
+       "value": " GRANDMAX",
+       "count": 2
+      },
+      {
+       "value": "GRANMAXD",
+       "count": 2
+      },
+      {
+       "value": "GRANAMAX",
+       "count": 2
+      },
+      {
+       "value": "GRANDAX",
+       "count": 2
+      },
+      {
+       "value": "PBB20080062",
+       "count": 1
+      },
+      {
+       "value": "POB",
+       "count": 1
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "nopol",
@@ -24861,7 +28343,65 @@
    ],
    "indexes": [],
    "foreignKeys": [],
-   "triggers": []
+   "triggers": [],
+   "numbering": {
+    "column": "bukti",
+    "by": [
+     "tipe_trans"
+    ],
+    "rows": [
+     {
+      "tipe_trans": "KIRIM",
+      "pattern": "GTB99999999",
+      "n": 17162
+     },
+     {
+      "tipe_trans": "KIRIM",
+      "pattern": "GTA99999999",
+      "n": 12336
+     },
+     {
+      "tipe_trans": "KIRIM TOKO",
+      "pattern": "GOB99999999",
+      "n": 1051
+     },
+     {
+      "tipe_trans": "KIRIM",
+      "pattern": "GTC99999999",
+      "n": 691
+     },
+     {
+      "tipe_trans": "KIRIM TOKO",
+      "pattern": "GOH99999999",
+      "n": 218
+     },
+     {
+      "tipe_trans": "KIRIM TOKO",
+      "pattern": "GOC99999999",
+      "n": 94
+     },
+     {
+      "tipe_trans": "KIRIM TOKO",
+      "pattern": "GOA99999999",
+      "n": 50
+     },
+     {
+      "tipe_trans": "KIRIM",
+      "pattern": "GTH99999999",
+      "n": 40
+     },
+     {
+      "tipe_trans": "KIRIM",
+      "pattern": "GTD99999999",
+      "n": 10
+     },
+     {
+      "tipe_trans": "KIRIM TOKO",
+      "pattern": "GOE99999999",
+      "n": 2
+     }
+    ]
+   }
   },
   {
    "schema": "dbo",
@@ -24874,7 +28414,45 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "GTB99999999",
+       "count": 127826
+      },
+      {
+       "value": "GTA99999999",
+       "count": 100961
+      },
+      {
+       "value": "GOB99999999",
+       "count": 3650
+      },
+      {
+       "value": "GTC99999999",
+       "count": 3241
+      },
+      {
+       "value": "GOH99999999",
+       "count": 964
+      },
+      {
+       "value": "GOC99999999",
+       "count": 385
+      },
+      {
+       "value": "GTH99999999",
+       "count": 138
+      },
+      {
+       "value": "GOA99999999",
+       "count": 122
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "produk_id",
@@ -24958,7 +28536,45 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "PBB99999999",
+       "count": 16665
+      },
+      {
+       "value": "SJB99999999",
+       "count": 15954
+      },
+      {
+       "value": "SJA99999999",
+       "count": 11239
+      },
+      {
+       "value": "PBA99999999",
+       "count": 11050
+      },
+      {
+       "value": "SOB99999999",
+       "count": 956
+      },
+      {
+       "value": "PBC99999999",
+       "count": 628
+      },
+      {
+       "value": "SJC99999999",
+       "count": 621
+      },
+      {
+       "value": "RTB99999999",
+       "count": 272
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -24972,7 +28588,41 @@
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "TERIMA",
+       "count": 28615
+      },
+      {
+       "value": "KIRIM PENJUALAN",
+       "count": 27845
+      },
+      {
+       "value": "KIRIM TOKO",
+       "count": 1292
+      },
+      {
+       "value": "RETUR",
+       "count": 556
+      },
+      {
+       "value": "RETUR PENJUALAN",
+       "count": 415
+      },
+      {
+       "value": "KOREKSI PLUS",
+       "count": 60
+      },
+      {
+       "value": "RETUR TOKO",
+       "count": 53
+      },
+      {
+       "value": "KOREKSI MIN",
+       "count": 50
+      }
+     ]
     },
     {
      "name": "status",
@@ -25010,14 +28660,90 @@
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "POB99999999",
+       "count": 16557
+      },
+      {
+       "value": "JLB99999999",
+       "count": 15953
+      },
+      {
+       "value": "JLA99999999",
+       "count": 11240
+      },
+      {
+       "value": "POA99999999",
+       "count": 10973
+      },
+      {
+       "value": "JLC99999999",
+       "count": 621
+      },
+      {
+       "value": "POC99999999",
+       "count": 621
+      },
+      {
+       "value": "TR9999999999",
+       "count": 270
+      },
+      {
+       "value": "POH99999999",
+       "count": 227
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "bukti_ref_ext",
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "OPG99999999",
+       "count": 10274
+      },
+      {
+       "value": "OPE99999999",
+       "count": 6877
+      },
+      {
+       "value": "999999",
+       "count": 6275
+      },
+      {
+       "value": "99/99/9999",
+       "count": 1112
+      },
+      {
+       "value": "99999",
+       "count": 1016
+      },
+      {
+       "value": "999",
+       "count": 614
+      },
+      {
+       "value": "99999999",
+       "count": 567
+      },
+      {
+       "value": "OPH99999999",
+       "count": 288
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "no_sj",
@@ -25038,7 +28764,113 @@
      "type": "varchar(30)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": null,
+       "count": 38763
+      },
+      {
+       "value": "GRANDMAX",
+       "count": 13390
+      },
+      {
+       "value": "GRANMAX",
+       "count": 6505
+      },
+      {
+       "value": "GRAND MAX",
+       "count": 67
+      },
+      {
+       "value": "",
+       "count": 34
+      },
+      {
+       "value": "-",
+       "count": 33
+      },
+      {
+       "value": "MOTOR",
+       "count": 20
+      },
+      {
+       "value": "GRAN MAX",
+       "count": 15
+      },
+      {
+       "value": "PBB21020047",
+       "count": 4
+      },
+      {
+       "value": " GRANMAX",
+       "count": 4
+      },
+      {
+       "value": "GRADMAX",
+       "count": 4
+      },
+      {
+       "value": "B2E22504100621",
+       "count": 4
+      },
+      {
+       "value": "NMAX",
+       "count": 3
+      },
+      {
+       "value": "AEROX",
+       "count": 3
+      },
+      {
+       "value": "GRADNMAX",
+       "count": 3
+      },
+      {
+       "value": "POB20090047",
+       "count": 2
+      },
+      {
+       "value": "GRANAMX",
+       "count": 2
+      },
+      {
+       "value": "PBA21010078",
+       "count": 2
+      },
+      {
+       "value": "GRANMAXD",
+       "count": 2
+      },
+      {
+       "value": "GRANAMAX",
+       "count": 2
+      },
+      {
+       "value": "JN-GTS.CMB 247 TFG",
+       "count": 1
+      },
+      {
+       "value": "C",
+       "count": 1
+      },
+      {
+       "value": "A2B00001500522I",
+       "count": 1
+      },
+      {
+       "value": "PBB20080062",
+       "count": 1
+      },
+      {
+       "value": " GRANDMAX",
+       "count": 1
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "no_resi",
@@ -25141,21 +28973,127 @@
      "type": "varchar(40)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999B/BJB9999",
+       "count": 13088
+      },
+      {
+       "value": "999999B/JBJ9999",
+       "count": 12557
+      },
+      {
+       "value": "X",
+       "count": 12350
+      },
+      {
+       "value": "999999A/JBJ9999",
+       "count": 8812
+      },
+      {
+       "value": "999999A/BJB9999",
+       "count": 8572
+      },
+      {
+       "value": "999999C/BJB9999",
+       "count": 504
+      },
+      {
+       "value": "999999C/JBJ9999",
+       "count": 496
+      },
+      {
+       "value": "999999H/BJB9999",
+       "count": 231
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "bukti_gl",
      "type": "varchar(40)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999B/BJB9999",
+       "count": 16045
+      },
+      {
+       "value": "999999B/JBJ9999",
+       "count": 14869
+      },
+      {
+       "value": "999999A/BJB9999",
+       "count": 10625
+      },
+      {
+       "value": "999999A/JBJ9999",
+       "count": 10476
+      },
+      {
+       "value": "999999C/BJB9999",
+       "count": 628
+      },
+      {
+       "value": "999999C/JBJ9999",
+       "count": 592
+      },
+      {
+       "value": "999999B/BJR9999",
+       "count": 264
+      },
+      {
+       "value": "999999A/BJR9999",
+       "count": 233
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "bukti_terima_toko",
      "type": "varchar(15)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "RJA99999999",
+       "count": 106
+      },
+      {
+       "value": "RJB99999999",
+       "count": 100
+      },
+      {
+       "value": "RJC99999999",
+       "count": 97
+      },
+      {
+       "value": "",
+       "count": 41
+      },
+      {
+       "value": "TGB99999999",
+       "count": 14
+      },
+      {
+       "value": "TGH99999999",
+       "count": 6
+      },
+      {
+       "value": "RJE99999999",
+       "count": 2
+      }
+     ]
     },
     {
      "name": "toko_id_sj",
@@ -25169,7 +29107,41 @@
      "type": "varchar(15)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "POB99999999",
+       "count": 918
+      },
+      {
+       "value": "POH99999999",
+       "count": 194
+      },
+      {
+       "value": "POA99999999",
+       "count": 23
+      },
+      {
+       "value": "",
+       "count": 21
+      },
+      {
+       "value": "RTB99999999",
+       "count": 13
+      },
+      {
+       "value": "RTH99999999",
+       "count": 8
+      },
+      {
+       "value": "POC99999999",
+       "count": 6
+      },
+      {
+       "value": "RTA99999999",
+       "count": 1
+      }
+     ]
     }
    ],
    "primaryKey": [
@@ -25177,7 +29149,220 @@
    ],
    "indexes": [],
    "foreignKeys": [],
-   "triggers": []
+   "triggers": [],
+   "numbering": {
+    "column": "bukti",
+    "by": [
+     "tipe_trans",
+     "status"
+    ],
+    "rows": [
+     {
+      "tipe_trans": "TERIMA",
+      "status": "IN",
+      "pattern": "PBB99999999",
+      "n": 16665
+     },
+     {
+      "tipe_trans": "KIRIM PENJUALAN",
+      "status": "OUT",
+      "pattern": "SJB99999999",
+      "n": 15954
+     },
+     {
+      "tipe_trans": "KIRIM PENJUALAN",
+      "status": "OUT",
+      "pattern": "SJA99999999",
+      "n": 11239
+     },
+     {
+      "tipe_trans": "TERIMA",
+      "status": "IN",
+      "pattern": "PBA99999999",
+      "n": 11050
+     },
+     {
+      "tipe_trans": "KIRIM TOKO",
+      "status": "OUT",
+      "pattern": "SOB99999999",
+      "n": 956
+     },
+     {
+      "tipe_trans": "TERIMA",
+      "status": "IN",
+      "pattern": "PBC99999999",
+      "n": 628
+     },
+     {
+      "tipe_trans": "KIRIM PENJUALAN",
+      "status": "OUT",
+      "pattern": "SJC99999999",
+      "n": 621
+     },
+     {
+      "tipe_trans": "RETUR",
+      "status": "OUT",
+      "pattern": "RTB99999999",
+      "n": 272
+     },
+     {
+      "tipe_trans": "RETUR",
+      "status": "OUT",
+      "pattern": "RTA99999999",
+      "n": 240
+     },
+     {
+      "tipe_trans": "TERIMA",
+      "status": "IN",
+      "pattern": "PBH99999999",
+      "n": 231
+     },
+     {
+      "tipe_trans": "KIRIM TOKO",
+      "status": "OUT",
+      "pattern": "SOH99999999",
+      "n": 205
+     },
+     {
+      "tipe_trans": "RETUR PENJUALAN",
+      "status": "IN",
+      "pattern": "RJA99999999",
+      "n": 172
+     },
+     {
+      "tipe_trans": "RETUR PENJUALAN",
+      "status": "IN",
+      "pattern": "RJB99999999",
+      "n": 132
+     },
+     {
+      "tipe_trans": "RETUR PENJUALAN",
+      "status": "IN",
+      "pattern": "RJC99999999",
+      "n": 110
+     },
+     {
+      "tipe_trans": "KIRIM TOKO",
+      "status": "OUT",
+      "pattern": "SOC99999999",
+      "n": 92
+     },
+     {
+      "tipe_trans": "KIRIM TOKO",
+      "status": "OUT",
+      "pattern": "SOA99999999",
+      "n": 39
+     },
+     {
+      "tipe_trans": "RETUR TOKO",
+      "status": "IN",
+      "pattern": "TGB99999999",
+      "n": 38
+     },
+     {
+      "tipe_trans": "TERIMA",
+      "status": "IN",
+      "pattern": "PB99999999",
+      "n": 31
+     },
+     {
+      "tipe_trans": "KOREKSI PLUS",
+      "status": "IN",
+      "pattern": "KRPB9999999",
+      "n": 31
+     },
+     {
+      "tipe_trans": "RETUR",
+      "status": "OUT",
+      "pattern": "RTC99999999",
+      "n": 28
+     },
+     {
+      "tipe_trans": "KOREKSI PLUS",
+      "status": "IN",
+      "pattern": "KRPA9999999",
+      "n": 27
+     },
+     {
+      "tipe_trans": "KOREKSI MIN",
+      "status": "OUT",
+      "pattern": "KRMB9999999",
+      "n": 26
+     },
+     {
+      "tipe_trans": "KIRIM PENJUALAN",
+      "status": "OUT",
+      "pattern": "SJH99999999",
+      "n": 24
+     },
+     {
+      "tipe_trans": "KOREKSI MIN",
+      "status": "OUT",
+      "pattern": "KRMA9999999",
+      "n": 21
+     },
+     {
+      "tipe_trans": "RETUR",
+      "status": "OUT",
+      "pattern": "RTH99999999",
+      "n": 16
+     },
+     {
+      "tipe_trans": "RETUR TOKO",
+      "status": "IN",
+      "pattern": "TGH99999999",
+      "n": 14
+     },
+     {
+      "tipe_trans": "TERIMA",
+      "status": "IN",
+      "pattern": "PBD99999999",
+      "n": 7
+     },
+     {
+      "tipe_trans": "KIRIM PENJUALAN",
+      "status": "OUT",
+      "pattern": "SJD99999999",
+      "n": 7
+     },
+     {
+      "tipe_trans": "KOREKSI MIN",
+      "status": "OUT",
+      "pattern": "KRMC9999999",
+      "n": 3
+     },
+     {
+      "tipe_trans": "TERIMA",
+      "status": "IN",
+      "pattern": "PB9999B9999",
+      "n": 2
+     },
+     {
+      "tipe_trans": "KOREKSI PLUS",
+      "status": "IN",
+      "pattern": "KRPC9999999",
+      "n": 2
+     },
+     {
+      "tipe_trans": "RETUR TOKO",
+      "status": "IN",
+      "pattern": "TGC99999999",
+      "n": 1
+     },
+     {
+      "tipe_trans": "TERIMA",
+      "status": "IN",
+      "pattern": "PB9999A9999",
+      "n": 1
+     },
+     {
+      "tipe_trans": "RETUR PENJUALAN",
+      "status": "IN",
+      "pattern": "RJE99999999",
+      "n": 1
+     }
+    ]
+   }
   },
   {
    "schema": "dbo",
@@ -25190,7 +29375,45 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "PBB99999999",
+       "count": 119546
+      },
+      {
+       "value": "SJB99999999",
+       "count": 117675
+      },
+      {
+       "value": "SJA99999999",
+       "count": 89273
+      },
+      {
+       "value": "PBA99999999",
+       "count": 85938
+      },
+      {
+       "value": "SOB99999999",
+       "count": 3331
+      },
+      {
+       "value": "PBC99999999",
+       "count": 2925
+      },
+      {
+       "value": "SJC99999999",
+       "count": 2887
+      },
+      {
+       "value": "KRPB9999999",
+       "count": 2852
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "produk_id",
@@ -25312,7 +29535,29 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "JLB99999999",
+       "count": 15953
+      },
+      {
+       "value": "JLA99999999",
+       "count": 11240
+      },
+      {
+       "value": "JLC99999999",
+       "count": 620
+      },
+      {
+       "value": "JLH99999999",
+       "count": 24
+      },
+      {
+       "value": "JLD99999999",
+       "count": 7
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -25419,7 +29664,45 @@
      "type": "varchar(15)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "POB99999999",
+       "count": 12372
+      },
+      {
+       "value": "POA99999999",
+       "count": 8677
+      },
+      {
+       "value": "PBB99999999",
+       "count": 3300
+      },
+      {
+       "value": "PBA99999999",
+       "count": 2277
+      },
+      {
+       "value": "POC99999999",
+       "count": 481
+      },
+      {
+       "value": "PBC99999999",
+       "count": 124
+      },
+      {
+       "value": "RTB99999999",
+       "count": 80
+      },
+      {
+       "value": "",
+       "count": 71
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     }
    ],
    "primaryKey": [
@@ -25440,7 +29723,29 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "JLB99999999",
+       "count": 117677
+      },
+      {
+       "value": "JLA99999999",
+       "count": 89271
+      },
+      {
+       "value": "JLC99999999",
+       "count": 2879
+      },
+      {
+       "value": "JLH99999999",
+       "count": 94
+      },
+      {
+       "value": "JLD99999999",
+       "count": 42
+      }
+     ]
     },
     {
      "name": "produk_id",
@@ -25837,7 +30142,13 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "PY9999999999",
+       "count": 13902
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -25851,7 +30162,13 @@
      "type": "varchar(15)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "TJ9999999999",
+       "count": 13902
+      }
+     ]
     },
     {
      "name": "tgl_tempo",
@@ -25900,7 +30217,29 @@
      "type": "varchar(10)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "TRANSFER",
+       "count": 12881
+      },
+      {
+       "value": "CASH",
+       "count": 654
+      },
+      {
+       "value": null,
+       "count": 346
+      },
+      {
+       "value": "BATAL",
+       "count": 19
+      },
+      {
+       "value": "DEBIT",
+       "count": 2
+      }
+     ]
     },
     {
      "name": "ket",
@@ -25916,7 +30255,40 @@
    ],
    "indexes": [],
    "foreignKeys": [],
-   "triggers": []
+   "triggers": [],
+   "numbering": {
+    "column": "bukti",
+    "by": [
+     "tipe_bayar"
+    ],
+    "rows": [
+     {
+      "tipe_bayar": "TRANSFER",
+      "pattern": "PY9999999999",
+      "n": 12881
+     },
+     {
+      "tipe_bayar": "CASH",
+      "pattern": "PY9999999999",
+      "n": 654
+     },
+     {
+      "tipe_bayar": null,
+      "pattern": "PY9999999999",
+      "n": 346
+     },
+     {
+      "tipe_bayar": "BATAL",
+      "pattern": "PY9999999999",
+      "n": 19
+     },
+     {
+      "tipe_bayar": "DEBIT",
+      "pattern": "PY9999999999",
+      "n": 2
+     }
+    ]
+   }
   },
   {
    "schema": "dbo",
@@ -26409,7 +30781,33 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "POB99999999",
+       "count": 17401
+      },
+      {
+       "value": "POA99999999",
+       "count": 11704
+      },
+      {
+       "value": "POC99999999",
+       "count": 692
+      },
+      {
+       "value": "PO99999999",
+       "count": 426
+      },
+      {
+       "value": "POH99999999",
+       "count": 223
+      },
+      {
+       "value": "POD99999999",
+       "count": 16
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -27584,7 +31982,80 @@
    ],
    "indexes": [],
    "foreignKeys": [],
-   "triggers": []
+   "triggers": [],
+   "numbering": {
+    "column": "bukti",
+    "by": [
+     "tipe_bayar"
+    ],
+    "rows": [
+     {
+      "tipe_bayar": "K",
+      "pattern": "POB99999999",
+      "n": 17378
+     },
+     {
+      "tipe_bayar": "K",
+      "pattern": "POA99999999",
+      "n": 11690
+     },
+     {
+      "tipe_bayar": "K",
+      "pattern": "POC99999999",
+      "n": 636
+     },
+     {
+      "tipe_bayar": "K",
+      "pattern": "PO99999999",
+      "n": 424
+     },
+     {
+      "tipe_bayar": "K",
+      "pattern": "POH99999999",
+      "n": 223
+     },
+     {
+      "tipe_bayar": "P",
+      "pattern": "POC99999999",
+      "n": 55
+     },
+     {
+      "tipe_bayar": "K",
+      "pattern": "POD99999999",
+      "n": 16
+     },
+     {
+      "tipe_bayar": "P",
+      "pattern": "POB99999999",
+      "n": 14
+     },
+     {
+      "tipe_bayar": "T",
+      "pattern": "POA99999999",
+      "n": 11
+     },
+     {
+      "tipe_bayar": "T",
+      "pattern": "POB99999999",
+      "n": 9
+     },
+     {
+      "tipe_bayar": "P",
+      "pattern": "POA99999999",
+      "n": 3
+     },
+     {
+      "tipe_bayar": "T",
+      "pattern": "PO99999999",
+      "n": 2
+     },
+     {
+      "tipe_bayar": "T",
+      "pattern": "POC99999999",
+      "n": 1
+     }
+    ]
+   }
   },
   {
    "schema": "dbo",
@@ -27597,7 +32068,13 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "9999999999",
+       "count": 4
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -27681,7 +32158,13 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "99999999",
+       "count": 7047
+      }
+     ]
     },
     {
      "name": "model_id",
@@ -28158,7 +32641,17 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "RK9999999999",
+       "count": 195
+      },
+      {
+       "value": "RM9999999999",
+       "count": 104
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -28189,7 +32682,13 @@
      "type": "varchar(15)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "RK9999999999",
+       "count": 104
+      }
+     ]
     },
     {
      "name": "toko_id",
@@ -28275,7 +32774,25 @@
    ],
    "indexes": [],
    "foreignKeys": [],
-   "triggers": []
+   "triggers": [],
+   "numbering": {
+    "column": "bukti",
+    "by": [
+     "status"
+    ],
+    "rows": [
+     {
+      "status": "OUT",
+      "pattern": "RK9999999999",
+      "n": 195
+     },
+     {
+      "status": "IN",
+      "pattern": "RM9999999999",
+      "n": 104
+     }
+    ]
+   }
   },
   {
    "schema": "dbo",
@@ -28295,7 +32812,17 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "RK9999999999",
+       "count": 8517
+      },
+      {
+       "value": "RM9999999999",
+       "count": 6294
+      }
+     ]
     },
     {
      "name": "produk_id",
@@ -28866,7 +33393,21 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "SLM99999999999",
+       "count": 25654
+      },
+      {
+       "value": "SLM999999999999",
+       "count": 12717
+      },
+      {
+       "value": "SLM9999999999",
+       "count": 11863
+      }
+     ]
     },
     {
      "name": "toko_id",
@@ -28894,7 +33435,45 @@
      "type": "varchar(50)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999999999999999",
+       "count": 9012
+      },
+      {
+       "value": "INV/99999999/MPL/9999999999",
+       "count": 233
+      },
+      {
+       "value": "GR99999999",
+       "count": 38
+      },
+      {
+       "value": "INV/99999999/MPL/99999999999",
+       "count": 35
+      },
+      {
+       "value": "99999999999999",
+       "count": 9
+      },
+      {
+       "value": "9999999999999W",
+       "count": 4
+      },
+      {
+       "value": "999999999999J9",
+       "count": 3
+      },
+      {
+       "value": "99999999GY9999",
+       "count": 3
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "No_Resi",
@@ -28923,7 +33502,8 @@
      "type": "varchar(15)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": []
     },
     {
      "name": "subtotal",
@@ -28967,7 +33547,8 @@
      "type": "varchar(15)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": []
     },
     {
      "name": "tot_biaya",
@@ -29010,7 +33591,21 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "SLM99999999999",
+       "count": 29465
+      },
+      {
+       "value": "SLM999999999999",
+       "count": 14294
+      },
+      {
+       "value": "SLM9999999999",
+       "count": 13899
+      }
+     ]
     },
     {
      "name": "produk_id",
@@ -29118,7 +33713,45 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "JM9999999999",
+       "count": 50230
+      },
+      {
+       "value": "TJ9999999999",
+       "count": 24136
+      },
+      {
+       "value": "TT99B99999999",
+       "count": 15389
+      },
+      {
+       "value": "TT99A99999999",
+       "count": 11010
+      },
+      {
+       "value": "RM9999999999",
+       "count": 3013
+      },
+      {
+       "value": "TK99B99999999",
+       "count": 952
+      },
+      {
+       "value": "RT9999999999",
+       "count": 597
+      },
+      {
+       "value": "TR9999999999",
+       "count": 372
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -29146,7 +33779,61 @@
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "KIRIM MP",
+       "count": 50230
+      },
+      {
+       "value": "TERIMA",
+       "count": 26422
+      },
+      {
+       "value": "JUAL",
+       "count": 24136
+      },
+      {
+       "value": "RETUR MP",
+       "count": 3013
+      },
+      {
+       "value": "TERIMA TOKO",
+       "count": 1288
+      },
+      {
+       "value": "RETUR JUAL",
+       "count": 597
+      },
+      {
+       "value": "RETUR",
+       "count": 372
+      },
+      {
+       "value": "PROMO MP",
+       "count": 244
+      },
+      {
+       "value": "JUAL OL",
+       "count": 101
+      },
+      {
+       "value": "KOREKSI PLUS",
+       "count": 63
+      },
+      {
+       "value": "RETUR TOKO",
+       "count": 62
+      },
+      {
+       "value": "KOREKSI MIN",
+       "count": 42
+      },
+      {
+       "value": "RJUAL OL",
+       "count": 13
+      }
+     ]
     },
     {
      "name": "status",
@@ -29186,7 +33873,45 @@
      "type": "varchar(15)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "SLM99999999999",
+       "count": 25653
+      },
+      {
+       "value": "SJB99999999",
+       "count": 15441
+      },
+      {
+       "value": "SLM999999999999",
+       "count": 12714
+      },
+      {
+       "value": "SLM9999999999",
+       "count": 11863
+      },
+      {
+       "value": "SJA99999999",
+       "count": 11118
+      },
+      {
+       "value": "JM9999999999",
+       "count": 3013
+      },
+      {
+       "value": "SOB99999999",
+       "count": 952
+      },
+      {
+       "value": "SOH99999999",
+       "count": 205
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "remark",
@@ -29239,7 +33964,65 @@
      "type": "varchar(10)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "JUAL MP",
+       "count": 50230
+      },
+      {
+       "value": null,
+       "count": 29429
+      },
+      {
+       "value": "CASH",
+       "count": 8955
+      },
+      {
+       "value": "UTANG",
+       "count": 7708
+      },
+      {
+       "value": "TRANSFER",
+       "count": 4520
+      },
+      {
+       "value": "RETUR MP",
+       "count": 3013
+      },
+      {
+       "value": "DEBIT",
+       "count": 1350
+      },
+      {
+       "value": "ONLINE",
+       "count": 541
+      },
+      {
+       "value": "RETUR",
+       "count": 457
+      },
+      {
+       "value": "PROMO MP",
+       "count": 358
+      },
+      {
+       "value": "CREDIT",
+       "count": 10
+      },
+      {
+       "value": "BOOKING",
+       "count": 8
+      },
+      {
+       "value": "BATAL",
+       "count": 3
+      },
+      {
+       "value": "PACKING",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "bank_id",
@@ -29482,14 +34265,90 @@
      "type": "varchar(40)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999JMJ",
+       "count": 51401
+      },
+      {
+       "value": "999999JMJ/",
+       "count": 6244
+      },
+      {
+       "value": "999999B/JPJ9999",
+       "count": 166
+      },
+      {
+       "value": "999999B/JOJ9999",
+       "count": 66
+      },
+      {
+       "value": "999999H/JPJ9999",
+       "count": 33
+      },
+      {
+       "value": "999999H/JOJ9999",
+       "count": 19
+      },
+      {
+       "value": "999999A/JOJ9999",
+       "count": 11
+      },
+      {
+       "value": "999999B/ROJ9999",
+       "count": 7
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "bukti_gl",
      "type": "varchar(40)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999JMJ",
+       "count": 51401
+      },
+      {
+       "value": "999999JMJ/",
+       "count": 6244
+      },
+      {
+       "value": "999999B/JPJ9999",
+       "count": 166
+      },
+      {
+       "value": "999999B/JOJ9999",
+       "count": 66
+      },
+      {
+       "value": "999999H/JPJ9999",
+       "count": 33
+      },
+      {
+       "value": "999999H/JOJ9999",
+       "count": 19
+      },
+      {
+       "value": "999999A/JOJ9999",
+       "count": 11
+      },
+      {
+       "value": "999999B/ROJ9999",
+       "count": 7
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "tot_qty",
@@ -29524,14 +34383,16 @@
      "type": "varchar(40)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": []
     },
     {
      "name": "bukti_byr_gl",
      "type": "varchar(40)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": []
     },
     {
      "name": "tot_byr",
@@ -29561,7 +34422,482 @@
    ],
    "indexes": [],
    "foreignKeys": [],
-   "triggers": []
+   "triggers": [],
+   "numbering": {
+    "column": "bukti",
+    "by": [
+     "grosir",
+     "tipe_trans",
+     "status",
+     "tipe_bayar"
+    ],
+    "rows": [
+     {
+      "grosir": null,
+      "tipe_trans": "KIRIM MP",
+      "status": "OUT",
+      "tipe_bayar": "JUAL MP",
+      "pattern": "JM9999999999",
+      "n": 50230
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "TERIMA",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "TT99B99999999",
+      "n": 15389
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "TERIMA",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "TT99A99999999",
+      "n": 10618
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "UTANG",
+      "pattern": "TJ9999999999",
+      "n": 7694
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "CASH",
+      "pattern": "TJ9999999999",
+      "n": 5272
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "TRANSFER",
+      "pattern": "TJ9999999999",
+      "n": 3904
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "RETUR MP",
+      "status": "IN",
+      "tipe_bayar": "RETUR MP",
+      "pattern": "RM9999999999",
+      "n": 3013
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "CASH",
+      "pattern": "TJ9999999999",
+      "n": 2959
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "DEBIT",
+      "pattern": "TJ9999999999",
+      "n": 1317
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "TERIMA TOKO",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "TK99B99999999",
+      "n": 952
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "TJ9999999999",
+      "n": 893
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "CASH",
+      "pattern": "TJ9999999999",
+      "n": 724
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "ONLINE",
+      "pattern": "TJ9999999999",
+      "n": 534
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "TRANSFER",
+      "pattern": "TJ9999999999",
+      "n": 478
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "RETUR JUAL",
+      "status": "IN",
+      "tipe_bayar": "RETUR",
+      "pattern": "RT9999999999",
+      "n": 449
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "TERIMA",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "TT99A99999999",
+      "n": 392
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "PROMO MP",
+      "status": "OUT",
+      "tipe_bayar": "PROMO MP",
+      "pattern": "JP9999999999",
+      "n": 244
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "TERIMA TOKO",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "TK99H99999999",
+      "n": 205
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "RETUR",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "TR9999999999",
+      "n": 188
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "RETUR",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "TR9999999999",
+      "n": 184
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "TRANSFER",
+      "pattern": "TJ9999999999",
+      "n": 138
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "TJ9999999999",
+      "n": 137
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "JUAL OL",
+      "status": "OUT",
+      "tipe_bayar": "PROMO MP",
+      "pattern": "JO9999999999",
+      "n": 101
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "RETUR JUAL",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "RT9999999999",
+      "n": 95
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "TERIMA TOKO",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "TK99C99999999",
+      "n": 92
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "RETUR TOKO",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "RK9999999999",
+      "n": 58
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "RETUR JUAL",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "RT9999999999",
+      "n": 44
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "TERIMA TOKO",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "TK99A99999999",
+      "n": 39
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "DEBIT",
+      "pattern": "TJ9999999999",
+      "n": 32
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "KOREKSI PLUS",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "TKRP999999999",
+      "n": 29
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "TERIMA",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "TT9999999999",
+      "n": 23
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "KOREKSI MIN",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "TKRM999999999",
+      "n": 15
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "KOREKSI PLUS",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "KRPB9999999",
+      "n": 15
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "RJUAL OL",
+      "status": "IN",
+      "tipe_bayar": "PROMO MP",
+      "pattern": "RO9999999999",
+      "n": 13
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "KOREKSI MIN",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "KRMB9999999",
+      "n": 13
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "UTANG",
+      "pattern": "TJ9999999999",
+      "n": 12
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "KOREKSI PLUS",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "KRP9999999",
+      "n": 10
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "TJ9999999999",
+      "n": 9
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "KOREKSI MIN",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "KRM9999999",
+      "n": 8
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "CREDIT",
+      "pattern": "TJ9999999999",
+      "n": 8
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "ONLINE",
+      "pattern": "TJ9999999999",
+      "n": 7
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "BOOKING",
+      "pattern": "TJ9999999999",
+      "n": 7
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "RETUR JUAL",
+      "status": "IN",
+      "tipe_bayar": "RETUR",
+      "pattern": "RT9999999999",
+      "n": 6
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "KOREKSI PLUS",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "TKRP999999999",
+      "n": 4
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "RETUR TOKO",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "RK99999999",
+      "n": 4
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "KOREKSI MIN",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "TKRM999999999",
+      "n": 4
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "BATAL",
+      "pattern": "TJ9999999999",
+      "n": 3
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "KOREKSI PLUS",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "KRPA9999999",
+      "n": 3
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "KOREKSI PLUS",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "KRPA9999999",
+      "n": 2
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "RETUR JUAL",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "RT9999999999",
+      "n": 2
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "KOREKSI MIN",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "KRMA9999999",
+      "n": 2
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "CREDIT",
+      "pattern": "TJ9999999999",
+      "n": 2
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "UTANG",
+      "pattern": "TJ9999999999",
+      "n": 2
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "PACKING",
+      "pattern": "TJ9999999999",
+      "n": 1
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "BOOKING",
+      "pattern": "TJ9999999999",
+      "n": 1
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "DEBIT",
+      "pattern": "TJ9999999999",
+      "n": 1
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "RETUR",
+      "pattern": "TJ9999999999",
+      "n": 1
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "RETUR JUAL",
+      "status": "IN",
+      "tipe_bayar": "RETUR",
+      "pattern": "RT9999999999",
+      "n": 1
+     }
+    ]
+   }
   },
   {
    "schema": "dbo",
@@ -29970,7 +35306,45 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "TJ9999999999",
+       "count": 1435958
+      },
+      {
+       "value": "TT99B99999999",
+       "count": 106499
+      },
+      {
+       "value": "TT99A99999999",
+       "count": 87723
+      },
+      {
+       "value": "JM9999999999",
+       "count": 57651
+      },
+      {
+       "value": "KRPB9999999",
+       "count": 27749
+      },
+      {
+       "value": "KRM9999999",
+       "count": 14278
+      },
+      {
+       "value": "KRMB9999999",
+       "count": 9301
+      },
+      {
+       "value": "TKRP999999999",
+       "count": 9193
+      },
+      {
+       "value": "…",
+       "count": 0
+      }
+     ]
     },
     {
      "name": "produk_id",
@@ -30328,7 +35702,41 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "TJ9999999999",
+       "count": 599213
+      },
+      {
+       "value": "TT99A99999999",
+       "count": 87240
+      },
+      {
+       "value": "KRMA9999999",
+       "count": 26739
+      },
+      {
+       "value": "KRPA9999999",
+       "count": 21204
+      },
+      {
+       "value": "TKRM999999999",
+       "count": 6610
+      },
+      {
+       "value": "TKRP999999999",
+       "count": 6503
+      },
+      {
+       "value": "RT9999999999",
+       "count": 2633
+      },
+      {
+       "value": "TR9999999999",
+       "count": 1253
+      }
+     ]
     },
     {
      "name": "produk_id",
@@ -30495,7 +35903,37 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "TT99B99999999",
+       "count": 5571
+      },
+      {
+       "value": "TJ9999999999",
+       "count": 4435
+      },
+      {
+       "value": "RT9999999999",
+       "count": 124
+      },
+      {
+       "value": "TR9999999999",
+       "count": 70
+      },
+      {
+       "value": "TT9999999999",
+       "count": 23
+      },
+      {
+       "value": "KRPB9999999",
+       "count": 2
+      },
+      {
+       "value": "KRMB9999999",
+       "count": 2
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -30523,7 +35961,33 @@
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "TERIMA",
+       "count": 5594
+      },
+      {
+       "value": "JUAL",
+       "count": 4435
+      },
+      {
+       "value": "RETUR JUAL",
+       "count": 124
+      },
+      {
+       "value": "RETUR",
+       "count": 70
+      },
+      {
+       "value": "KOREKSI PLUS",
+       "count": 2
+      },
+      {
+       "value": "KOREKSI MIN",
+       "count": 2
+      }
+     ]
     },
     {
      "name": "status",
@@ -30563,7 +36027,21 @@
      "type": "varchar(15)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "SJB99999999",
+       "count": 5626
+      },
+      {
+       "value": "",
+       "count": 10
+      },
+      {
+       "value": "SJD99999999",
+       "count": 2
+      }
+     ]
     },
     {
      "name": "remark",
@@ -30616,7 +36094,37 @@
      "type": "varchar(10)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": null,
+       "count": 5702
+      },
+      {
+       "value": "UTANG",
+       "count": 1925
+      },
+      {
+       "value": "CASH",
+       "count": 1600
+      },
+      {
+       "value": "TRANSFER",
+       "count": 873
+      },
+      {
+       "value": "RETUR",
+       "count": 124
+      },
+      {
+       "value": "CREDIT",
+       "count": 2
+      },
+      {
+       "value": "BOOKING",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "bank_id",
@@ -30751,7 +36259,170 @@
    ],
    "indexes": [],
    "foreignKeys": [],
-   "triggers": []
+   "triggers": [],
+   "numbering": {
+    "column": "bukti",
+    "by": [
+     "grosir",
+     "tipe_trans",
+     "status",
+     "tipe_bayar"
+    ],
+    "rows": [
+     {
+      "grosir": null,
+      "tipe_trans": "TERIMA",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "TT99B99999999",
+      "n": 5571
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "UTANG",
+      "pattern": "TJ9999999999",
+      "n": 1920
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "CASH",
+      "pattern": "TJ9999999999",
+      "n": 1547
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "TRANSFER",
+      "pattern": "TJ9999999999",
+      "n": 871
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "RETUR JUAL",
+      "status": "IN",
+      "tipe_bayar": "RETUR",
+      "pattern": "RT9999999999",
+      "n": 122
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "RETUR",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "TR9999999999",
+      "n": 70
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "CASH",
+      "pattern": "TJ9999999999",
+      "n": 53
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "TJ9999999999",
+      "n": 32
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "TERIMA",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "TT9999999999",
+      "n": 23
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "UTANG",
+      "pattern": "TJ9999999999",
+      "n": 5
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "KOREKSI PLUS",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "KRPB9999999",
+      "n": 2
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "TRANSFER",
+      "pattern": "TJ9999999999",
+      "n": 2
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "KOREKSI MIN",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "KRMB9999999",
+      "n": 2
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "CREDIT",
+      "pattern": "TJ9999999999",
+      "n": 2
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "RETUR",
+      "pattern": "TJ9999999999",
+      "n": 1
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "RETUR JUAL",
+      "status": "IN",
+      "tipe_bayar": "RETUR",
+      "pattern": "RT9999999999",
+      "n": 1
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "RETUR JUAL",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "RT9999999999",
+      "n": 1
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "TJ9999999999",
+      "n": 1
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "BOOKING",
+      "pattern": "TJ9999999999",
+      "n": 1
+     }
+    ]
+   }
   },
   {
    "schema": "dbo",
@@ -30771,7 +36442,37 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "TJ9999999999",
+       "count": 327151
+      },
+      {
+       "value": "TT99B99999999",
+       "count": 47572
+      },
+      {
+       "value": "KRPB9999999",
+       "count": 8004
+      },
+      {
+       "value": "KRMB9999999",
+       "count": 3057
+      },
+      {
+       "value": "RT9999999999",
+       "count": 1830
+      },
+      {
+       "value": "TR9999999999",
+       "count": 599
+      },
+      {
+       "value": "TT9999999999",
+       "count": 182
+      }
+     ]
     },
     {
      "name": "produk_id",
@@ -30915,7 +36616,37 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "TT99B99999999",
+       "count": 5912
+      },
+      {
+       "value": "TJ9999999999",
+       "count": 4690
+      },
+      {
+       "value": "RT9999999999",
+       "count": 138
+      },
+      {
+       "value": "TR9999999999",
+       "count": 76
+      },
+      {
+       "value": "TT9999999999",
+       "count": 23
+      },
+      {
+       "value": "KRPB9999999",
+       "count": 2
+      },
+      {
+       "value": "KRMB9999999",
+       "count": 2
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -30943,7 +36674,33 @@
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "TERIMA",
+       "count": 5935
+      },
+      {
+       "value": "JUAL",
+       "count": 4690
+      },
+      {
+       "value": "RETUR JUAL",
+       "count": 138
+      },
+      {
+       "value": "RETUR",
+       "count": 76
+      },
+      {
+       "value": "KOREKSI PLUS",
+       "count": 2
+      },
+      {
+       "value": "KOREKSI MIN",
+       "count": 2
+      }
+     ]
     },
     {
      "name": "status",
@@ -30983,7 +36740,21 @@
      "type": "varchar(15)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "SJB99999999",
+       "count": 5968
+      },
+      {
+       "value": "",
+       "count": 11
+      },
+      {
+       "value": "SJD99999999",
+       "count": 2
+      }
+     ]
     },
     {
      "name": "remark",
@@ -31036,7 +36807,37 @@
      "type": "varchar(10)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": null,
+       "count": 6055
+      },
+      {
+       "value": "UTANG",
+       "count": 2030
+      },
+      {
+       "value": "CASH",
+       "count": 1744
+      },
+      {
+       "value": "TRANSFER",
+       "count": 873
+      },
+      {
+       "value": "RETUR",
+       "count": 138
+      },
+      {
+       "value": "CREDIT",
+       "count": 2
+      },
+      {
+       "value": "BOOKING",
+       "count": 1
+      }
+     ]
     },
     {
      "name": "bank_id",
@@ -31171,7 +36972,162 @@
    ],
    "indexes": [],
    "foreignKeys": [],
-   "triggers": []
+   "triggers": [],
+   "numbering": {
+    "column": "bukti",
+    "by": [
+     "grosir",
+     "tipe_trans",
+     "status",
+     "tipe_bayar"
+    ],
+    "rows": [
+     {
+      "grosir": null,
+      "tipe_trans": "TERIMA",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "TT99B99999999",
+      "n": 5912
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "UTANG",
+      "pattern": "TJ9999999999",
+      "n": 2024
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "CASH",
+      "pattern": "TJ9999999999",
+      "n": 1687
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "TRANSFER",
+      "pattern": "TJ9999999999",
+      "n": 871
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "RETUR JUAL",
+      "status": "IN",
+      "tipe_bayar": "RETUR",
+      "pattern": "RT9999999999",
+      "n": 136
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "RETUR",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "TR9999999999",
+      "n": 76
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "CASH",
+      "pattern": "TJ9999999999",
+      "n": 57
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "TJ9999999999",
+      "n": 39
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "TERIMA",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "TT9999999999",
+      "n": 23
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "UTANG",
+      "pattern": "TJ9999999999",
+      "n": 6
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "KOREKSI PLUS",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "KRPB9999999",
+      "n": 2
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "TRANSFER",
+      "pattern": "TJ9999999999",
+      "n": 2
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "KOREKSI MIN",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "KRMB9999999",
+      "n": 2
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "CREDIT",
+      "pattern": "TJ9999999999",
+      "n": 2
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "RETUR",
+      "pattern": "TJ9999999999",
+      "n": 1
+     },
+     {
+      "grosir": false,
+      "tipe_trans": "RETUR JUAL",
+      "status": "IN",
+      "tipe_bayar": "RETUR",
+      "pattern": "RT9999999999",
+      "n": 1
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "RETUR JUAL",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "RT9999999999",
+      "n": 1
+     },
+     {
+      "grosir": true,
+      "tipe_trans": "JUAL",
+      "status": "OUT",
+      "tipe_bayar": "BOOKING",
+      "pattern": "TJ9999999999",
+      "n": 1
+     }
+    ]
+   }
   },
   {
    "schema": "dbo",
@@ -31191,7 +37147,37 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "TJ9999999999",
+       "count": 346482
+      },
+      {
+       "value": "TT99B99999999",
+       "count": 50134
+      },
+      {
+       "value": "KRPB9999999",
+       "count": 12206
+      },
+      {
+       "value": "KRMB9999999",
+       "count": 3115
+      },
+      {
+       "value": "RT9999999999",
+       "count": 2029
+      },
+      {
+       "value": "TR9999999999",
+       "count": 725
+      },
+      {
+       "value": "TT9999999999",
+       "count": 182
+      }
+     ]
     },
     {
      "name": "produk_id",
@@ -31335,7 +37321,33 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "TK99B99999999",
+       "count": 932
+      },
+      {
+       "value": "TK99H99999999",
+       "count": 202
+      },
+      {
+       "value": "TK99C99999999",
+       "count": 92
+      },
+      {
+       "value": "RK9999999999",
+       "count": 56
+      },
+      {
+       "value": "TK99A99999999",
+       "count": 38
+      },
+      {
+       "value": "RK99999999",
+       "count": 4
+      }
+     ]
     },
     {
      "name": "tgl",
@@ -31363,7 +37375,17 @@
      "type": "varchar(20)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": "TERIMA TOKO",
+       "count": 1264
+      },
+      {
+       "value": "RETUR TOKO",
+       "count": 60
+      }
+     ]
     },
     {
      "name": "status",
@@ -31403,7 +37425,25 @@
      "type": "varchar(15)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "SOB99999999",
+       "count": 932
+      },
+      {
+       "value": "SOH99999999",
+       "count": 202
+      },
+      {
+       "value": "SOC99999999",
+       "count": 92
+      },
+      {
+       "value": "SOA99999999",
+       "count": 38
+      }
+     ]
     },
     {
      "name": "remark",
@@ -31456,7 +37496,13 @@
      "type": "varchar(10)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "codes": [
+      {
+       "value": null,
+       "count": 1324
+      }
+     ]
     },
     {
      "name": "bank_id",
@@ -31679,14 +37725,34 @@
      "type": "varchar(40)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999JMJ/",
+       "count": 541
+      },
+      {
+       "value": "999999JMJ",
+       "count": 44
+      }
+     ]
     },
     {
      "name": "bukti_gl",
      "type": "varchar(40)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": [
+      {
+       "value": "999999JMJ/",
+       "count": 541
+      },
+      {
+       "value": "999999JMJ",
+       "count": 44
+      }
+     ]
     },
     {
      "name": "tot_qty",
@@ -31721,14 +37787,16 @@
      "type": "varchar(40)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": []
     },
     {
      "name": "bukti_byr_gl",
      "type": "varchar(40)",
      "nullable": true,
      "identity": false,
-     "pk": false
+     "pk": false,
+     "patterns": []
     },
     {
      "name": "tot_byr",
@@ -31757,7 +37825,66 @@
    ],
    "indexes": [],
    "foreignKeys": [],
-   "triggers": []
+   "triggers": [],
+   "numbering": {
+    "column": "bukti",
+    "by": [
+     "grosir",
+     "tipe_trans",
+     "status",
+     "tipe_bayar"
+    ],
+    "rows": [
+     {
+      "grosir": null,
+      "tipe_trans": "TERIMA TOKO",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "TK99B99999999",
+      "n": 932
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "TERIMA TOKO",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "TK99H99999999",
+      "n": 202
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "TERIMA TOKO",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "TK99C99999999",
+      "n": 92
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "RETUR TOKO",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "RK9999999999",
+      "n": 56
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "TERIMA TOKO",
+      "status": "IN",
+      "tipe_bayar": null,
+      "pattern": "TK99A99999999",
+      "n": 38
+     },
+     {
+      "grosir": null,
+      "tipe_trans": "RETUR TOKO",
+      "status": "OUT",
+      "tipe_bayar": null,
+      "pattern": "RK99999999",
+      "n": 4
+     }
+    ]
+   }
   },
   {
    "schema": "dbo",
@@ -31777,7 +37904,33 @@
      "type": "varchar(15)",
      "nullable": false,
      "identity": false,
-     "pk": true
+     "pk": true,
+     "patterns": [
+      {
+       "value": "TK99B99999999",
+       "count": 3263
+      },
+      {
+       "value": "TK99H99999999",
+       "count": 893
+      },
+      {
+       "value": "TK99C99999999",
+       "count": 375
+      },
+      {
+       "value": "RK9999999999",
+       "count": 281
+      },
+      {
+       "value": "TK99A99999999",
+       "count": 85
+      },
+      {
+       "value": "RK99999999",
+       "count": 48
+      }
+     ]
     },
     {
      "name": "produk_id",
