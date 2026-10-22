@@ -1,5 +1,5 @@
 import { db } from '../db.svelte';
-import { stockBalance } from '../ledger';
+import { stockBalance, unitCost } from '../ledger';
 import type { Doc, FieldDef, JournalLine, LineField, LinesDef, TxDef } from '../types';
 
 /* ---------- helper ---------- */
@@ -64,11 +64,44 @@ const supplierField: FieldDef = { key: 'supplierId', label: 'Supplier', type: 'l
 const customerField: FieldDef = { key: 'customerId', label: 'Customer', type: 'lookup', ref: 'customers', required: true };
 const expeditionField: FieldDef = { key: 'expeditionId', label: 'Ekspedisi', type: 'lookup', ref: 'expeditions' };
 
+/* ---------- akun kontrol: hanya boleh diisi lewat transaksi yang punya buku pembantunya ---------- */
+const CONTROL: Record<string, string> = {
+	'1-1300': 'Piutang Usaha diisi lewat transaksi AR',
+	'2-1100': 'Hutang Usaha diisi lewat transaksi AP / pembayaran hutang',
+	'1-1400': 'Persediaan Bahan Baku diisi lewat transaksi stok',
+	'1-1410': 'Persediaan Barang Jadi diisi lewat transaksi stok'
+};
+/** baris akun tidak boleh memakai akun kontrol, kecuali `allow` */
+const noControl = (allow: string[] = []) => (d: Doc) => {
+	for (const l of d.lines) {
+		const code = db.get('coa', l.coaId)?.code ?? '';
+		if (CONTROL[code] && !allow.includes(code)) return `Akun ${code} tidak boleh dipakai di sini: ${CONTROL[code]}`;
+	}
+	return null;
+};
+/** pelunasan: semua baris wajib akun kontrol pihaknya agar buku besar = buku pembantu */
+const onlyAccount = (code: string, label: string) => (d: Doc) =>
+	d.lines.every((l) => db.get('coa', l.coaId)?.code === code) ? null : `${label}: semua baris harus memakai akun ${code} ${db.all('coa').find((c) => c.code === code)?.name ?? ''}`;
+
 /* ---------- jurnal otomatis ---------- */
 const J = (code: string, debit: number, credit: number, memo?: string): JournalLine => ({ coa: code, debit, credit, memo });
 const net = (d: Doc) => (d.subtotal ?? d.total ?? 0) - (d.discount ?? 0);
 const kbCoa = (d: Doc) => db.get('coa', db.get('cashbanks', d.kasbankId)?.coaId)?.code ?? '1-1100';
 const lineCoa = (id: string) => db.get('coa', id)?.code ?? id;
+
+/** HPP barang jadi keluar (sign 1: jual → D HPP, K Persediaan; -1: retur jual → kebalikannya) */
+function cogsJournal(d: Doc, sign: 1 | -1 = 1): JournalLine[] {
+	const cost = d.lines.reduce((s, l) => s + (+l.qty || 0) * unitCost('products', l), 0);
+	if (!cost) return [];
+	return sign > 0 ? [J('5-1000', cost, 0, 'HPP'), J('1-1410', 0, cost, 'Persediaan')] : [J('1-1410', cost, 0, 'Persediaan'), J('5-1000', 0, cost, 'HPP')];
+}
+/** Kas/bank penampung penjualan toko: tunai → kas kecil toko, non-tunai → rekening bank operasional */
+const posKasbank = (d: Doc) => {
+	const kb = db.all('cashbanks');
+	const byCoa = (code: string) => kb.find((k) => db.get('coa', k.coaId)?.code === code)?.id;
+	return (d.payment === 'Tunai' ? byCoa('1-1110') : byCoa('1-1200')) ?? kb.find((k) => k.type === (d.payment === 'Tunai' ? 'Kas' : 'Bank'))?.id ?? '';
+};
+const posCoa = (d: Doc) => kbCoa({ ...d, kasbankId: posKasbank(d) });
 
 function purchaseJournal(stockCoa: string) {
 	return (d: Doc): JournalLine[] => [
@@ -178,7 +211,8 @@ export const invStoreReturnReceipt: TxDef = {
 		label: 'Dokumen Retur Toko',
 		filter: unused('inv_store_return_receipt'),
 		header: (s) => ({ storeId: s.storeId }),
-		line: (l) => ({ itemId: l.itemId, unit: l.unit, qty: l.qty, note: l.note })
+		line: (l) => ({ itemId: l.itemId, unit: l.unit, qty: l.qty, note: l.note }),
+		strictQty: true
 	},
 	lines: qtyOnly('products', 'Produk'),
 	stock: { itemTable: 'products', loc: () => 'INV', qty: (l) => +l.qty },
@@ -201,6 +235,8 @@ export const salesOrder: TxDef = {
 	lines: priced('products', 'sellPrice', 'Produk'),
 	totals: { discount: true },
 	stock: { itemTable: 'products', loc: () => 'INV', qty: (l) => -l.qty },
+	// pendapatan & piutang diakui saat Faktur Tagihan; HPP saat barang keluar gudang
+	journal: (d) => cogsJournal(d),
 	closingScope: 'INV'
 };
 
@@ -216,7 +252,8 @@ export const storeReceipt: TxDef = {
 		label: 'Surat Kirim dari Gudang',
 		filter: (s, f) => unused('store_receipts')(s, f) && (!f.storeId || s.storeId === f.storeId),
 		header: (s) => ({ storeId: s.storeId }),
-		line: (l) => ({ itemId: l.itemId, unit: l.unit, qty: l.qty })
+		line: (l) => ({ itemId: l.itemId, unit: l.unit, qty: l.qty }),
+		strictQty: true
 	},
 	lines: qtyOnly('products', 'Produk'),
 	stock: { itemTable: 'products', loc: (d) => 'TOKO:' + d.storeId, qty: (l) => +l.qty },
@@ -251,7 +288,8 @@ export const storeSale: TxDef = {
 	lines: priced('products', 'sellPrice', 'Produk'),
 	totals: { discount: true },
 	stock: { itemTable: 'products', loc: (d) => 'TOKO:' + d.storeId, qty: (l) => -l.qty },
-	journal: (d) => [J(d.payment === 'Tunai' ? '1-1110' : '1-1200', d.total ?? 0, 0, d.payment), J('4-1000', 0, d.total ?? 0, db.name('stores', d.storeId))],
+	cash: { kasbank: posKasbank, sign: 1 },
+	journal: (d) => [J(posCoa(d), d.total ?? 0, 0, d.payment), J('4-1000', 0, d.total ?? 0, db.name('stores', d.storeId)), ...cogsJournal(d)],
 	closingScope: 'TOKO'
 };
 
@@ -263,7 +301,9 @@ export const storeSaleReturn: TxDef = {
 	header: [storeField(), { ...customerField, required: false }, { key: 'refNo', label: 'No. Struk Asal' }, { key: 'reason', label: 'Alasan', type: 'select', options: ['Ukuran Tidak Sesuai', 'Cacat', 'Lainnya'] }],
 	lines: priced('products', 'sellPrice', 'Produk'),
 	stock: { itemTable: 'products', loc: (d) => 'TOKO:' + d.storeId, qty: (l) => +l.qty },
-	journal: (d) => [J('4-1100', d.total ?? 0, 0, 'Retur penjualan'), J('1-1110', 0, d.total ?? 0)],
+	// uang dikembalikan tunai dari kas kecil toko
+	cash: { kasbank: (d) => posKasbank({ ...d, payment: 'Tunai' }), sign: -1 },
+	journal: (d) => [J('4-1100', d.total ?? 0, 0, 'Retur penjualan'), J(posCoa({ ...d, payment: 'Tunai' }), 0, d.total ?? 0), ...cogsJournal(d, -1)],
 	closingScope: 'TOKO'
 };
 
@@ -288,6 +328,24 @@ export const stockOpname: TxDef = {
 		}
 	},
 	stock: { itemTable: 'products', loc: (d) => 'TOKO:' + d.storeId, qty: (l) => (Number(l.physQty) || 0) - (Number(l.sysQty) || 0) },
+	// qty sistem bisa sudah berubah sejak baris diisi → hitung ulang saat posting
+	beforePost: (d) => {
+		for (const l of d.lines) if (l.itemId) l.sysQty = d.storeId ? stockBalance('products', 'TOKO:' + d.storeId, l.itemId, d.date, d.id) : 0;
+	},
+	// selisih kurang → beban lain-lain, selisih lebih → pendapatan lain-lain
+	journal: (d) => {
+		let lost = 0;
+		let found = 0;
+		for (const l of d.lines) {
+			const v = ((Number(l.physQty) || 0) - (Number(l.sysQty) || 0)) * unitCost('products', l);
+			if (v < 0) lost -= v;
+			else found += v;
+		}
+		return [
+			...(lost ? [J('6-1600', lost, 0, 'Selisih kurang stok opname'), J('1-1410', 0, lost, 'Persediaan')] : []),
+			...(found ? [J('1-1410', found, 0, 'Persediaan'), J('4-2000', 0, found, 'Selisih lebih stok opname')] : [])
+		];
+	},
 	noAmount: true,
 	closingScope: 'TOKO',
 	postLabel: 'Sesuaikan Stok'
@@ -374,6 +432,7 @@ export const cashIn: TxDef = {
 	lines: cashLines,
 	cash: { field: 'kasbankId', sign: 1 },
 	ledger: [{ kind: 'ar', partyField: 'customerId', sign: -1, when: (d) => d.kind === 'Pelunasan Piutang' }],
+	validate: (d) => (d.kind === 'Pelunasan Piutang' ? onlyAccount('1-1300', 'Pelunasan piutang')(d) : noControl()(d)),
 	journal: (d) => [J(kbCoa(d), d.total ?? 0, 0, d.from), ...d.lines.map((l) => J(lineCoa(l.coaId), 0, +l.amount || 0, l.desc))]
 };
 
@@ -391,6 +450,7 @@ export const cashOut: TxDef = {
 	lines: cashLines,
 	cash: { field: 'kasbankId', sign: -1 },
 	ledger: [{ kind: 'ap', partyField: 'supplierId', sign: -1, when: (d) => d.kind === 'Pembayaran Hutang' }],
+	validate: (d) => (d.kind === 'Pembayaran Hutang' ? onlyAccount('2-1100', 'Pembayaran hutang')(d) : noControl()(d)),
 	journal: (d) => [...d.lines.map((l) => J(lineCoa(l.coaId), +l.amount || 0, 0, l.desc)), J(kbCoa(d), 0, d.total ?? 0, d.to)]
 };
 
@@ -411,6 +471,7 @@ export const journal: TxDef = {
 	header: [{ key: 'memo', label: 'Uraian', required: true, span: 2 }],
 	lines: journalLines,
 	balanced: true,
+	validate: noControl(),
 	journal: (d) => d.lines.map((l) => J(lineCoa(l.coaId), +l.debit || 0, +l.credit || 0, l.desc))
 };
 export const journalAdjustment: TxDef = { ...journal, table: 'journal_adjustments', prefix: 'JP', header: [{ key: 'memo', label: 'Uraian Penyesuaian', required: true, span: 2 }] };
@@ -432,6 +493,16 @@ export const attendance: TxDef = {
 		]
 	},
 	noAmount: true,
+	validate: (d) => {
+		const seen = new Set<string>();
+		for (const l of d.lines) {
+			if (!l.employeeId) continue;
+			if (seen.has(l.employeeId)) return `${db.name('employees', l.employeeId)} tercantum lebih dari sekali`;
+			seen.add(l.employeeId);
+		}
+		const dup = db.all<Doc>('attendance').find((x) => x.id !== d.id && x.status !== 'void' && x.siteId === d.siteId && x.date === d.date);
+		return dup ? `Absensi ${db.name('sites', d.siteId)} tanggal ini sudah ada (${dup.no})` : null;
+	},
 	postLabel: 'Kunci'
 };
 
@@ -448,6 +519,7 @@ export const leave: TxDef = {
 		{ key: 'reason', label: 'Alasan', type: 'textarea', span: 2 }
 	],
 	noAmount: true,
+	validate: (d) => (d.from && d.to && d.to < d.from ? 'Tanggal sampai tidak boleh sebelum tanggal dari' : null),
 	postLabel: 'Setujui',
 	statusLabels: { draft: 'Diajukan', posted: 'Disetujui', void: 'Ditolak' }
 };

@@ -91,6 +91,7 @@
 		if (!form.password) return toast.error('Password wajib diisi');
 		if (users.some((u) => u.id !== form.id && u.username.toLowerCase() === form.username.trim().toLowerCase())) return toast.error(`Username "${form.username}" sudah dipakai`);
 		if (form.id === auth.user?.id && !form.admin) return toast.error('Flag admin tidak bisa dicabut dari akun Anda sendiri');
+		if (form.id === auth.user?.id && !form.active) return toast.error('Akun yang sedang dipakai tidak bisa dinonaktifkan');
 		if (!users.some((u) => u.id !== form.id && u.admin && u.active) && !(form.admin && form.active)) return toast.error('Minimal harus ada satu admin aktif');
 		const access = Object.fromEntries(Object.entries(form.on).filter(([, v]) => v).map(([p]) => [p, true]));
 		const data = { username: form.username.trim(), name: form.name.trim(), password: form.password, admin: form.admin, access, storeId: form.storeId, active: form.active };
@@ -166,7 +167,7 @@
 			<div><span class="label">Toko default <span class="font-normal text-stone-400">(opsional)</span></span><Lookup table="stores" bind:value={form.storeId} clearable disabled={!editable} placeholder="Tidak terikat toko" /></div>
 			<div class="flex items-center justify-between rounded-xl border border-stone-200 px-3 py-2.5 dark:border-stone-700">
 				<span class="text-sm">Akun aktif</span>
-				<Switch label="Akun aktif" checked={form.active} disabled={!editable} onchange={(v) => (form.active = v)} />
+				<Switch label="Akun aktif" checked={form.active} disabled={!editable || form.id === auth.user?.id} onchange={(v) => (form.active = v)} />
 			</div>
 		</div>
 

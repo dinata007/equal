@@ -37,7 +37,11 @@ export const accessLabel = (u: User | undefined) =>
 
 class Auth {
 	userId = $state<string | null>(null);
-	user = $derived(db.get<User>('users', this.userId));
+	// akun yang dinonaktifkan/dihapus langsung kehilangan sesinya
+	user = $derived.by(() => {
+		const u = db.get<User>('users', this.userId);
+		return u?.active ? u : undefined;
+	});
 	admin = $derived(!!this.user?.admin);
 	accessLabel = $derived(accessLabel(this.user));
 

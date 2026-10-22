@@ -7,7 +7,7 @@
 	import { auth } from '#lib/erp/auth.svelte.ts';
 	import { db } from '#lib/erp/db.svelte.ts';
 	import { date as fdate, money, num, today, uid } from '#lib/erp/format.ts';
-	import { computeTotals, lockedUntil, stockAvailable } from '#lib/erp/ledger.ts';
+	import { computeTotals, lockedUntil, openItems, stockAvailable, unitCost } from '#lib/erp/ledger.ts';
 	import { txByTable, type Leaf } from '#lib/erp/menu.ts';
 	import type { Doc, DocStatus, Line, TxDef } from '#lib/erp/types.ts';
 	import { ask, toast } from '#lib/erp/ui.svelte.ts';
@@ -24,6 +24,9 @@
 	// svelte-ignore state_referenced_locally
 	const existing = docId === 'new' ? undefined : db.get<Doc>(def.table, docId);
 	const isNew = !existing;
+	/** id di URL tidak ada (dokumen sudah dihapus / tautan salah) */
+	// svelte-ignore state_referenced_locally
+	const missing = docId !== 'new' && !existing;
 
 	function blank(): Doc {
 		const ctx = { userStoreId: auth.user?.storeId, today: today() };
@@ -72,6 +75,17 @@
 			if (f.required && (doc[f.key] === '' || doc[f.key] == null)) return `${f.label} wajib diisi`;
 		}
 		if (!doc.date) return 'Tanggal wajib diisi';
+		const custom = def.validate?.(doc);
+		if (custom) return custom;
+		for (const [i, l] of doc.lines.entries()) {
+			if (blankLine(l)) continue;
+			for (const f of def.lines?.fields ?? []) {
+				if ((f.type === 'number' || f.type === 'money') && !f.readonly && +l[f.key] < 0) return `Baris ${i + 1}: ${f.label} tidak boleh negatif`;
+				if (f.key === 'disc' && +l[f.key] > 100) return `Baris ${i + 1}: diskon maksimal 100%`;
+			}
+		}
+		if (+doc.discount < 0) return 'Diskon tidak boleh negatif';
+		if (def.totals?.discount && +doc.discount > totals.subtotal) return 'Diskon melebihi subtotal';
 		if (lockDate && doc.date <= lockDate) return `Periode s/d ${fdate(lockDate)} sudah di-closing`;
 		if (!forPost) return null;
 		if (def.lines) {
@@ -87,6 +101,18 @@
 		if (def.balanced) {
 			if (Math.abs(balance) > 0.5) return `Jurnal tidak seimbang (selisih ${money(balance)})`;
 			if (!(totals.subtotal > 0)) return 'Nilai jurnal masih 0';
+		}
+		if (def.source?.strictQty && doc.sourceId) {
+			const src = db.get<Doc>(def.source.table, doc.sourceId);
+			const max = new Map<string, number>();
+			for (const l of src?.lines ?? []) max.set(l.itemId, (max.get(l.itemId) ?? 0) + (+l.qty || 0));
+			const got = new Map<string, number>();
+			for (const l of doc.lines) if (l.itemId) got.set(l.itemId, (got.get(l.itemId) ?? 0) + (+l.qty || 0));
+			const name = (id: string) => db.name(def.lines?.itemTable ?? 'products', id);
+			for (const [id, q] of got) {
+				if (!max.has(id)) return `${name(id)} tidak ada di ${src?.no ?? def.source.label}`;
+				if (q > max.get(id)!) return `Qty ${name(id)} (${num(q)}) melebihi ${src?.no} (${num(max.get(id))})`;
+			}
 		}
 		if (def.stock) {
 			const s = def.stock;
@@ -108,6 +134,8 @@
 		const now = new Date().toISOString();
 		const rec = { ...($state.snapshot(doc) as Doc), ...totals, status, updatedAt: now };
 		rec.lines = rec.lines.filter((l) => !blankLine(l));
+		// harga pokok dikunci saat posting agar jurnal HPP tidak berubah bila harga master diganti
+		if (status === 'posted' && def.stock) for (const l of rec.lines) if (l.itemId) l.cost = unitCost(def.stock.itemTable, l);
 		if (isNew) {
 			rec.id = uid();
 			rec.no = db.nextNo(def.table, def.prefix, rec.date);
@@ -129,6 +157,7 @@
 		toast.success(`Draft ${r.no} tersimpan`);
 	}
 	async function post() {
+		def.beforePost?.(doc);
 		const err = validate(true);
 		if (err) return toast.error(err);
 		const label = def.postLabel ?? 'Posting';
@@ -136,8 +165,14 @@
 		const r = await persist('posted');
 		toast.success(`${r.no} berhasil di-${label.toLowerCase()}`);
 	}
-	/** stok masuk dari dokumen ini yang sudah terpakai → pembatalan akan membuat saldo minus */
+	/** stok masuk / tagihan dari dokumen ini yang sudah terpakai → pembatalan akan membuat saldo minus */
 	function voidShortage(): string | null {
+		for (const e of def.ledger ?? []) {
+			if (e.sign < 0 || (e.when && !e.when(doc))) continue;
+			const left = openItems(e.kind).find((i) => i.docId === doc.id)?.left ?? 0;
+			const paid = (doc.total ?? 0) - left;
+			if (paid >= 1) return `${e.kind === 'ar' ? 'tagihan' : 'hutang'} ini sudah dibayar/dikurangi ${money(paid)}`;
+		}
 		const s = def.stock;
 		if (!s) return null;
 		const loc = s.loc(doc);
@@ -174,6 +209,14 @@
 	};
 </script>
 
+{#if missing}
+	<div class="grid place-items-center py-24 text-center">
+		<p class="text-6xl font-bold text-stone-200 dark:text-stone-800">404</p>
+		<p class="mt-2 font-medium">Dokumen tidak ditemukan</p>
+		<p class="mt-1 text-sm text-stone-500">Dokumen mungkin sudah dihapus atau tautannya salah.</p>
+		<a href={leaf.path} class="btn btn-secondary mt-6"><ArrowLeft class="size-4" /> Daftar {leaf.label}</a>
+	</div>
+{:else}
 <div class="print:hidden" {@attach formNav({ onsave: () => editable && saveDraft(), last: () => saveBtn })}>
 	<!-- judul -->
 	<div class="mb-4 flex flex-wrap items-center gap-3">
@@ -384,3 +427,4 @@
 		<div>Disetujui,<br /><br /><br /><br />( ................ )</div>
 	</div>
 </div>
+{/if}

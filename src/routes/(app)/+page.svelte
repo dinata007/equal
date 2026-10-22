@@ -25,7 +25,7 @@
 	import { auth } from '#lib/erp/auth.svelte.ts';
 	import { db } from '#lib/erp/db.svelte.ts';
 	import { addDays, date as fdate, monthStart, money, num, short, today } from '#lib/erp/format.ts';
-	import { cashMoves, lastClosing, locMatch, openItems, partyMoves, stockOnHand } from '#lib/erp/ledger.ts';
+	import { cashMoves, lastClosing, locMatch, openItems, partyMoves, stockInTransit, stockOnHand } from '#lib/erp/ledger.ts';
 	import { LEAVES, MENU, TX, visibleTree } from '#lib/erp/menu.ts';
 	import type { Doc, Row } from '#lib/erp/types.ts';
 	import Menu from '#lib/components/Menu.svelte';
@@ -235,7 +235,8 @@
 	const stockValue = $derived.by(() => {
 		if (!showInv) return 0;
 		const oh = stockOnHand('products', (l) => l === 'INV' || l.startsWith('TOKO:'));
-		return db.all('products').reduce((t, pr) => t + (oh.get(pr.id) ?? 0) * (pr.buyPrice ?? 0), 0);
+		const transit = stockInTransit();
+		return db.all('products').reduce((t, pr) => t + ((oh.get(pr.id) ?? 0) + (transit.get(pr.id) ?? 0)) * (pr.buyPrice ?? 0), 0);
 	});
 	const receivables = $derived.by(() => {
 		if (!showFin) return [];
@@ -556,7 +557,7 @@
 			{@render mini(Wallet, 'Piutang Usaha', finance.ar, overdue.length ? `${overdue.length} lewat jatuh tempo` : 'Semua belum jatuh tempo')}
 			{@render mini(ReceiptText, 'Hutang Usaha', finance.ap, 'Ke supplier')}
 		{/if}
-		{#if showInv}{@render mini(Boxes, 'Nilai Persediaan', stockValue, 'Gudang + toko (harga beli)')}{/if}
+		{#if showInv}{@render mini(Boxes, 'Nilai Persediaan', stockValue, 'Gudang, toko & dalam perjalanan')}{/if}
 	</div>
 {/if}
 {#snippet mini(icon: typeof Clock, label: string, value: number, sub: string)}
