@@ -116,6 +116,8 @@ export interface PartyMove {
 	inc: number;
 	dec: number;
 	memo?: string;
+	/** jatuh tempo dokumen penambah saldo (default: tanggal dokumen) */
+	due: string;
 }
 export function partyMoves(kind: 'ar' | 'ap'): PartyMove[] {
 	const out: PartyMove[] = [];
@@ -134,12 +136,31 @@ export function partyMoves(kind: 'ar' | 'ap'): PartyMove[] {
 					partyId: d[e.partyField],
 					inc: e.sign > 0 ? amt : 0,
 					dec: e.sign < 0 ? amt : 0,
-					memo: d.notes
+					memo: d.notes,
+					due: d.dueDate || d.date
 				});
 			}
 		}
 	}
 	return out.sort(byDate);
+}
+
+/** Dokumen piutang/hutang yang belum lunas; pelunasan & nota pengurang dialokasikan FIFO ke dokumen terlama */
+export function openItems(kind: 'ar' | 'ap') {
+	const queues = new Map<string, { m: PartyMove; left: number }[]>();
+	for (const m of partyMoves(kind)) {
+		const q = queues.get(m.partyId) ?? [];
+		queues.set(m.partyId, q);
+		if (m.inc) q.push({ m, left: m.inc });
+		let d = m.dec;
+		while (d > 0 && q.length) {
+			const take = Math.min(d, q[0].left);
+			q[0].left -= take;
+			d -= take;
+			if (q[0].left < 0.5) q.shift();
+		}
+	}
+	return [...queues.values()].flat().map(({ m, left }) => ({ ...m, left }));
 }
 
 /* ---------------- Kas & Bank ---------------- */

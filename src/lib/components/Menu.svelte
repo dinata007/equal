@@ -82,7 +82,7 @@
 		{@render header()}
 		<div class="my-1 h-px bg-stone-100 dark:bg-stone-800"></div>
 	{/if}
-	{#each items as it (it.label)}
+	{#each items as it (it.label + (it.href ?? ''))}
 		{@const cls = `flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm outline-none transition-colors focus:bg-stone-100 hover:bg-stone-100 dark:focus:bg-stone-800 dark:hover:bg-stone-800 ${it.danger ? 'text-rose-600 focus:bg-rose-50 hover:bg-rose-50 dark:focus:bg-rose-500/10 dark:hover:bg-rose-500/10' : ''}`}
 		{#if it.href}
 			<a role="menuitem" tabindex="-1" href={it.href} class={cls} onclick={() => pop?.hidePopover()}>

@@ -6,6 +6,16 @@ const mlf = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' })
 export const num = (v: unknown) => nf.format(Number(v) || 0);
 export const money = (v: unknown) => mf.format(Math.round(Number(v) || 0));
 export const rp = (v: unknown) => 'Rp ' + money(v);
+/** angka ringkas gaya Indonesia: 950 rb · 12,5 jt · 1,2 M */
+export function short(v: number) {
+	const a = Math.abs(v);
+	const f = (n: number) => n.toLocaleString('id-ID', { maximumFractionDigits: Math.abs(n) >= 100 ? 0 : 1 });
+	if (a >= 1e9) return f(v / 1e9) + ' M';
+	if (a >= 1e6) return f(v / 1e6) + ' jt';
+	if (a >= 1e4) return f(v / 1e3) + ' rb';
+	return money(v);
+}
+export const rpShort = (v: number) => 'Rp ' + short(v);
 export const compact = (v: number) =>
 	new Intl.NumberFormat('id-ID', { notation: 'compact', maximumFractionDigits: 1 }).format(v);
 
