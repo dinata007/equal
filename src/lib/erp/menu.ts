@@ -319,6 +319,11 @@ const byPath = new Map<string, MenuNode>();
 export const GRANTABLE = LEAVES.filter((l) => !l.adminOnly);
 const ADMIN_ONLY = new Set(LEAVES.filter((l) => l.adminOnly).map((l) => l.path));
 export const isAdminOnly = (path: string) => ADMIN_ONLY.has(path);
+const GRANT_PATHS = new Set(GRANTABLE.map((l) => l.path));
+export const isGrantable = (path: string) => GRANT_PATHS.has(path);
+
+const leafByPath = new Map(LEAVES.map((l) => [l.path, l]));
+export const leafOf = (path: string) => leafByPath.get(path);
 
 export const findNode = (path: string) => byPath.get(path.replace(/\/$/, ''));
 export const isLeaf = (n?: MenuNode): n is Leaf => !!n?.page;

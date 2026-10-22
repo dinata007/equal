@@ -247,18 +247,6 @@ export function seed(): Record<string, Row[]> {
 		['TJ-05', 'BPJS Kesehatan (Perusahaan)', 'Tetap', '% Gaji Pokok', 4]
 	].map(([code, name, type, basis, amount]) => ({ id: 'tj-' + code, code, name, type, basis, amount, active: true }));
 
-	// hak akses langsung per user; kunci prefix (mis. '/toko') = semua menu di modul itu
-	const users = (
-		[
-			['admin', 'Administrator Sistem', true, {}, ''],
-			['manager', 'Rudi Hartono', false, { '/material': true, '/inventory': true, '/sales': true, '/toko': true, '/akunting': true, '/hr': true }, ''],
-			['gudang', 'Dedi Kurniawan', false, { '/material': true, '/inventory': true, '/sales/master': true }, ''],
-			['kasir', 'Tika Amelia', false, { '/toko': true, '/toko/utility/closing-stok': false, '/inventory/master/produk': true, '/sales/master': true }, 'store-T01'],
-			['finance', 'Maya Puspita', false, { '/akunting': true, '/sales': true, '/inventory/report': true }, ''],
-			['hrd', 'Nadia Putri', false, { '/hr': true }, '']
-		] as [string, string, boolean, Record<string, boolean>, string][]
-	).map(([username, name, admin, access, storeId]) => ({ id: 'usr-' + username, username, name, password: username + '123', admin, access, storeId, active: true }));
-
 	/* ---------------- transaksi ---------------- */
 	const tables: Record<string, Row[]> = {};
 	const counters: Record<string, number> = {};
@@ -532,7 +520,6 @@ export function seed(): Record<string, Row[]> {
 		employees,
 		umr,
 		allowances,
-		users,
 		closings,
 		...tables
 	} as Record<string, Row[]>;

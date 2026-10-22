@@ -23,16 +23,38 @@ export interface Doc extends Row {
 /** Aksi tetap dicek per tombol, tapi izinnya on/off per menu (menu aktif = semua aksi). */
 export type Action = 'view' | 'create' | 'edit' | 'delete' | 'post';
 
-export interface User extends Row {
+/** Pengguna yang sedang login (dari server; tanpa data rahasia) */
+export interface SessionUser {
+	id: number;
 	username: string;
 	name: string;
-	password: string;
-	/** admin sistem: akses penuh ke semua menu, termasuk menu khusus admin (Pengguna & Hak Akses) */
-	admin?: boolean;
-	/** path menu -> aktif; kunci prefix (mis. "/toko") berlaku untuk semua menu di bawahnya */
-	access: Record<string, boolean>;
-	storeId?: string;
+	/** admin: akses penuh ke semua menu, termasuk Pengguna & Hak Akses */
+	admin: boolean;
+	/** toko default (id toko di database) */
+	storeId: string | null;
+	/** wajib ganti password sebelum memakai aplikasi */
+	mustChange: boolean;
+	/** path menu yang aktif (admin: semua menu, daftar ini diabaikan) */
+	menus: string[];
+	/** brand yang boleh dilihat; ['*'] = semua */
+	brands: string[];
+}
+
+/** Data pengguna untuk menu Pengguna & Hak Akses (admin) */
+export interface ManagedUser {
+	id: number;
+	username: string;
+	name: string;
+	admin: boolean;
 	active: boolean;
+	storeId: string | null;
+	menus: string[];
+	brands: string[];
+	hasPassword: boolean;
+	mustChange: boolean;
+	locked: boolean;
+	legacyId: string | null;
+	lastLoginAt: string | null;
 }
 
 /* ---------- Definisi field ---------- */

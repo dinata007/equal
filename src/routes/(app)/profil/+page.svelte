@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { Database, LogOut, Moon, RefreshCw, RotateCcw, Server, Smartphone, Sun } from '@lucide/svelte';
+	import { ChevronRight, Database, KeyRound, LogOut, Moon, RefreshCw, RotateCcw, Server, Smartphone, Sun } from '@lucide/svelte';
 	import { auth } from '#lib/erp/auth.svelte.ts';
 	import { db } from '#lib/erp/db.svelte.ts';
 	import { initials } from '#lib/erp/format.ts';
@@ -9,8 +9,8 @@
 	let installEvt = $state<any>(null);
 	const standalone = matchMedia('(display-mode: standalone)').matches;
 
-	function logout() {
-		auth.logout();
+	async function logout() {
+		await auth.logout();
 		goto('/login');
 	}
 	async function reset() {
@@ -51,7 +51,7 @@
 		<div class="min-w-0">
 			<h1 class="truncate text-lg font-medium">{auth.user?.name}</h1>
 			<p class="text-sm text-stone-500">@{auth.user?.username} · {auth.accessLabel}</p>
-			{#if auth.user?.storeId}<p class="text-xs text-stone-400">Toko: {db.name('stores', auth.user.storeId)}</p>{/if}
+			{#if auth.user?.storeId}<p class="text-xs text-stone-400">Toko: {db.name('stores', auth.user.storeId) || auth.user.storeId}</p>{/if}
 		</div>
 	</div>
 
@@ -60,6 +60,11 @@
 			{#if shell.dark}<Sun class="size-5 text-stone-400" />{:else}<Moon class="size-5 text-stone-400" />{/if}
 			<span class="flex-1 text-sm">Mode {shell.dark ? 'terang' : 'gelap'}</span>
 		</button>
+		<a href="/ganti-password" class="flex w-full items-center gap-3 px-5 py-4 text-left">
+			<KeyRound class="size-5 text-stone-400" />
+			<span class="flex-1 text-sm">Ganti password</span>
+			<ChevronRight class="size-4 text-stone-300" />
+		</a>
 		{#if installEvt && !standalone}
 			<button class="flex w-full items-center gap-3 px-5 py-4 text-left" onclick={install}>
 				<Smartphone class="size-5 text-stone-400" />

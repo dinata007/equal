@@ -126,40 +126,16 @@ class Database {
 }
 
 /**
- * Migrasi data lokal versi lama ke model sekarang (admin = akses penuh, user lain menu on/off):
- * - role (perms per aksi) + user.roleId
- * - divisi (menu on/off) + user.divisionIds + pengecualian user.access
- * - flag superuser/akses penuh → admin
+ * Bersihkan data lokal versi lama: akun & hak akses kini dikelola di server (web.users),
+ * jadi tabel users prototipe (berisi password teks biasa) dihapus dari browser.
  */
 function migrate(t: Record<string, Row[]>) {
 	let changed = false;
-	const groups = t.divisions ?? t.roles;
-	if (groups) {
-		const byId = new Map(groups.map((g) => [g.id, g]));
-		for (const u of t.users ?? []) {
-			const own = (u.divisionIds ?? (u.roleId ? [u.roleId] : [])).map((id: string) => byId.get(id)).filter(Boolean) as Row[];
-			const access: Record<string, boolean> = {};
-			for (const g of own) {
-				const menus: Record<string, unknown> = g.menus ?? g.perms ?? {};
-				for (const [p, v] of Object.entries(menus)) if (v === true || (typeof v === 'string' && v.includes('v'))) access[p] = true;
-			}
-			// pengecualian user (lebih spesifik) tetap berlaku
-			Object.assign(access, u.divisionIds ? (u.access ?? {}) : {});
-			if (own.some((g) => g.superuser)) u.superuser = true;
-			u.access = access;
-			delete u.roleId;
-			delete u.divisionIds;
+	for (const k of ['users', 'roles', 'divisions'])
+		if (k in t) {
+			delete t[k];
+			changed = true;
 		}
-		delete t.roles;
-		delete t.divisions;
-		changed = true;
-	}
-	for (const u of t.users ?? []) {
-		if (!('superuser' in u)) continue;
-		if (u.superuser) u.admin = true;
-		delete u.superuser;
-		changed = true;
-	}
 	return changed;
 }
 

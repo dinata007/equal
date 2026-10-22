@@ -1,9 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { Eye, EyeOff, LogIn } from '@lucide/svelte';
-	import { accessLabel, auth } from '#lib/erp/auth.svelte.ts';
-	import { db } from '#lib/erp/db.svelte.ts';
-	import type { User } from '#lib/erp/types.ts';
+	import { Eye, EyeOff, LogIn, TriangleAlert } from '@lucide/svelte';
+	import { auth } from '#lib/erp/auth.svelte.ts';
 	import Logo from '#lib/components/Logo.svelte';
 
 	let username = $state('');
@@ -13,21 +11,17 @@
 	let loading = $state(false);
 
 	$effect(() => {
-		if (auth.user) goto('/', { replace: true });
+		if (auth.user) goto(auth.user.mustChange ? '/ganti-password' : '/', { replace: true });
 	});
 
 	async function submit(e: SubmitEvent) {
 		e.preventDefault();
 		loading = true;
 		error = '';
-		await new Promise((r) => setTimeout(r, 350));
-		error = auth.login(username, password) ?? '';
+		error = (await auth.login(username, password)) ?? '';
+		if (error) password = '';
 		loading = false;
 	}
-
-	const demo = $derived(
-		db.all<User>('users').filter((u) => u.active).map((u) => ({ ...u, role: accessLabel(u) }))
-	);
 </script>
 
 <svelte:head><title>Masuk · ruangSenja ERP</title></svelte:head>
@@ -73,27 +67,21 @@
 						</div>
 					</div>
 					{#if error}<p class="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-600 dark:bg-rose-500/10">{error}</p>{/if}
-					<button class="btn btn-primary h-11 w-full" disabled={loading}>
+					<button class="btn btn-primary h-11 w-full" disabled={loading || !auth.dbReady}>
 						{#if loading}<span class="size-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>{:else}<LogIn class="size-4" />{/if}
 						Masuk
 					</button>
 				</form>
 
-				<div class="mt-8">
-					<p class="text-xs font-medium tracking-wide text-stone-400 uppercase">Akun demo (prototipe)</p>
-					<div class="mt-3 grid grid-cols-2 gap-2">
-						{#each demo as u (u.id)}
-							<button
-								type="button"
-								class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-left transition hover:border-brand-400 hover:bg-brand-50 dark:border-stone-800 dark:bg-stone-900 dark:hover:bg-stone-800"
-								onclick={() => ((username = u.username), (password = u.password))}
-							>
-								<span class="block text-sm font-medium">{u.username}</span>
-								<span class="block truncate text-xs text-stone-500">{u.role}</span>
-							</button>
-						{/each}
+				{#if !auth.dbReady || auth.dbError}
+					<div class="mt-6 flex gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-sm text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300">
+						<TriangleAlert class="mt-0.5 size-4 shrink-0" />
+						<p>
+							{#if !auth.dbReady}Database belum dikonfigurasi. Salin <code class="font-mono text-xs">.env.example</code> menjadi <code class="font-mono text-xs">.env</code>, isi koneksi SQL Server, lalu jalankan ulang aplikasi.
+							{:else}{auth.dbError}. Periksa server SQL & isi <code class="font-mono text-xs">.env</code>.{/if}
+						</p>
 					</div>
-				</div>
+				{/if}
 			</div>
 		</div>
 	</div>

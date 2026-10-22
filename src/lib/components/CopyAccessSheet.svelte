@@ -6,37 +6,41 @@
 	 */
 	import { ArrowDown, ArrowUp, Check, Search, ShieldCheck } from '@lucide/svelte';
 	import { tick } from 'svelte';
-	import { accessLabel, userOn } from '#lib/erp/auth.svelte.ts';
-	import { db } from '#lib/erp/db.svelte.ts';
+	import { accessLabel, menusOf } from '#lib/erp/auth.svelte.ts';
 	import { initials, num } from '#lib/erp/format.ts';
 	import { GRANTABLE } from '#lib/erp/menu.ts';
-	import type { User } from '#lib/erp/types.ts';
+	import type { ManagedUser } from '#lib/erp/types.ts';
 	import Sheet from './Sheet.svelte';
 
 	let {
 		open = $bindable(false),
 		users,
 		current,
+		storeName = () => '',
 		onapply
 	}: {
 		open?: boolean;
 		/** kandidat sumber (tanpa pengguna yang sedang diedit) */
-		users: User[];
+		users: ManagedUser[];
 		/** akses menu saat ini di form */
 		current: Record<string, boolean>;
-		onapply: (next: Record<string, boolean>, from: User) => void;
+		/** nama toko default pengguna (untuk pencarian & keterangan) */
+		storeName?: (u: ManagedUser) => string;
+		onapply: (next: Record<string, boolean>, from: ManagedUser) => void;
 	} = $props();
 
 	const LIMIT = 100;
 	let query = $state('');
 	let mode = $state<'replace' | 'merge'>('replace');
-	let pickedId = $state<string | null>(null);
+	let pickedId = $state<number | null>(null);
 	let active = $state(0);
 	let searchEl = $state<HTMLInputElement>();
 	let listEl = $state<HTMLUListElement>();
 
-	const sourceMap = (u: User) => Object.fromEntries(GRANTABLE.map((l) => [l.path, userOn(u, l.path)]));
-	const storeName = (u: User) => (u.storeId ? db.name('stores', u.storeId) : '');
+	const sourceMap = (u: ManagedUser) => {
+		const on = new Set(menusOf(u));
+		return Object.fromEntries(GRANTABLE.map((l) => [l.path, on.has(l.path)]));
+	};
 
 	const matches = $derived.by(() => {
 		const terms = query.toLowerCase().split(/\s+/).filter(Boolean);

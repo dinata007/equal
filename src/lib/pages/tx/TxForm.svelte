@@ -29,7 +29,7 @@
 	const missing = docId !== 'new' && !existing;
 
 	function blank(): Doc {
-		const ctx = { userStoreId: auth.user?.storeId, today: today() };
+		const ctx = { userStoreId: auth.user?.storeId ?? undefined, today: today() };
 		const d: Doc = { id: '', no: '', date: today(), status: 'draft', lines: def.lines ? [{ _k: uid() }] : [], notes: '' };
 		for (const f of def.header) d[f.key] = typeof f.default === 'function' ? f.default(ctx) : (f.default ?? '');
 		if (def.totals?.discount) d.discount = 0;

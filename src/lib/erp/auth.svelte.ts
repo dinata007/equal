@@ -1,72 +1,79 @@
 /**
- * Otorisasi prototipe. Pada tahap DB: password di-hash (argon2/bcrypt) di server,
- * sesi via cookie httpOnly di hooks.server.ts, dan `can()` juga dicek di server.
+ * Sesi login di sisi browser. Sumber kebenarannya server: cookie httpOnly + web.sessions,
+ * dan hak akses juga dicek di server untuk setiap endpoint /api.
  *
- * Model akses: admin = akses penuh; user lain diatur menu on/off.
+ * Model akses: admin = akses penuh; pengguna lain diatur menu on/off (menu aktif = semua aksi).
  * Menu khusus admin (adminOnly) hanya terbuka untuk admin.
- * Menu aktif = boleh semua aksi.
  */
-import { browser } from '$app/env';
-import { db } from './db.svelte';
+import { invalidateAll } from '$app/navigation';
+import { api, ApiError, setUnauthorizedHandler } from './api';
 import { GRANTABLE, LEAVES, isAdminOnly } from './menu';
-import type { Action, User } from './types';
+import type { Action, SessionUser } from './types';
 
-const KEY = 'senja:session';
+export const accessLabel = (u: { admin: boolean; menus: string[] } | null | undefined) =>
+	!u ? '' : u.admin ? 'Admin · akses penuh' : `${u.menus.length} menu`;
 
-/** nilai kunci paling spesifik (path persis atau prefix modul/grup) */
-export function menuOn(access: Record<string, boolean> | undefined, path: string): boolean {
-	let best = false;
-	let len = -1;
-	for (const [k, v] of Object.entries(access ?? {})) {
-		if ((path === k || path.startsWith(k + '/')) && k.length > len) {
-			best = v;
-			len = k.length;
-		}
-	}
-	return best;
+/** menu aktif seorang pengguna (admin: semua menu yang bisa diatur) */
+export const menusOf = (u: { admin: boolean; menus: string[] }) => (u.admin ? GRANTABLE.map((l) => l.path) : u.menus);
+
+export interface AuthData {
+	user: SessionUser | null;
+	dbReady: boolean;
+	dbError: string | null;
 }
-
-export function userOn(u: User | undefined, path: string) {
-	if (!u) return false;
-	if (u.admin) return true;
-	return !isAdminOnly(path) && menuOn(u.access, path);
-}
-export const menuCount = (u: User) => GRANTABLE.filter((l) => userOn(u, l.path)).length;
-export const accessLabel = (u: User | undefined) =>
-	!u ? '' : (u.admin ? 'Admin · akses penuh' : `${menuCount(u)} menu`);
 
 class Auth {
-	userId = $state<string | null>(null);
-	// akun yang dinonaktifkan/dihapus langsung kehilangan sesinya
-	user = $derived.by(() => {
-		const u = db.get<User>('users', this.userId);
-		return u?.active ? u : undefined;
-	});
+	user = $state<SessionUser | null>(null);
+	dbReady = $state(false);
+	dbError = $state<string | null>(null);
 	admin = $derived(!!this.user?.admin);
 	accessLabel = $derived(accessLabel(this.user));
+	#menus = $derived(new Set(this.user?.menus ?? []));
 
-	init() {
-		if (browser) this.userId = localStorage.getItem(KEY);
+	constructor() {
+		setUnauthorizedHandler(() => (this.user = null));
 	}
 
-	login(username: string, password: string): string | null {
-		const u = db
-			.all<User>('users')
-			.find((x) => x.username.toLowerCase() === username.trim().toLowerCase());
-		if (!u || u.password !== password) return 'Username atau password salah';
-		if (!u.active) return 'Akun dinonaktifkan';
-		this.userId = u.id;
-		localStorage.setItem(KEY, u.id);
-		return null;
+	/** data sesi dari server (src/routes/+layout.server.ts) */
+	set(data: AuthData) {
+		this.user = data.user;
+		this.dbReady = data.dbReady;
+		this.dbError = data.dbError;
 	}
 
-	logout() {
-		this.userId = null;
-		localStorage.removeItem(KEY);
+	/** null bila berhasil, atau pesan error */
+	async login(username: string, password: string): Promise<string | null> {
+		try {
+			await api('/api/auth/login', { body: { username, password } });
+			await invalidateAll();
+			return null;
+		} catch (e) {
+			return e instanceof ApiError ? e.message : 'Gagal login';
+		}
+	}
+
+	async logout() {
+		await api('/api/auth/logout', { body: {} }).catch(() => {});
+		this.user = null;
+		await invalidateAll();
+	}
+
+	/** null bila berhasil, atau pesan error */
+	async changePassword(current: string, next: string): Promise<string | null> {
+		try {
+			await api('/api/auth/password', { body: { current, next } });
+			await invalidateAll();
+			return null;
+		} catch (e) {
+			return e instanceof ApiError ? e.message : 'Gagal mengganti password';
+		}
 	}
 
 	can(path: string | undefined, _action: Action = 'view'): boolean {
-		return !!path && userOn(this.user, path);
+		const u = this.user;
+		if (!u || !path || u.mustChange) return false;
+		if (u.admin) return true;
+		return !isAdminOnly(path) && this.#menus.has(path);
 	}
 
 	/** Bisa membuka minimal satu menu di bawah prefix (untuk modul/grup) */
