@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="id">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="text-scale" content="scale" />
+		<meta name="theme-color" content="#f2f1ef" />
+		<meta name="description" content="ruangSenja ERP — Material, Inventory, Sales, Toko, Akunting & HR" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+		<meta name="apple-mobile-web-app-title" content="ruangSenja" />
+		<link rel="manifest" href="%sveltekit.assets%/manifest.webmanifest" />
+		<link rel="icon" href="%sveltekit.assets%/icon.svg" type="image/svg+xml" />
+		<link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png" />
+		<script>
+			// Terapkan tema sebelum render agar tidak berkedip
+			try {
+				const t = localStorage.getItem('senja:theme');
+				if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches))
+					{
+						document.documentElement.classList.add('dark');
+						document.querySelector('meta[name=theme-color]').setAttribute('content', '#0c0a09');
+					}
+			} catch {}
+		</script>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>

@@ -1,0 +1,530 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Font self-host (subset Latin, ikut ter-cache PWA).
+   Judul: Alegreya Sans — paling dekat dengan huruf "ruang" pada logo.
+   Teks: Source Sans 3 — humanis senada, tegas untuk tabel & angka. */
+@font-face {
+	font-family: 'Source Sans 3';
+	font-style: normal;
+	font-display: swap;
+	font-weight: 200 900;
+	src: url('../node_modules/@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2') format('woff2-variations');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+	font-family: 'Alegreya Sans';
+	font-style: normal;
+	font-display: swap;
+	font-weight: 500;
+	src: url('../node_modules/@fontsource/alegreya-sans/files/alegreya-sans-latin-500-normal.woff2') format('woff2');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+	font-family: 'Alegreya Sans';
+	font-style: normal;
+	font-display: swap;
+	font-weight: 700;
+	src: url('../node_modules/@fontsource/alegreya-sans/files/alegreya-sans-latin-700-normal.woff2') format('woff2');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@theme {
+	--font-sans: 'Source Sans 3', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+	--font-display: 'Alegreya Sans', 'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
+	/* ruangSenja — taupe dari logo (#8A7C6C = brand-500) */
+	--color-brand-50: oklch(0.975 0.005 75);
+	--color-brand-100: oklch(0.945 0.01 75);
+	--color-brand-200: oklch(0.89 0.016 72);
+	--color-brand-300: oklch(0.81 0.022 70);
+	--color-brand-400: oklch(0.71 0.027 70);
+	--color-brand-500: #8a7c6c;
+	--color-brand-600: oklch(0.5 0.027 68);
+	--color-brand-700: oklch(0.43 0.024 66);
+	--color-brand-800: oklch(0.36 0.019 64);
+	--color-brand-900: oklch(0.29 0.014 62);
+	--color-brand-950: oklch(0.2 0.01 60);
+	/* latar kertas logo */
+	--color-canvas: #f2f1ef;
+}
+
+@layer base {
+	html {
+		-webkit-tap-highlight-color: transparent;
+	}
+	body {
+		@apply bg-canvas text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100;
+	}
+	:focus-visible {
+		@apply outline-2 outline-offset-2 outline-brand-400;
+	}
+	input[type='number']::-webkit-inner-spin-button {
+		@apply appearance-none;
+	}
+	/* tombol kosongkan pada kotak cari: bulat kecil, ikut tema */
+	input[type='search']::-webkit-search-cancel-button {
+		-webkit-appearance: none;
+		appearance: none;
+		width: 1.125rem;
+		height: 1.125rem;
+		margin-left: 0.375rem;
+		border-radius: 9999px;
+		cursor: pointer;
+		background: var(--color-stone-300)
+			url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E")
+			center / 0.6rem no-repeat;
+		transition: background-color 0.12s;
+	}
+	input[type='search']::-webkit-search-cancel-button:hover {
+		background-color: var(--color-stone-400);
+	}
+	.dark input[type='search']::-webkit-search-cancel-button {
+		background-color: var(--color-stone-600);
+	}
+	h1,
+	h2,
+	h3 {
+		@apply font-display font-medium tracking-[.01em];
+	}
+	::selection {
+		@apply bg-brand-200 text-brand-950;
+	}
+}
+
+/* ---------- Scrollbar tipis & membulat (ikut tema) ---------- */
+:root {
+	--sb-thumb: rgb(120 113 108 / 0.32);
+	--sb-thumb-hover: rgb(120 113 108 / 0.55);
+}
+.dark {
+	--sb-thumb: rgb(168 162 158 / 0.22);
+	--sb-thumb-hover: rgb(168 162 158 / 0.42);
+}
+/* Firefox */
+@supports not selector(::-webkit-scrollbar) {
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: var(--sb-thumb) transparent;
+	}
+}
+/* Chromium / Safari: thumb melayang dengan sela 3px dari tepi */
+::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+	background: transparent;
+}
+::-webkit-scrollbar-thumb {
+	background-color: var(--sb-thumb);
+	background-clip: padding-box;
+	border: 3px solid transparent;
+	border-radius: 9999px;
+	min-height: 32px;
+}
+::-webkit-scrollbar-thumb:hover {
+	background-color: var(--sb-thumb-hover);
+}
+::-webkit-scrollbar-thumb:active {
+	background-color: var(--sb-thumb-hover);
+	border-width: 2px;
+}
+::-webkit-scrollbar-button {
+	display: none;
+}
+
+/* angka negatif → merah (ditandai otomatis oleh lib/ui/negative.ts); di luar layer agar mengalahkan warna utilitas */
+[data-neg] {
+	color: var(--color-rose-600);
+}
+.dark [data-neg] {
+	color: var(--color-rose-400);
+}
+
+/* teks taupe gelap tidak kontras di mode gelap → pakai tingkat terang */
+.dark .text-brand-600,
+.dark .text-brand-700 {
+	color: var(--color-brand-300);
+}
+
+/* ---------- View Transitions: pudar halus antar halaman ---------- */
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation-duration: 0.18s;
+}
+
+/* ---------- Elemen melayang (Popover API + @starting-style) ---------- */
+[popover].pop {
+	position: fixed;
+	inset: auto;
+	margin: 0;
+	overflow: visible;
+	opacity: 1;
+	transform: none;
+	transition:
+		opacity 0.14s ease,
+		transform 0.16s cubic-bezier(0.2, 0.9, 0.3, 1.2),
+		overlay 0.16s allow-discrete,
+		display 0.16s allow-discrete;
+}
+[popover].pop:not(:popover-open) {
+	/* wajib: kelas tampilan (flex/grid) mengalahkan display:none bawaan browser →
+	   popover tertutup tetap ada (transparan) & menghalangi klik di bawahnya */
+	display: none;
+	opacity: 0;
+	transform: translateY(var(--pop-from, -4px)) scale(0.97);
+}
+@starting-style {
+	[popover].pop:popover-open {
+		opacity: 0;
+		transform: translateY(var(--pop-from, -4px)) scale(0.97);
+	}
+}
+[popover].pop[data-side='top'] {
+	--pop-from: 4px;
+}
+/* HP: dropdown jadi bottom sheet */
+[popover].pop.pop-sheet {
+	inset: auto 0 0 0 !important;
+	width: 100%;
+	max-height: 80dvh !important;
+	--pop-from: 100%;
+	transform-origin: bottom;
+}
+[popover].pop::backdrop {
+	background: transparent;
+	transition:
+		background 0.2s,
+		overlay 0.2s allow-discrete,
+		display 0.2s allow-discrete;
+}
+[popover].pop.pop-sheet:popover-open::backdrop {
+	background: rgb(12 10 9 / 0.4);
+}
+@starting-style {
+	[popover].pop.pop-sheet:popover-open::backdrop {
+		background: transparent;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	[popover].pop {
+		transition: none;
+	}
+}
+
+@utility pb-safe {
+	padding-bottom: env(safe-area-inset-bottom);
+}
+@utility pt-safe {
+	padding-top: env(safe-area-inset-top);
+}
+
+@layer components {
+	.card {
+		@apply rounded-2xl border border-stone-200/80 bg-white shadow-xs dark:border-stone-800 dark:bg-stone-900;
+	}
+	.btn {
+		@apply inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium whitespace-nowrap transition select-none active:scale-[.98] disabled:pointer-events-none disabled:opacity-50;
+	}
+	.btn-sm {
+		@apply h-7 gap-1 rounded-md px-2.5 text-xs;
+	}
+	.btn-icon {
+		@apply w-8 px-0;
+	}
+	.btn-sm.btn-icon {
+		@apply w-7;
+	}
+	/* layar sentuh: tombol tetap tampil ringkas, tapi area sentuhnya minimal 40px (tak terlihat) */
+	@media (pointer: coarse) {
+		.btn {
+			position: relative;
+		}
+		.btn::after {
+			content: '';
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: max(100%, 40px);
+			height: max(100%, 40px);
+			transform: translate(-50%, -50%);
+		}
+	}
+	.btn-primary {
+		@apply bg-stone-900 text-white shadow-sm shadow-stone-900/15 hover:bg-black dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-white;
+	}
+	.btn-secondary {
+		@apply border border-stone-200 bg-white text-stone-700 hover:bg-stone-50 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-200 dark:hover:bg-stone-800;
+	}
+	.btn-ghost {
+		@apply text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-stone-800;
+	}
+	.btn-danger {
+		@apply bg-rose-600 text-white hover:bg-rose-700;
+	}
+	.btn-success {
+		@apply bg-emerald-600 text-white hover:bg-emerald-700;
+	}
+	.input {
+		@apply h-10 w-full rounded-xl border border-stone-200 bg-white px-3 text-base text-stone-900 transition outline-none placeholder:text-stone-400 focus:border-brand-400 focus:ring-4 focus:ring-brand-400/20 disabled:bg-stone-100 disabled:text-stone-500 sm:h-9 sm:text-sm dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100 dark:disabled:bg-stone-800/60;
+	}
+	textarea.input {
+		@apply h-auto py-2;
+	}
+	.label {
+		@apply mb-1.5 block text-xs font-medium text-stone-600 dark:text-stone-400;
+	}
+	.badge {
+		@apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium whitespace-nowrap;
+	}
+	.table-erp {
+		@apply w-full text-sm;
+	}
+	.table-erp th {
+		@apply sticky top-0 z-[1] border-b border-stone-200 bg-stone-50/95 px-3 py-2.5 text-left text-xs font-semibold tracking-wide text-stone-500 uppercase backdrop-blur dark:border-stone-800 dark:bg-stone-900/95 dark:text-stone-400;
+	}
+	.table-erp td {
+		@apply border-b border-stone-100 px-3 py-2.5 dark:border-stone-800/70;
+	}
+	.table-erp tbody tr {
+		@apply transition-colors hover:bg-brand-50/70 dark:hover:bg-stone-800/40;
+	}
+	.num {
+		@apply text-right tabular-nums;
+	}
+}
+
+/* ---------- DataTable (grid virtual) ---------- */
+.dg {
+	table-layout: fixed;
+	border-collapse: separate;
+	border-spacing: 0;
+	font-size: 0.875rem;
+	--dg-head: var(--color-stone-50);
+	--dg-line: var(--color-stone-100);
+	--dg-line-strong: var(--color-stone-200);
+	--dg-row: #fff;
+	--dg-hover: var(--color-brand-50);
+	--dg-sel: color-mix(in oklab, var(--color-brand-100) 75%, #fff);
+	--dg-sel-hover: var(--color-brand-100);
+}
+.dark .dg {
+	--dg-head: color-mix(in oklab, var(--color-stone-800) 45%, var(--color-stone-900));
+	--dg-line: color-mix(in oklab, var(--color-stone-800) 70%, var(--color-stone-900));
+	--dg-line-strong: var(--color-stone-800);
+	--dg-row: var(--color-stone-900);
+	--dg-hover: color-mix(in oklab, var(--color-stone-800) 60%, var(--color-stone-900));
+	--dg-sel: color-mix(in oklab, var(--color-brand-500) 16%, var(--color-stone-900));
+	--dg-sel-hover: color-mix(in oklab, var(--color-brand-500) 24%, var(--color-stone-900));
+}
+.dg th {
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	height: 40px;
+	padding: 0 0.75rem;
+	background: var(--dg-head);
+	border-bottom: 1px solid var(--dg-line-strong);
+	text-align: left;
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.025em;
+	color: var(--color-stone-500);
+	white-space: nowrap;
+}
+.dark .dg th {
+	color: var(--color-stone-400);
+}
+.dg td {
+	height: var(--rh);
+	padding: 0 0.75rem;
+	border-bottom: 1px solid var(--dg-line);
+	background: var(--dg-row);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	transition: background-color 0.12s;
+}
+.dg tbody tr:hover td {
+	background: var(--dg-hover);
+}
+.dg tbody tr.is-sel td {
+	background: var(--dg-sel);
+}
+.dg tbody tr.is-sel:hover td {
+	background: var(--dg-sel-hover);
+}
+/* baris aktif keyboard: tampak hanya saat grid difokus */
+.dg-scroll:focus-visible .dg tbody tr.is-active td {
+	background: var(--dg-hover);
+}
+.dg-scroll:focus-visible .dg tbody tr.is-active.is-sel td {
+	background: var(--dg-sel-hover);
+}
+.dg-scroll:focus-visible .dg tbody tr.is-active td:first-child {
+	box-shadow: inset 3px 0 0 var(--color-brand-500);
+}
+.dg .dg-sticky {
+	position: sticky;
+	z-index: 1;
+}
+.dg th.dg-sticky {
+	z-index: 3;
+}
+.dg-scroll.is-scrolled-x .dg .dg-first {
+	box-shadow: 8px 0 8px -8px rgb(28 25 23 / 0.22);
+}
+.dark .dg-scroll.is-scrolled-x .dg .dg-first {
+	box-shadow: 8px 0 8px -8px rgb(0 0 0 / 0.6);
+}
+.dg .dg-sel {
+	padding: 0;
+	text-align: center;
+}
+.dg .dg-fill {
+	padding: 0;
+}
+.dg tfoot td {
+	position: sticky;
+	bottom: 0;
+	z-index: 2;
+	height: 42px;
+	background: var(--dg-head);
+	border-top: 1px solid var(--dg-line-strong);
+	border-bottom: 0;
+	font-weight: 600;
+}
+.dg tfoot td.dg-sticky {
+	z-index: 3;
+}
+.dg tr.dg-spacer td {
+	height: auto;
+	padding: 0;
+	border: 0;
+	background: transparent;
+}
+.dg-check {
+	display: inline-grid;
+	place-items: center;
+	width: 1rem;
+	height: 1rem;
+	border-radius: 0.3rem;
+	border: 1.5px solid var(--color-stone-300);
+	background: #fff;
+	color: #fff;
+	cursor: pointer;
+	vertical-align: middle;
+	transition:
+		background-color 0.12s,
+		border-color 0.12s;
+}
+.dg-check:hover {
+	border-color: var(--color-brand-400);
+}
+.dg-check.on {
+	background: var(--color-brand-500);
+	border-color: var(--color-brand-500);
+}
+.dark .dg-check:not(.on) {
+	background: transparent;
+	border-color: var(--color-stone-600);
+}
+/* drag: pindah kolom & geser tabel */
+.dg-scroll.is-dragging,
+.dg-scroll.is-dragging * {
+	cursor: grabbing !important;
+	user-select: none;
+}
+.dg th.dg-dragging {
+	color: var(--color-brand-600);
+	background: color-mix(in oklab, var(--color-brand-100) 60%, var(--dg-head));
+}
+.dark .dg th.dg-dragging {
+	color: var(--color-brand-300);
+	background: color-mix(in oklab, var(--color-brand-500) 18%, var(--dg-head));
+}
+/* garis ubah lebar kolom */
+.dg-resize {
+	position: absolute;
+	top: 0;
+	right: -4px;
+	z-index: 4;
+	width: 9px;
+	height: 100%;
+	cursor: col-resize;
+	touch-action: none;
+}
+.dg-resize::after {
+	content: '';
+	position: absolute;
+	inset: 10px 4px;
+	width: 1px;
+	border-radius: 1px;
+	background: var(--dg-line-strong);
+	transition:
+		background-color 0.12s,
+		inset 0.12s;
+}
+.dg-resize:hover::after,
+.dg-resize.is-on::after {
+	inset: 0 3px;
+	width: 3px;
+	background: var(--color-brand-400);
+}
+.dg-kbd {
+	display: inline-block;
+	min-width: 1.1rem;
+	margin-right: 0.15rem;
+	padding: 0 0.3rem;
+	border: 1px solid var(--color-stone-200);
+	border-radius: 0.25rem;
+	background: var(--color-stone-50);
+	font: 500 10px/1.5 var(--font-sans);
+	text-align: center;
+}
+.dark .dg-kbd {
+	border-color: var(--color-stone-700);
+	background: var(--color-stone-800);
+}
+/* sorotan hasil cari (CSS Custom Highlight API) */
+::highlight(grid-q) {
+	background-color: oklch(0.92 0.11 92);
+	color: var(--color-stone-950);
+}
+.dark ::highlight(grid-q) {
+	background-color: oklch(0.55 0.11 85);
+	color: #fff;
+}
+
+@media print {
+	.dg-scroll {
+		max-height: none !important;
+		overflow: visible !important;
+	}
+	.dg th,
+	.dg td,
+	.dg tfoot td {
+		position: static !important;
+		box-shadow: none !important;
+	}
+	.dg-resize {
+		display: none;
+	}
+	.no-print {
+		display: none !important;
+	}
+	body {
+		background: white !important;
+	}
+	.card {
+		border: none !important;
+		box-shadow: none !important;
+	}
+	.print-area {
+		position: absolute;
+		inset: 0;
+		padding: 0;
+	}
+}

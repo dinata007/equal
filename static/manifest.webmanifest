@@ -1,0 +1,24 @@
+{
+	"name": "ruangSenja ERP",
+	"short_name": "ruangSenja",
+	"description": "ERP Material, Inventory, Sales, Toko, Akunting & HR",
+	"id": "/",
+	"start_url": "/",
+	"scope": "/",
+	"display": "standalone",
+	"orientation": "any",
+	"background_color": "#f2f1ef",
+	"theme_color": "#f2f1ef",
+	"lang": "id",
+	"categories": ["business", "productivity"],
+	"icons": [
+		{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" },
+		{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+		{ "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+		{ "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+	],
+	"shortcuts": [
+		{ "name": "Penjualan Toko", "url": "/toko/transaksi/penjualan?id=new", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+		{ "name": "Kartu Stok", "url": "/inventory/report/kartu-stok", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
+	]
+}
