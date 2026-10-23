@@ -1,6 +1,11 @@
 -- 001 · Login & hak akses aplikasi web (schema web). Idempoten: aman dijalankan berulang.
 -- Tidak mengubah tabel aplikasi lama. Semua waktu disimpan dalam UTC.
 
+-- opsi sesi yang wajib untuk index bersyarat (sqlcmd defaultnya OFF; SSMS & db:migrate sudah ON)
+SET QUOTED_IDENTIFIER ON;
+SET ANSI_NULLS ON;
+GO
+
 IF SCHEMA_ID('web') IS NULL EXEC('CREATE SCHEMA web');
 GO
 

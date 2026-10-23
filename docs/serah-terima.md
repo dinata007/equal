@@ -18,27 +18,19 @@ Ringkasan keputusan & status agar pekerjaan bisa dilanjutkan tanpa riwayat perca
 - Angka di dashboard tanpa "Rp" (format ringkas `short()`).
 - Alur kerja git: kerjakan di branch, buat PR per bagian; pemilik repo yang merge.
 
-## Status Fase 1 — login & hak akses (di branch ini, belum di-PR)
+## Status Fase 1 — login & hak akses: **selesai** (lihat PR "Fase 1")
 
-Sudah dibuat:
-- `db/migrations/001_web-auth.sql` (web.users, sessions, user_menus, user_scopes, audit_log) & `002_salin-user-lama.sql`.
+- `db/migrations/001_web-auth.sql` (web.users, sessions, user_menus, user_scopes, audit_log) & `002_salin-user-lama.sql`; setiap script diawali `SET QUOTED_IDENTIFIER ON` (dibutuhkan index bersyarat; sqlcmd defaultnya OFF).
 - `npm run db:migrate` (runner, aman diulang) & `npm run db:admin` (buat/pulihkan admin interaktif).
-- Server: `src/lib/server/auth/` (scrypt N=2^17, sesi cookie httpOnly berisi token acak — DB hanya menyimpan hash SHA-256, idle 12 jam / maks 7 hari, kunci 15 menit setelah 5× salah, batas percobaan per IP, audit log), `src/hooks.server.ts` (wajib login untuk `/api`, cek Origin, header keamanan), endpoint `/api/auth/*` & `/api/users*`.
-- Klien: `auth.svelte.ts` membaca sesi dari `src/routes/+layout.server.ts`; halaman login, `/ganti-password`, menu Pengguna & Hak Akses lewat API (menu on/off, brand, toko default dari `M_TOKO`, password sementara tampil sekali).
+- Server: `src/lib/server/auth/` — scrypt N=2^17; sesi cookie httpOnly berisi token acak, DB hanya menyimpan hash SHA-256; idle 12 jam / maks 7 hari; kunci 15 menit setelah 5× salah; maks 50 login gagal per IP per 15 menit (login sukses tidak dihitung); audit log. `src/hooks.server.ts` mewajibkan login untuk `/api`, menolak Origin asing, memasang header keamanan; endpoint `/api/auth/*` & `/api/users*` (admin-only dicek di server).
+- Klien: `auth.svelte.ts` membaca sesi dari `src/routes/+layout.server.ts`; `auth.can(path)` = admin atau menu aktif. Halaman login, `/ganti-password` (wajib untuk password sementara), menu Pengguna & Hak Akses lewat API.
+- Diuji end-to-end (30 skenario) ke SQL Server 2019 sementara: login/salah password, cookie httpOnly, akun salinan SYS_USER, atur menu & brand, password sementara → wajib ganti, pembatasan menu & API non-admin, nonaktifkan akun mencabut sesi di semua perangkat, admin tak bisa mencabut dirinya, logout, kunci akun, batas per IP, Origin asing ditolak; smoke test 56 halaman; build.
 
-Sudah diuji (SQL Server 2019 sementara dengan tabel tiruan): `npm run check` bersih; migrasi dijalankan 2× tanpa duplikasi; `db:admin` menolak password lemah & membuat admin; `/api/health` OK; `/api/users` tanpa login → 401.
-
-**Belum diuji (lakukan di lokal dengan `SENJA_DEMO`):**
-1. `npm run db:migrate` → `npm run db:admin` → `npm run dev`, login admin.
-2. Salah password 5× → akun terkunci 15 menit; pesan tidak membocorkan username.
-3. Pengguna & Hak Akses: atur menu + brand akun hasil salinan `SYS_USER`, **Buat password sementara**.
-4. Login sebagai akun itu → wajib ke `/ganti-password`; sebelum ganti, `/api/*` lain → 403; setelah ganti → hanya menu yang diaktifkan tampil; buka `/pengaturan/pengguna` → akses ditolak; `GET /api/users` → 403.
-5. Nonaktifkan akun saat masih login di perangkat lain → sesi langsung tidak berlaku.
-6. `npm run build` lalu smoke test semua halaman.
+Belum: brand di `web.user_scopes` baru disimpan — **diterapkan sebagai filter data mulai Fase 2** (master & transaksi dari database). Bila aplikasi dipasang di balik reverse proxy, set `ADDRESS_HEADER` (lihat README).
 
 ## Langkah berikutnya
 
-1. Selesaikan uji Fase 1 di atas, lalu buat PR.
+1. Di lokal: `npm run db:migrate` → `npm run db:admin` → atur pengguna (sekali saja per database).
 2. Fase 2 — **master** dari database (produk/model/warna/size, brand, toko, supplier, customer, COA, kas/bank, ekspedisi, pegawai) menggantikan data contoh `seed.ts` / `db.svelte.ts`, dengan filter brand sesuai `web.user_scopes`.
 3. Fase 3 — transaksi (setelah membaca source PowerBuilder untuk penomoran & jurnal). Pola nomor bukti per `tipe_trans` ada di `docs/database/schema.md` (bagian "Pola nomor … per jenis").
 4. Fase 4 — laporan (VIEW / stored procedure). Rumus stok lama: saldo awal bulanan `S_AWAL_GUDANG`/`S_AWAL_TOKO` + mutasi bulan berjalan (lihat `sp_Dashboard_Stok` di `docs/database/objects.sql`).

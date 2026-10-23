@@ -12,8 +12,9 @@ import { createSession, deleteUserSessions, purgeExpiredSessions, type SessionRo
 /** gagal login berturut-turut sebelum akun dikunci sementara */
 const MAX_FAILED = 5;
 const LOCK_MINUTES = 15;
-/** batas percobaan login per alamat IP (melindungi dari tebak password massal ke banyak akun) */
-const IP_LIMIT = 30;
+/** batas login GAGAL per alamat IP (melindungi dari tebak password massal ke banyak akun).
+ *  Login yang berhasil tidak dihitung, agar banyak karyawan di balik satu IP kantor tidak ikut terblokir. */
+const IP_LIMIT = 50;
 const IP_WINDOW_MS = 15 * 60_000;
 const ipHits = new Map<string, { n: number; until: number }>();
 
@@ -59,22 +60,24 @@ export async function sessionUser(s: SessionRow): Promise<SessionUser> {
 }
 
 /* ---------------- login ---------------- */
-function ipAllowed(ip: string) {
+function ipBlocked(ip: string) {
+	const h = ipHits.get(ip);
+	return !!h && h.until > Date.now() && h.n >= IP_LIMIT;
+}
+function ipFailed(ip: string) {
 	const now = Date.now();
 	const h = ipHits.get(ip);
-	if (!h || h.until < now) {
-		ipHits.set(ip, { n: 1, until: now + IP_WINDOW_MS });
-		return true;
-	}
-	h.n++;
-	return h.n <= IP_LIMIT;
+	if (!h || h.until < now) ipHits.set(ip, { n: 1, until: now + IP_WINDOW_MS });
+	else h.n++;
+	// bersihkan catatan lama sesekali agar tidak menumpuk di memori
+	if (ipHits.size > 5000) for (const [k, v] of ipHits) if (v.until < now) ipHits.delete(k);
 }
 
 export async function login(username: string, password: string, ip: string, userAgent: string | null) {
 	username = String(username ?? '').trim();
 	password = String(password ?? '');
 	if (!username || !password) throw new AuthError('Username dan password wajib diisi');
-	if (!ipAllowed(ip)) {
+	if (ipBlocked(ip)) {
 		await audit('login_ip_limit', { username, ip });
 		throw new AuthError('Terlalu banyak percobaan login dari perangkat ini. Coba lagi dalam 15 menit.', 429);
 	}
@@ -87,17 +90,20 @@ export async function login(username: string, password: string, ip: string, user
 	).recordset[0];
 
 	if (!u || !u.password_hash) {
+		ipFailed(ip);
 		await verifyDummy(password);
 		await audit('login_fail', { username, ip, detail: u ? 'belum punya password' : 'username tidak dikenal' });
 		// pesan sama dengan password salah agar tidak membocorkan username mana yang ada
 		throw new AuthError(GENERIC, 401);
 	}
 	if (u.lockSecs > 0) {
+		ipFailed(ip);
 		await verifyDummy(password);
 		await audit('login_locked', { userId: u.id, username: u.username, ip });
 		throw new AuthError(`Akun terkunci sementara karena terlalu banyak salah password. Coba lagi dalam ${Math.ceil(u.lockSecs / 60)} menit.`, 423);
 	}
 	if (!(await verifyPassword(password, u.password_hash))) {
+		ipFailed(ip);
 		const failed = u.failed_attempts + 1;
 		const lock = failed >= MAX_FAILED;
 		await (await request())

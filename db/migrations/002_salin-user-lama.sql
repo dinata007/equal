@@ -3,6 +3,11 @@
 -- password sementara (menu Pengguna & Hak Akses), lalu pengguna wajib menggantinya saat login pertama.
 -- Hak akses tidak disalin; admin mengaturnya di aplikasi web (bisa disalin dari pengguna lain).
 
+-- opsi sesi yang wajib untuk index bersyarat (sqlcmd defaultnya OFF; SSMS & db:migrate sudah ON)
+SET QUOTED_IDENTIFIER ON;
+SET ANSI_NULLS ON;
+GO
+
 IF OBJECT_ID('dbo.SYS_USER', 'U') IS NOT NULL
 INSERT INTO web.users (username, name, legacy_user_id, toko_id, active, must_change_password, created_by)
 SELECT	LTRIM(RTRIM(s.user_id)),

@@ -19,15 +19,16 @@
 
 	// syarat sama dengan server (server tetap memeriksa ulang)
 	const checks = $derived([
-		{ ok: next.length >= 8, label: 'Minimal 8 karakter' },
-		{ ok: !!next && !next.toLowerCase().includes(auth.user?.username.toLowerCase() ?? '\u0000'), label: 'Tidak memuat username' },
-		{ ok: !!next && next !== current, label: 'Berbeda dari password lama' },
-		{ ok: !!confirm && next === confirm, label: 'Konfirmasi sama' }
+		{ ok: next.length >= 8, label: 'Minimal 8 karakter', msg: 'Password minimal 8 karakter' },
+		{ ok: !!next && !next.toLowerCase().includes(auth.user?.username.toLowerCase() ?? '\u0000'), label: 'Tidak memuat username', msg: 'Password tidak boleh memuat username' },
+		{ ok: !!next && next !== current, label: 'Berbeda dari password lama', msg: 'Password baru harus berbeda dari password lama' },
+		{ ok: !!confirm && next === confirm, label: 'Konfirmasi sama', msg: 'Konfirmasi password tidak sama' }
 	]);
 
 	async function submit(e: SubmitEvent) {
 		e.preventDefault();
-		if (checks.some((c) => !c.ok)) return (error = checks.find((c) => !c.ok)!.label + ' belum terpenuhi');
+		const failed = checks.find((c) => !c.ok);
+		if (failed) return (error = failed.msg);
 		loading = true;
 		error = (await auth.changePassword(current, next)) ?? '';
 		loading = false;
