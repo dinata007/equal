@@ -42,22 +42,22 @@
 
 <ReportShell {leaf} subtitle="{kb?.name ?? '-'} · {fdate(from)} – {fdate(to)}" onexport={exportCsv}>
 	{#snippet filters()}
-		<div class="col-span-2 sm:w-64">
+		<div class="lg:w-64">
 			<span class="label">Akun {type}</span>
 			<Lookup table="cashbanks" bind:value={kbId} filter={(r) => r.type === type} />
 		</div>
 		<PeriodFilter bind:from bind:to />
 	{/snippet}
 
-	<div class="no-print -mx-1 -mt-1 mb-3 flex gap-3 overflow-x-auto p-1 pb-2">
+	<div class="no-print -mx-1 -mt-1 mb-3 flex snap-x gap-3 overflow-x-auto scroll-px-1 p-1 pb-2">
 		{#each summary as s (s.k.id)}
 			<button
-				class="card min-w-56 shrink-0 p-4 text-left transition {s.k.id === kbId ? 'ring-2 ring-brand-500' : 'hover:border-stone-300'}"
+				class="card w-[min(15rem,75vw)] shrink-0 snap-start p-4 text-left transition {s.k.id === kbId ? 'ring-2 ring-brand-500' : 'hover:border-stone-300'}"
 				onclick={() => (kbId = s.k.id)}
 			>
-				<p class="text-xs text-stone-500">{s.k.name}</p>
+				<p class="truncate text-xs text-stone-500">{s.k.name}</p>
 				<p class="mt-1 text-lg font-semibold tabular-nums">Rp {money(s.bal)}</p>
-				{#if s.k.accountNo}<p class="text-[11px] text-stone-400">{s.k.bankName} · {s.k.accountNo}</p>{/if}
+				{#if s.k.accountNo}<p class="truncate text-[11px] text-stone-400">{s.k.bankName} · {s.k.accountNo}</p>{/if}
 			</button>
 		{/each}
 	</div>
@@ -69,7 +69,9 @@
 		<div class="card p-4"><p class="text-xs text-stone-500">Saldo Akhir</p><p class="mt-1 font-semibold tabular-nums">Rp {money(opening + totIn - totOut)}</p></div>
 	</div>
 
-	<div class="card overflow-x-auto">
+	<div class="card overflow-hidden">
+		<!-- desktop -->
+		<div class="hidden overflow-x-auto md:block">
 		<table class="table-erp">
 			<thead>
 				<tr><th>Tanggal</th><th>No. Bukti</th><th>Keterangan</th><th class="text-right">Masuk</th><th class="text-right">Keluar</th><th class="text-right">Saldo</th></tr>
@@ -90,5 +92,26 @@
 				{/each}
 			</tbody>
 		</table>
+		</div>
+		<!-- mobile -->
+		<ul class="divide-y divide-stone-100 md:hidden dark:divide-stone-800">
+			<li class="flex justify-between bg-stone-50 px-4 py-2.5 text-sm dark:bg-stone-800/40"><span class="text-stone-500">Saldo awal</span><span class="font-semibold tabular-nums">{money(opening)}</span></li>
+			{#each rows as r, i (r.docId + i)}
+				<li>
+					<a href="{r.path}?id={r.docId}" class="flex items-center gap-3 px-4 py-3 focus-visible:-outline-offset-2">
+						<div class="min-w-0 flex-1">
+							<p class="truncate font-mono text-xs font-semibold">{r.no}</p>
+							<p class="truncate text-xs text-stone-500">{fdate(r.date)}{r.memo ? ' · ' + r.memo : ''}</p>
+						</div>
+						<div class="text-right">
+							<p class="text-sm font-semibold tabular-nums {r.in ? 'text-emerald-600' : 'text-rose-600'}">{r.in ? '+' + money(r.in) : '-' + money(r.out)}</p>
+							<p class="text-[11px] text-stone-400 tabular-nums">saldo {money(r.bal)}</p>
+						</div>
+					</a>
+				</li>
+			{:else}
+				<li class="py-10 text-center text-sm text-stone-400">Tidak ada transaksi pada periode ini</li>
+			{/each}
+		</ul>
 	</div>
 </ReportShell>

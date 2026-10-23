@@ -41,12 +41,12 @@
 
 <ReportShell {leaf} subtitle="{item?.name ?? '-'} · {location} · {fdate(from)} – {fdate(to)}" onexport={exportCsv}>
 	{#snippet filters()}
-		<div class="col-span-2 sm:w-72">
+		<div class="lg:w-72">
 			<span class="label">{itemTable === 'products' ? 'Produk' : 'Material'}</span>
 			<Lookup table={itemTable} bind:value={itemId} />
 		</div>
 		{#if scope === 'TOKO'}
-			<div class="col-span-2 sm:w-56">
+			<div class="lg:w-56">
 				<span class="label">Toko</span>
 				<Lookup table="stores" bind:value={storeId} placeholder="Semua toko" clearable />
 			</div>

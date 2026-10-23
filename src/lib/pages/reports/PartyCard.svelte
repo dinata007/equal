@@ -37,7 +37,7 @@
 
 <ReportShell {leaf} subtitle="{db.name(table, partyId) || '-'} · {fdate(from)} – {fdate(to)}" onexport={exportCsv}>
 	{#snippet filters()}
-		<div class="col-span-2 sm:w-72">
+		<div class="lg:w-72">
 			<span class="label">{kind === 'ar' ? 'Customer' : 'Supplier'}</span>
 			<Lookup {table} bind:value={partyId} />
 		</div>
@@ -49,7 +49,9 @@
 		<div class="card p-4"><p class="text-xs text-stone-500">Saldo Akhir {noun}</p><p class="mt-1 text-lg font-semibold tabular-nums">Rp {money(closing)}</p></div>
 	</div>
 
-	<div class="card overflow-x-auto">
+	<div class="card overflow-hidden">
+		<!-- desktop -->
+		<div class="hidden overflow-x-auto md:block">
 		<table class="table-erp">
 			<thead>
 				<tr><th>Tanggal</th><th>No. Dokumen</th><th class="hidden sm:table-cell">Transaksi</th><th class="text-right">Tambah</th><th class="text-right">Kurang</th><th class="text-right">Saldo</th></tr>
@@ -70,5 +72,26 @@
 				{/each}
 			</tbody>
 		</table>
+		</div>
+		<!-- mobile -->
+		<ul class="divide-y divide-stone-100 md:hidden dark:divide-stone-800">
+			<li class="flex justify-between bg-stone-50 px-4 py-2.5 text-sm dark:bg-stone-800/40"><span class="text-stone-500">Saldo awal</span><span class="font-semibold tabular-nums">{money(opening)}</span></li>
+			{#each rows as r, i (r.docId + i)}
+				<li>
+					<a href="{r.path}?id={r.docId}" class="flex items-center gap-3 px-4 py-3 focus-visible:-outline-offset-2">
+						<div class="min-w-0 flex-1">
+							<p class="truncate font-mono text-xs font-semibold">{r.no}</p>
+							<p class="truncate text-xs text-stone-500">{fdate(r.date)} · {r.label}</p>
+						</div>
+						<div class="text-right">
+							<p class="text-sm font-semibold tabular-nums {r.inc ? '' : 'text-rose-600'}">{r.inc ? '+' + money(r.inc) : '-' + money(r.dec)}</p>
+							<p class="text-[11px] text-stone-400 tabular-nums">saldo {money(r.bal)}</p>
+						</div>
+					</a>
+				</li>
+			{:else}
+				<li class="py-10 text-center text-sm text-stone-400">Tidak ada transaksi</li>
+			{/each}
+		</ul>
 	</div>
 </ReportShell>

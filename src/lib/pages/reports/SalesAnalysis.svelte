@@ -53,7 +53,7 @@
 <ReportShell {leaf} subtitle="{fdate(from)} – {fdate(to)}{channel ? ' · ' + channel : ''}" onexport={exportCsv}>
 	{#snippet filters()}
 		<PeriodFilter bind:from bind:to />
-		<div class="col-span-2 sm:w-60">
+		<div class="lg:w-60">
 			<label class="label" for="sa-ch">Channel / Toko</label>
 			<Select id="sa-ch" bind:value={channel} options={[{ value: '', label: 'Semua channel' }, ...channels]} label="Channel / Toko" />
 		</div>

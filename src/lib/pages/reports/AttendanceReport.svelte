@@ -48,7 +48,7 @@
 <ReportShell {leaf} subtitle="{fdate(from)} – {fdate(to)} · {days} hari tercatat" onexport={exportCsv}>
 	{#snippet filters()}
 		<PeriodFilter bind:from bind:to />
-		<div class="col-span-2 sm:w-60"><span class="label">Site</span><Lookup table="sites" bind:value={siteId} placeholder="Semua site" clearable /></div>
+		<div class="lg:w-60"><span class="label">Site</span><Lookup table="sites" bind:value={siteId} placeholder="Semua site" clearable /></div>
 	{/snippet}
 
 	<div class="mb-4 grid grid-cols-3 gap-3 lg:grid-cols-6">
@@ -61,7 +61,9 @@
 		{/each}
 	</div>
 
-	<div class="card overflow-x-auto">
+	<div class="card overflow-hidden">
+		<!-- desktop -->
+		<div class="hidden overflow-x-auto md:block">
 		<table class="table-erp">
 			<thead>
 				<tr>
@@ -87,5 +89,28 @@
 				{/each}
 			</tbody>
 		</table>
+		</div>
+		<!-- mobile -->
+		<ul class="divide-y divide-stone-100 md:hidden dark:divide-stone-800">
+			{#each rows as r (r.e.id)}
+				<li class="px-4 py-3">
+					<div class="flex items-start gap-3">
+						<div class="min-w-0 flex-1">
+							<p class="truncate text-sm font-medium">{r.e.name}</p>
+							<p class="truncate text-xs text-stone-400">{r.e.nik} · {r.e.position}</p>
+						</div>
+						<span class="text-sm font-semibold tabular-nums {r.rate >= 90 ? 'text-emerald-600' : r.rate >= 75 ? 'text-amber-600' : 'text-rose-600'}">{num(r.rate)}%</span>
+					</div>
+					<div class="mt-2 h-1.5 rounded-full bg-stone-100 dark:bg-stone-800"><div class="h-1.5 rounded-full {r.rate >= 90 ? 'bg-emerald-500' : r.rate >= 75 ? 'bg-amber-500' : 'bg-rose-500'}" style="width:{r.rate}%"></div></div>
+					<div class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs">
+						{#each STATUS as s (s)}
+							<span class="text-stone-500">{s} <b class="font-semibold tabular-nums {r.c[s] ? tone[s] : 'text-stone-300 dark:text-stone-600'}">{r.c[s]}</b></span>
+						{/each}
+					</div>
+				</li>
+			{:else}
+				<li class="py-10 text-center text-sm text-stone-400">Belum ada data absensi pada periode ini</li>
+			{/each}
+		</ul>
 	</div>
 </ReportShell>
