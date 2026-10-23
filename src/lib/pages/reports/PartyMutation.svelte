@@ -74,7 +74,7 @@
 <ReportShell {leaf} subtitle="{fdate(from)} – {fdate(to)}" onexport={exportCsv}>
 	{#snippet filters()}
 		<PeriodFilter bind:from bind:to />
-		<label class="col-span-2 flex h-10 items-center gap-2 text-sm sm:h-9">
+		<label class="flex h-10 items-center gap-2 text-sm lg:h-9">
 			<input type="checkbox" class="size-4 accent-brand-600" bind:checked={hideZero} /> Sembunyikan saldo nol
 		</label>
 	{/snippet}

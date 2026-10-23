@@ -21,7 +21,7 @@
 </PageHeader>
 
 {#if filters}
-	<div class="card no-print mb-4 grid grid-cols-2 gap-3 p-3 sm:flex sm:flex-wrap sm:items-end">
+	<div class="card no-print mb-4 grid gap-3 p-3 sm:grid-cols-2 lg:flex lg:flex-wrap lg:items-end">
 		{@render filters()}
 	</div>
 {/if}

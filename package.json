@@ -16,7 +16,8 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"db:schema": "node scripts/db-schema.mjs",
 		"db:migrate": "node scripts/db-migrate.mjs",
-		"db:admin": "node scripts/db-admin.mjs"
+		"db:admin": "node scripts/db-admin.mjs",
+		"legacy:extract": "node scripts/pbl-extract.mjs"
 	},
 	"devDependencies": {
 		"@floating-ui/dom": "^1.8.0",

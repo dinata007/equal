@@ -82,12 +82,12 @@
 	{#snippet filters()}
 		<PeriodFilter bind:from bind:to />
 		{#if scope === 'TOKO'}
-			<div class="col-span-2 sm:w-56">
+			<div class="lg:w-56">
 				<span class="label">Toko</span>
 				<Lookup table="stores" bind:value={storeId} placeholder="Semua toko" clearable />
 			</div>
 		{/if}
-		<label class="col-span-2 flex h-10 items-center gap-2 text-sm sm:h-9">
+		<label class="flex h-10 items-center gap-2 text-sm lg:h-9">
 			<input type="checkbox" class="size-4 accent-brand-600" bind:checked={onlyMoving} /> Hanya item bermutasi
 		</label>
 	{/snippet}

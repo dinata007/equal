@@ -36,11 +36,11 @@
 <ReportShell {leaf} subtitle="{fdate(from)} – {fdate(to)} · {entries.length} jurnal" onexport={exportCsv}>
 	{#snippet filters()}
 		<PeriodFilter bind:from bind:to />
-		<div class="col-span-2 sm:w-56">
+		<div class="lg:w-56">
 			<label class="label" for="jr-src">Sumber Transaksi</label>
 			<Select id="jr-src" bind:value={source} options={[{ value: '', label: 'Semua sumber' }, ...sources]} label="Sumber Transaksi" />
 		</div>
-		<div class="relative col-span-2 sm:w-64">
+		<div class="relative lg:w-64">
 			<label class="label" for="jr-q">Cari</label>
 			<Search class="pointer-events-none absolute bottom-2.5 left-3 size-4 text-stone-400" />
 			<input id="jr-q" class="input pl-9" placeholder="No / akun / uraian" bind:value={query} type="search" />
@@ -63,17 +63,20 @@
 					<a href="{e.path}?id={e.docId}" class="font-mono text-xs font-semibold text-brand-600 hover:underline">{e.no}</a>
 					<span class="text-xs text-stone-500">{fdate(e.date)}</span>
 					<span class="badge bg-stone-200/70 text-stone-600 dark:bg-stone-700 dark:text-stone-300">{e.label}</span>
-					{#if e.memo}<span class="truncate text-xs text-stone-500">{e.memo}</span>{/if}
+					{#if e.memo}<span class="w-full truncate text-xs text-stone-500 sm:w-auto">{e.memo}</span>{/if}
 				</div>
 				<div class="overflow-x-auto">
 					<table class="w-full text-sm">
 						<tbody>
 							{#each e.lines as l, i (i)}
 								<tr class="border-b border-stone-50 last:border-0 dark:border-stone-800/50">
-									<td class="w-24 px-4 py-2 font-mono text-xs text-stone-500 {l.credit ? 'pl-10' : ''}">{l.coa}</td>
-									<td class="px-2 py-2 {l.credit ? 'pl-8' : ''}">{coaName(l.coa)}<span class="ml-2 hidden text-xs text-stone-400 sm:inline">{l.memo ?? ''}</span></td>
-									<td class="num w-32 px-4 py-2">{l.debit ? money(l.debit) : ''}</td>
-									<td class="num w-32 px-4 py-2">{l.credit ? money(l.credit) : ''}</td>
+									<td class="hidden w-28 px-4 py-2 font-mono text-xs whitespace-nowrap text-stone-500 sm:table-cell {l.credit ? 'sm:pl-10' : ''}">{l.coa}</td>
+									<td class="py-2 pr-2 {l.credit ? 'pl-8' : 'pl-4 sm:pl-2'}">
+										<span class="block leading-snug">{coaName(l.coa)}<span class="ml-2 hidden text-xs text-stone-400 sm:inline">{l.memo ?? ''}</span></span>
+										<span class="font-mono text-[11px] text-stone-400 sm:hidden">{l.coa}</span>
+									</td>
+									<td class="num w-24 px-2 py-2 whitespace-nowrap sm:w-32 sm:px-4">{l.debit ? money(l.debit) : ''}</td>
+									<td class="num w-24 py-2 pr-4 pl-2 whitespace-nowrap sm:w-32 sm:px-4">{l.credit ? money(l.credit) : ''}</td>
 								</tr>
 							{/each}
 						</tbody>

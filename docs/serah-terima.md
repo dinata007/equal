@@ -28,10 +28,25 @@ Ringkasan keputusan & status agar pekerjaan bisa dilanjutkan tanpa riwayat perca
 
 Belum: brand di `web.user_scopes` baru disimpan — **diterapkan sebagai filter data mulai Fase 2** (master & transaksi dari database). Bila aplikasi dipasang di balik reverse proxy, set `ADDRESS_HEADER` (lihat README).
 
+## Status Fase 2a — master sederhana dari database: **selesai** (branch `fase-2-master`)
+
+Keputusan pemilik (23/10/2026): web **menulis langsung** ke tabel master lama dengan aturan PowerBuilder; replikasi PowerBuilder ke database ke-2 (`sqlcb`, ServerName2/Database2 di DXI.INI) **tidak dipakai** di produksi → diabaikan.
+
+- 8 master: Supplier `M_SUPPLIER` (W_01_M02), Ekspedisi `M_EKSPEDISI` (W_01_M03), Toko `M_TOKO` (W_02_M01), Customer `M_CUSTOMER` (W_02B_M01), Bank `M_BANK` (W_02B_M02), COA `gl_coa` (W_GL_01), Site `gl_site` (W_GL_01_T_01), Kas Bank `cb_master` (W_CB_01). Field form = kolom yang ada di DataWindow entry PowerBuilder; key field di `defs/masters.ts` = nama kolom.
+- Server `src/lib/server/master/`: `registry.ts` (tabel, kunci gabungan, brand, penomoran, cek pemakaian), `lookups.ts` (dropdown, mengikuti `dddw_*`), `service.ts`. Tipe/panjang kolom dibaca dari INFORMATION_SCHEMA. API `/api/master/[resource]` (GET/POST/PUT/PATCH/DELETE, butuh hak menu) & `/api/lookup/[name]` (semua pengguna login; hanya kode+nama).
+- Penomoran meniru PB, dalam transaksi dengan `UPDLOCK, HOLDLOCK`: supplier `S`+3 digit, ekspedisi `E`+2, toko `T`+3, bank 3 digit, customer site+YY+3 digit per site. COA/site/kas-bank kodenya diketik pengguna.
+- Brand: supplier & kas-bank disaring `brand_id`; toko brand `%`/kosong terlihat semua; **COA tidak disaring saat dibaca** (aplikasi lama menyimpan hampir semua akun di brand A, dipakai bersama), tapi menambah/mengubah COA tetap hanya untuk brand pengguna. Nilai lookup (brand, site, akun, …) divalidasi di server sesuai cakupan.
+- Ubah data: browser hanya mengirim isian yang diganti, server hanya meng-UPDATE kolom yang berubah (tidak menimpa perubahan dari aplikasi lama). Kunci (kode, brand, site) tidak bisa diubah. `usrupd/usrtgl` diisi `legacy_user_id` (atau username web).
+- Hapus hanya bila belum dipakai (lebih ketat dari PB yang menghapus tanpa cek); selain itu Nonaktifkan. Semua perubahan tercatat di `web.audit_log` (`master.create/update/delete`).
+- Belum diterapkan: pembatasan **site** per pengguna seperti `gs_usersite` PB (model akses web hanya admin/menu/brand).
+- Transisi: halaman **transaksi & report prototipe masih memakai data contoh** (`seed.ts`) untuk supplier/toko/COA/dst. sampai Fase 3.
+- Diuji: 79 skenario API ke SENJA_DEMO (hak menu, brand, validasi, penomoran, ganda, kolom tidak tertimpa, cek pemakaian, audit; data uji dihapus lagi) + screenshot semua halaman di 390/768/1280 px. Responsif report diperbaiki (filter periode satu baris, tabel jadi daftar kartu di HP).
+- `npm run legacy:extract` mengekstrak source PowerBuilder dari `.pbl` ke `legacy/src/` (gitignored). Nama window per menu ada di `dbo.SYS_PROGRAM`.
+
 ## Langkah berikutnya
 
 1. Di lokal: `npm run db:migrate` → `npm run db:admin` → atur pengguna (sekali saja per database).
-2. Fase 2 — **master** dari database (produk/model/warna/size, brand, toko, supplier, customer, COA, kas/bank, ekspedisi, pegawai) menggantikan data contoh `seed.ts` / `db.svelte.ts`, dengan filter brand sesuai `web.user_scopes`.
+2. Fase 2b — **Produk** (W_01_M01: model `M_PRODUK_MODEL` → SKU `M_PRODUK` = model × warna × size, kode model = brand+gender+dept+bahan+nomor+YY+bulan huruf; 233 ribu SKU → butuh pencarian/paging di server) beserta sub-master (brand, gender, dept, bahan, warna, size, aplikasi, jenis, tipe — `w_m_*`), lalu **Raw Material** (W_10_M01–M08, `m_bahan_*`). Fase 2c — HR (Pegawai W_MS_08, UMR W_100_07, Tunjangan W_100_06).
 3. Fase 3 — transaksi (setelah membaca source PowerBuilder untuk penomoran & jurnal). Pola nomor bukti per `tipe_trans` ada di `docs/database/schema.md` (bagian "Pola nomor … per jenis").
 4. Fase 4 — laporan (VIEW / stored procedure). Rumus stok lama: saldo awal bulanan `S_AWAL_GUDANG`/`S_AWAL_TOKO` + mutasi bulan berjalan (lihat `sp_Dashboard_Stok` di `docs/database/objects.sql`).
 

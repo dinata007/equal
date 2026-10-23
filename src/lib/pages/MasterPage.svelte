@@ -1,8 +1,10 @@
 <script lang="ts">
-	import { Ban, CircleCheck, Download, Plus, Trash } from '@lucide/svelte';
+	import { Ban, CircleCheck, Download, Plus, RotateCw, Trash, TriangleAlert } from '@lucide/svelte';
+	import { ApiError, api } from '#lib/erp/api.ts';
 	import { auth } from '#lib/erp/auth.svelte.ts';
 	import { db } from '#lib/erp/db.svelte.ts';
 	import { downloadCsv, num, rp, today } from '#lib/erp/format.ts';
+	import { lookups } from '#lib/erp/lookups.svelte.ts';
 	import type { Leaf } from '#lib/erp/menu.ts';
 	import type { FieldDef, MasterDef, Row } from '#lib/erp/types.ts';
 	import { ask, toast } from '#lib/erp/ui.svelte.ts';
@@ -17,12 +19,39 @@
 	let { leaf }: { leaf: Leaf } = $props();
 
 	const def = $derived(leaf.page as MasterDef);
-	const rows = $derived(db.all(def.table));
+	/** master dari database (tabel lama) — selain itu data prototipe di browser */
+	const remote = $derived(!!def.resource);
 	const codeKey = $derived(def.codeField ?? 'code');
+	const activeKey = $derived(def.activeField ?? 'active');
 	const can = $derived({
 		create: auth.can(leaf.path, 'create'),
 		edit: auth.can(leaf.path, 'edit'),
 		delete: auth.can(leaf.path, 'delete')
+	});
+
+	/* ---------------- data ---------------- */
+	let remoteRows = $state<Row[]>([]);
+	let loading = $state(false);
+	let loadError = $state('');
+	const rows = $derived(remote ? remoteRows : db.all(def.table!));
+	const url = $derived(`/api/master/${def.resource}`);
+
+	async function load() {
+		loading = true;
+		loadError = '';
+		try {
+			remoteRows = (await api<{ rows: Row[] }>(url)).rows;
+		} catch (e) {
+			loadError = e instanceof ApiError ? e.message : 'Gagal memuat data';
+		} finally {
+			loading = false;
+		}
+	}
+	$effect(() => {
+		if (!remote) return;
+		void url;
+		remoteRows = [];
+		void load();
 	});
 
 	let query = $state('');
@@ -30,6 +59,7 @@
 	let form = $state<Record<string, any>>({});
 	let editing = $state<Row | null>(null);
 	let errors = $state<Record<string, string>>({});
+	let saving = $state(false);
 	let formEl = $state<HTMLFormElement>();
 	let saveBtn = $state<HTMLButtonElement>();
 	const canSave = $derived(editing ? can.edit : can.create);
@@ -40,11 +70,17 @@
 		requestAnimationFrame(() => fields(formEl!)[0]?.focus());
 	});
 
+	const optionLabel = (f: FieldDef, v: unknown) => {
+		const o = f.options?.find((x) => (typeof x === 'string' ? x : x.value) === v);
+		return o == null ? (v ?? '') : typeof o === 'string' ? o : o.label;
+	};
+
 	function display(f: FieldDef, r: Row) {
 		const v = r[f.key];
-		if (f.type === 'lookup') return db.name(f.ref!, v);
+		if (f.type === 'lookup') return f.source ? (v ? lookups.name(f.source, v) : '') : db.name(f.ref!, v);
+		if (f.type === 'select') return optionLabel(f, v);
 		if (f.type === 'money') return v ? rp(v) : '';
-		if (f.type === 'toggle') return v ? 'Aktif' : 'Nonaktif';
+		if (f.type === 'toggle') return f.key === activeKey ? (v ? 'Aktif' : 'Nonaktif') : v ? 'Ya' : 'Tidak';
 		if (f.type === 'password') return '••••••';
 		return v ?? '';
 	}
@@ -58,18 +94,25 @@
 				align: f.type === 'money' || f.type === 'number' ? 'right' : f.type === 'toggle' ? 'center' : undefined,
 				value: (r: Row) => (f.type === 'money' || f.type === 'number' ? Number(r[f.key]) || 0 : display(f, r)),
 				format: f.type === 'money' ? (v: number) => (v ? rp(v) : '') : f.type === 'number' ? (v: number) => num(v) : undefined,
-				cell: f.type === 'toggle' ? toggleCell : f.key === codeKey ? codeCell : undefined
+				cell: f.type === 'toggle' && f.key === activeKey ? activeCell : f.key === codeKey ? codeCell : undefined
 			}))
 	);
 	const fTitle = $derived(def.fields.find((f) => f.mobile === 'title'));
 	const fSub = $derived(def.fields.find((f) => f.mobile === 'subtitle'));
 	const fMeta = $derived(def.fields.find((f) => f.mobile === 'meta'));
+	const hasActive = $derived(def.fields.some((f) => f.key === activeKey && f.type === 'toggle'));
+
+	const rowLabel = (r: Row) => (remote ? [r[codeKey], r[def.nameField ?? 'name']].filter(Boolean).join(' — ') : db.label(def.table!, r.id));
+
+	/** isian form: kode otomatis & kunci tabel lama tidak bisa diubah setelah tersimpan */
+	const formField = (f: FieldDef): FieldDef => (f.auto && !editing ? { ...f, placeholder: 'Otomatis saat disimpan', required: false } : f);
+	const locked = (f: FieldDef) => (editing ? !!(f.lockOnEdit || f.auto) : !!f.auto);
 
 	function openNew() {
 		const ctx = { userStoreId: auth.user?.storeId ?? undefined, today: today() };
 		const f: Record<string, any> = {};
 		for (const fd of def.fields) f[fd.key] = typeof fd.default === 'function' ? fd.default(ctx) : (fd.default ?? (fd.type === 'toggle' ? false : ''));
-		if (def.fields.some((x) => x.key === codeKey && x.required)) f[codeKey] = db.nextCode(def.table, codeKey);
+		if (!remote && def.fields.some((x) => x.key === codeKey && x.required)) f[codeKey] = db.nextCode(def.table!, codeKey);
 		form = f;
 		editing = null;
 		errors = {};
@@ -85,25 +128,54 @@
 	function validate() {
 		const e: Record<string, string> = {};
 		for (const f of def.fields) {
-			if (f.showIf && !f.showIf(form)) continue;
+			if ((f.showIf && !f.showIf(form)) || (f.auto && !editing)) continue;
 			const v = form[f.key];
-			if (f.required && (v === '' || v == null)) e[f.key] = `${f.label} wajib diisi`;
+			const blank = v === '' || v == null || (typeof v === 'string' && !v.trim());
+			if (f.required && blank) e[f.key] = `${f.label} wajib diisi`;
 			else if ((f.type === 'number' || f.type === 'money') && +v < 0) e[f.key] = `${f.label} tidak boleh negatif`;
-			else if (f.unique && v !== '' && v != null && rows.some((r) => r.id !== form.id && String(r[f.key]).toLowerCase() === String(v).toLowerCase()))
+			else if (f.maxLength && typeof v === 'string' && v.trim().length > f.maxLength) e[f.key] = `${f.label} maksimal ${f.maxLength} karakter`;
+			else if (!remote && f.unique && !blank && rows.some((r) => r.id !== form.id && String(r[f.key]).toLowerCase() === String(v).toLowerCase()))
 				e[f.key] = `${f.label} "${v}" sudah digunakan`;
 		}
 		errors = e;
 		return !Object.keys(e).length;
 	}
 
-	async function save() {
-		if (!validate()) return toast.error('Periksa kembali isian form');
-		if (editing) await db.update(def.table, editing.id, form);
-		else await db.insert(def.table, form);
-		toast.success(`${leaf.label} ${editing ? 'diperbarui' : 'ditambahkan'}`);
-		open = false;
+	function replaceRow(row: Row, oldId?: string) {
+		const i = remoteRows.findIndex((r) => r.id === (oldId ?? row.id));
+		if (i >= 0) remoteRows[i] = row;
+		else remoteRows.unshift(row);
 	}
 
+	async function save() {
+		if (saving) return;
+		if (!validate()) return toast.error('Periksa kembali isian form');
+		saving = true;
+		try {
+			if (remote) {
+				const values = $state.snapshot(form);
+				// ubah: kirim hanya isian yang diganti pengguna, agar perubahan dari aplikasi lama di kolom lain tidak tertimpa
+				if (editing) for (const k of Object.keys(values)) if (JSON.stringify(values[k]) === JSON.stringify(editing[k])) delete values[k];
+				const r = editing
+					? await api<{ row: Row }>(url, { method: 'PUT', body: { id: editing.id, values } })
+					: await api<{ row: Row }>(url, { method: 'POST', body: values });
+				replaceRow(r.row, editing?.id);
+				lookups.refresh();
+				toast.success(`${leaf.label} ${editing ? 'diperbarui' : `${r.row[codeKey] ?? ''} ditambahkan`}`);
+			} else {
+				if (editing) await db.update(def.table!, editing.id, form);
+				else await db.insert(def.table!, form);
+				toast.success(`${leaf.label} ${editing ? 'diperbarui' : 'ditambahkan'}`);
+			}
+			open = false;
+		} catch (e) {
+			toast.error(e instanceof ApiError ? e.message : 'Gagal menyimpan');
+		} finally {
+			saving = false;
+		}
+	}
+
+	/** prototipe: dipakai di data lain? (master database dicek server saat hapus) */
 	function isUsed(id: string) {
 		for (const [t, list] of Object.entries(db.t)) {
 			if (t === def.table) continue;
@@ -115,30 +187,52 @@
 		return false;
 	}
 
-	async function remove() {
-		if (!editing) return;
-		if (isUsed(editing.id)) return toast.error('Data sudah dipakai di transaksi/master lain. Nonaktifkan saja.');
-		if (!(await ask({ title: 'Hapus data ini?', message: db.label(def.table, editing.id), danger: true, confirmText: 'Hapus' }))) return;
-		await db.remove(def.table, editing.id);
-		toast.success('Data dihapus');
-		open = false;
+	async function removeRemote(r: Row) {
+		await api(`${url}?id=${encodeURIComponent(r.id)}`, { method: 'DELETE' });
+		remoteRows = remoteRows.filter((x) => x.id !== r.id);
 	}
 
-	const hasActive = $derived(def.fields.some((f) => f.key === 'active' && f.type === 'toggle'));
+	async function remove() {
+		if (!editing) return;
+		if (!remote && isUsed(editing.id)) return toast.error('Data sudah dipakai di transaksi/master lain. Nonaktifkan saja.');
+		if (!(await ask({ title: 'Hapus data ini?', message: rowLabel(editing), danger: true, confirmText: 'Hapus' }))) return;
+		try {
+			if (remote) {
+				await removeRemote(editing);
+				lookups.refresh();
+			} else await db.remove(def.table!, editing.id);
+			toast.success('Data dihapus');
+			open = false;
+		} catch (e) {
+			toast.error(e instanceof ApiError ? e.message : 'Gagal menghapus');
+		}
+	}
+
 	const bulk = $derived<BulkAction<Row>[]>([
 		...(can.edit && hasActive
 			? [
-					{ label: 'Aktifkan', icon: CircleCheck, when: (r: Row) => !r.active, run: (rs: Row[]) => setActive(rs, true) },
-					{ label: 'Nonaktifkan', icon: Ban, when: (r: Row) => !!r.active, run: (rs: Row[]) => setActive(rs, false) }
+					{ label: 'Aktifkan', icon: CircleCheck, when: (r: Row) => !r[activeKey], run: (rs: Row[]) => setActive(rs, true) },
+					{ label: 'Nonaktifkan', icon: Ban, when: (r: Row) => !!r[activeKey], run: (rs: Row[]) => setActive(rs, false) }
 				]
 			: []),
 		...(can.delete ? [{ label: 'Hapus', icon: Trash, danger: true, run: removeMany }] : [])
 	]);
 	async function setActive(rs: Row[], active: boolean) {
-		for (const r of rs) await db.update(def.table, r.id, { active });
-		toast.success(`${rs.length} data ${active ? 'diaktifkan' : 'dinonaktifkan'}`);
+		try {
+			if (remote) {
+				await api(url, { method: 'PATCH', body: { ids: rs.map((r) => r.id), active } });
+				const ids = new Set(rs.map((r) => r.id));
+				for (const r of remoteRows) if (ids.has(r.id)) r[activeKey] = active;
+				lookups.refresh();
+			} else for (const r of rs) await db.update(def.table!, r.id, { [activeKey]: active });
+			toast.success(`${rs.length} data ${active ? 'diaktifkan' : 'dinonaktifkan'}`);
+		} catch (e) {
+			toast.error(e instanceof ApiError ? e.message : 'Gagal mengubah status');
+			return false;
+		}
 	}
 	async function removeMany(rs: Row[]) {
+		if (remote) return removeManyRemote(rs);
 		const free = rs.filter((r) => !isUsed(r.id));
 		const used = rs.length - free.length;
 		if (!free.length) {
@@ -147,8 +241,27 @@
 		}
 		const msg = used ? `${used} data lain tidak ikut dihapus karena sudah dipakai.` : 'Tindakan ini tidak bisa dibatalkan.';
 		if (!(await ask({ title: `Hapus ${free.length} data?`, message: msg, danger: true, confirmText: 'Hapus' }))) return false;
-		for (const r of free) await db.remove(def.table, r.id);
+		for (const r of free) await db.remove(def.table!, r.id);
 		toast.success(`${free.length} data dihapus`);
+	}
+	async function removeManyRemote(rs: Row[]) {
+		const msg = 'Data yang sudah dipakai di transaksi tidak ikut dihapus. Tindakan ini tidak bisa dibatalkan.';
+		if (!(await ask({ title: `Hapus ${rs.length} data?`, message: msg, danger: true, confirmText: 'Hapus' }))) return false;
+		let done = 0;
+		let firstError = '';
+		for (const r of rs) {
+			try {
+				await removeRemote(r);
+				done++;
+			} catch (e) {
+				firstError ||= e instanceof ApiError ? e.message : 'Gagal menghapus';
+			}
+		}
+		if (done) lookups.refresh();
+		if (done === rs.length) toast.success(`${done} data dihapus`);
+		else if (done) toast.error(`${done} data dihapus, ${rs.length - done} tidak bisa dihapus. ${firstError}`);
+		else toast.error(rs.length === 1 ? firstError : `Tidak ada yang terhapus. ${firstError}`);
+		return done ? undefined : false;
 	}
 
 	function exportCsv() {
@@ -157,8 +270,8 @@
 	}
 </script>
 
-{#snippet toggleCell(r: Row)}
-	<span class="badge {r.active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400' : 'bg-stone-100 text-stone-500 dark:bg-stone-800'}">{r.active ? 'Aktif' : 'Nonaktif'}</span>
+{#snippet activeCell(r: Row)}
+	<span class="badge {r[activeKey] ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400' : 'bg-stone-100 text-stone-500 dark:bg-stone-800'}">{r[activeKey] ? 'Aktif' : 'Nonaktif'}</span>
 {/snippet}
 {#snippet codeCell(r: Row)}
 	<span class="font-mono text-xs font-medium text-stone-500">{r[codeKey]}</span>
@@ -173,19 +286,42 @@
 			<p class="truncate text-sm font-medium">{fTitle ? display(fTitle, r) : r.id}</p>
 			<p class="truncate text-xs text-stone-500">{[fMeta ? display(fMeta, r) : '', fSub ? display(fSub, r) : ''].filter(Boolean).join(' · ')}</p>
 		</div>
-		{#if 'active' in r && !r.active}<span class="badge bg-stone-100 text-stone-500 dark:bg-stone-800">Nonaktif</span>{/if}
+		{#if hasActive && !r[activeKey]}<span class="badge bg-stone-100 text-stone-500 dark:bg-stone-800">Nonaktif</span>{/if}
 	</div>
 {/snippet}
 
-<PageHeader title={leaf.label} subtitle="{rows.length} data · {leaf.trail.slice(0, -1).join(' › ')}" icon={leaf.icon}>
+<PageHeader title={leaf.label} subtitle="{loading ? 'Memuat…' : `${num(rows.length)} data`} · {leaf.trail.slice(0, -1).join(' › ')}" icon={leaf.icon}>
 	{#snippet actions()}
+		{#if remote}
+			<button class="btn btn-secondary" onclick={load} disabled={loading} aria-label="Muat ulang" {@attach tooltip('Muat ulang dari database')}>
+				<RotateCw class="size-4 {loading ? 'animate-spin' : ''}" />
+			</button>
+		{/if}
 		<button class="btn btn-secondary" onclick={exportCsv}><Download class="size-4" /><span class="hidden sm:inline">Export</span></button>
 		{#if can.create}<button class="btn btn-primary hidden sm:inline-flex" onclick={openNew}><Plus class="size-4" /> Tambah</button>{/if}
 	{/snippet}
 </PageHeader>
 
+{#if loadError}
+	<div class="card mb-3 flex items-center gap-3 border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
+		<TriangleAlert class="size-5 shrink-0" />
+		<p class="flex-1">{loadError}</p>
+		<button class="btn btn-secondary" onclick={load}>Coba lagi</button>
+	</div>
+{/if}
+
 <div class="card overflow-clip">
-	<DataTable {rows} {columns} bind:query {card} {bulk} onrow={openEdit} initialSort={{ key: def.fields[0].key, dir: 1 }} exportName={leaf.label} />
+	<DataTable
+		{rows}
+		{columns}
+		bind:query
+		{card}
+		{bulk}
+		onrow={openEdit}
+		initialSort={{ key: def.fields[0].key, dir: 1 }}
+		exportName={leaf.label}
+		empty={loading ? 'Memuat data dari database…' : 'Belum ada data'}
+	/>
 </div>
 
 {#if can.create}
@@ -194,11 +330,11 @@
 	</button>
 {/if}
 
-<Sheet bind:open title={editing ? `Ubah ${leaf.label}` : `Tambah ${leaf.label}`} subtitle={editing ? db.label(def.table, editing.id) : undefined}>
+<Sheet bind:open title={editing ? `Ubah ${leaf.label}` : `Tambah ${leaf.label}`} subtitle={editing ? rowLabel(editing) : undefined}>
 	<form bind:this={formEl} id="master-form" class="grid gap-4 py-1 sm:grid-cols-2" onsubmit={(e) => (e.preventDefault(), save())} {@attach formNav({ onsave: () => canSave && save(), last: () => saveBtn })}>
 		{#each def.fields as f (f.key)}
 			{#if !f.showIf || f.showIf(form)}
-				<Field field={f} bind:form disabled={editing ? !can.edit : !can.create} error={errors[f.key]} />
+				<Field field={formField(f)} bind:form disabled={!canSave || locked(f)} error={errors[f.key]} />
 			{/if}
 		{/each}
 	</form>
@@ -208,8 +344,10 @@
 		{/if}
 		<div class="flex-1"></div>
 		<button class="btn btn-secondary" onclick={() => (open = false)}>Batal</button>
-		{#if editing ? can.edit : can.create}
-			<button bind:this={saveBtn} class="btn btn-primary" type="submit" form="master-form" {@attach tooltip('Simpan', { kbd: 'Ctrl S' })}>Simpan</button>
+		{#if canSave}
+			<button bind:this={saveBtn} class="btn btn-primary" type="submit" form="master-form" disabled={saving} {@attach tooltip('Simpan', { kbd: 'Ctrl S' })}>
+				{saving ? 'Menyimpan…' : 'Simpan'}
+			</button>
 		{/if}
 	{/snippet}
 </Sheet>
