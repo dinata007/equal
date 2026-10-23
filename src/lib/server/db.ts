@@ -26,3 +26,5 @@ export const request = async () => (await getPool()).request();
 
 export { sql, dbLabel };
 export const label = () => dbLabel(env);
+/** .env sudah berisi koneksi database (tanpanya aplikasi tidak bisa login) */
+export const dbConfigured = () => !!(env.DB_SERVER && env.DB_NAME && env.DB_USER);

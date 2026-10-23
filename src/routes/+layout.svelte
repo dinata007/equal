@@ -6,10 +6,13 @@
 	import ConfirmDialog from '#lib/components/ConfirmDialog.svelte';
 	import type { LayoutProps } from './$types';
 
-	let { children }: LayoutProps = $props();
+	let { children, data }: LayoutProps = $props();
 
 	db.init();
-	auth.init();
+	// sesi dari server tersedia sebelum halaman pertama dirender, lalu diperbarui setiap invalidateAll()
+	// svelte-ignore state_referenced_locally
+	auth.set(data);
+	$effect.pre(() => auth.set(data));
 </script>
 
 <svelte:head>

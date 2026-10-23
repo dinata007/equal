@@ -15,6 +15,7 @@
 
 	$effect(() => {
 		if (!auth.user) goto('/login', { replace: true });
+		else if (auth.user.mustChange) goto('/ganti-password', { replace: true });
 	});
 	// View Transitions API: perpindahan halaman memudar halus (hanya bila didukung & tidak reduced-motion)
 	onNavigate((nav) => {
@@ -34,7 +35,7 @@
 	});
 </script>
 
-{#if auth.user}
+{#if auth.user && !auth.user.mustChange}
 	<div class="min-h-dvh" {@attach negativeRed}>
 		<aside
 			class="fixed inset-y-0 left-0 z-40 hidden border-r border-stone-200/70 bg-white transition-[width] duration-200 lg:block dark:border-stone-800/70 dark:bg-stone-950 {shell.collapsed

@@ -66,7 +66,7 @@
 	const fMeta = $derived(def.fields.find((f) => f.mobile === 'meta'));
 
 	function openNew() {
-		const ctx = { userStoreId: auth.user?.storeId, today: today() };
+		const ctx = { userStoreId: auth.user?.storeId ?? undefined, today: today() };
 		const f: Record<string, any> = {};
 		for (const fd of def.fields) f[fd.key] = typeof fd.default === 'function' ? fd.default(ctx) : (fd.default ?? (fd.type === 'toggle' ? false : ''));
 		if (def.fields.some((x) => x.key === codeKey && x.required)) f[codeKey] = db.nextCode(def.table, codeKey);

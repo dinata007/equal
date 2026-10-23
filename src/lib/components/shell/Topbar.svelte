@@ -13,8 +13,8 @@
 	const title = $derived(crumbs.at(-1)?.label ?? (page.url.pathname === '/profil' ? 'Profil' : 'Dashboard'));
 	let online = $state(navigator.onLine);
 
-	function logout() {
-		auth.logout();
+	async function logout() {
+		await auth.logout();
 		goto('/login');
 	}
 </script>

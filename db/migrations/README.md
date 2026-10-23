@@ -43,10 +43,12 @@ GO
 
 ## Menjalankan
 
-Di SSMS: buka script lalu Execute (F5), berurutan sesuai nomor. Di command line:
+Paling mudah: `npm run db:migrate` (menjalankan semua script berurutan ke database di `.env`). Di SSMS: buka script lalu Execute (F5), berurutan sesuai nomor. Di command line:
 
 ```bash
 sqlcmd -S SERVER -d SENJA_DEMO -U user -P "password" -b -i db/migrations/001_schema-web.sql
 ```
+
+Setiap script diawali `SET QUOTED_IDENTIFIER ON` (dibutuhkan index bersyarat). Script baru juga harus begitu.
 
 Jalankan dulu di `SENJA_DEMO`, uji aplikasinya, baru jalankan script yang sama di database live.
