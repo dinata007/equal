@@ -10,23 +10,23 @@ Ringkasan keputusan & status agar pekerjaan bisa dilanjutkan tanpa riwayat perca
 
 ## Keputusan yang sudah disepakati
 
-- **Tabel lama tidak diubah.** Struktur baru hanya di schema `web`, lewat script migrasi **idempoten** di `db/migrations/` (lihat README di folder itu). Script yang sama nanti dijalankan ke database live.
-- **Keamanan login harus yang paling aman.** Tidak memakai `SYS_USER.user_psw` (teks biasa). Akun lama disalin ke `web.users` **tanpa** password; admin membuat password sementara, pengguna wajib menggantinya.
+- **Tabel lama tidak diubah.** Struktur baru hanya berupa tabel `dbo` berawalan `App` (mis. `dbo.AppUser`), lewat script migrasi **idempoten** di `db/migrations/` (lihat README di folder itu). Script yang sama nanti dijalankan ke database live.
+- **Keamanan login harus yang paling aman.** Tidak memakai `SYS_USER.user_psw` (teks biasa). Akun lama disalin ke `dbo.AppUser` **tanpa** password; admin membuat password sementara, pengguna wajib menggantinya.
 - **Hak akses sama dengan prototipe:** admin = akses penuh; pengguna lain **menu on/off** (menu aktif = semua aksi). Tidak ada rincian per aksi (lihat/tambah/ubah/hapus/cetak).
-- **Brand** diatur per pengguna (ada yang boleh beberapa brand) → `web.user_scopes` scope `brand`, nilai `*` = semua.
+- **Brand** diatur per pengguna (ada yang boleh beberapa brand) → `dbo.AppUserScope` scope `brand`, nilai `*` = semua.
 - **Urutan pengerjaan:** login & hak akses → per modul: **master dulu, lalu transaksi, terakhir laporan**.
 - Angka di dashboard tanpa "Rp" (format ringkas `short()`).
 - Alur kerja git: kerjakan di branch, buat PR per bagian; pemilik repo yang merge.
 
 ## Status Fase 1 — login & hak akses: **selesai** (lihat PR "Fase 1")
 
-- `db/migrations/001_web-auth.sql` (web.users, sessions, user_menus, user_scopes, audit_log) & `002_salin-user-lama.sql`; setiap script diawali `SET QUOTED_IDENTIFIER ON` (dibutuhkan index bersyarat; sqlcmd defaultnya OFF).
+- `db/migrations/001_app-auth.sql` (`AppUser`, `AppSession`, `AppUserMenu`, `AppUserScope`, `AppAuditLog`; versi awal di schema `web` dipindah oleh `000_pindah-dari-schema-web.sql`) & `002_salin-user-lama.sql`; setiap script diawali `SET QUOTED_IDENTIFIER ON` (dibutuhkan index bersyarat; sqlcmd defaultnya OFF).
 - `npm run db:migrate` (runner, aman diulang) & `npm run db:admin` (buat/pulihkan admin interaktif).
 - Server: `src/lib/server/auth/` — scrypt N=2^17; sesi cookie httpOnly berisi token acak, DB hanya menyimpan hash SHA-256; idle 12 jam / maks 7 hari; kunci 15 menit setelah 5× salah; maks 50 login gagal per IP per 15 menit (login sukses tidak dihitung); audit log. `src/hooks.server.ts` mewajibkan login untuk `/api`, menolak Origin asing, memasang header keamanan; endpoint `/api/auth/*` & `/api/users*` (admin-only dicek di server).
 - Klien: `auth.svelte.ts` membaca sesi dari `src/routes/+layout.server.ts`; `auth.can(path)` = admin atau menu aktif. Halaman login, `/ganti-password` (wajib untuk password sementara), menu Pengguna & Hak Akses lewat API.
 - Diuji end-to-end (30 skenario) ke SQL Server 2019 sementara: login/salah password, cookie httpOnly, akun salinan SYS_USER, atur menu & brand, password sementara → wajib ganti, pembatasan menu & API non-admin, nonaktifkan akun mencabut sesi di semua perangkat, admin tak bisa mencabut dirinya, logout, kunci akun, batas per IP, Origin asing ditolak; smoke test 56 halaman; build.
 
-Belum: brand di `web.user_scopes` baru disimpan — **diterapkan sebagai filter data mulai Fase 2** (master & transaksi dari database). Bila aplikasi dipasang di balik reverse proxy, set `ADDRESS_HEADER` (lihat README).
+Belum: brand di `dbo.AppUserScope` baru disimpan — **diterapkan sebagai filter data mulai Fase 2** (master & transaksi dari database). Bila aplikasi dipasang di balik reverse proxy, set `ADDRESS_HEADER` (lihat README).
 
 ## Status Fase 2a — master sederhana dari database: **selesai** (branch `fase-2-master`)
 
@@ -37,7 +37,7 @@ Keputusan pemilik (23/10/2026): web **menulis langsung** ke tabel master lama de
 - Penomoran meniru PB, dalam transaksi dengan `UPDLOCK, HOLDLOCK`: supplier `S`+3 digit, ekspedisi `E`+2, toko `T`+3, bank 3 digit, customer site+YY+3 digit per site. COA/site/kas-bank kodenya diketik pengguna.
 - Brand: supplier & kas-bank disaring `brand_id`; toko brand `%`/kosong terlihat semua; **COA tidak disaring saat dibaca** (aplikasi lama menyimpan hampir semua akun di brand A, dipakai bersama), tapi menambah/mengubah COA tetap hanya untuk brand pengguna. Nilai lookup (brand, site, akun, …) divalidasi di server sesuai cakupan.
 - Ubah data: browser hanya mengirim isian yang diganti, server hanya meng-UPDATE kolom yang berubah (tidak menimpa perubahan dari aplikasi lama). Kunci (kode, brand, site) tidak bisa diubah. `usrupd/usrtgl` diisi `legacy_user_id` (atau username web).
-- Hapus hanya bila belum dipakai (lebih ketat dari PB yang menghapus tanpa cek); selain itu Nonaktifkan. Semua perubahan tercatat di `web.audit_log` (`master.create/update/delete`).
+- Hapus hanya bila belum dipakai (lebih ketat dari PB yang menghapus tanpa cek); selain itu Nonaktifkan. Semua perubahan tercatat di `dbo.AppAuditLog` (`master.create/update/delete`).
 - Belum diterapkan: pembatasan **site** per pengguna seperti `gs_usersite` PB (model akses web hanya admin/menu/brand).
 - Transisi: halaman **transaksi & report prototipe masih memakai data contoh** (`seed.ts`) untuk supplier/toko/COA/dst. sampai Fase 3.
 - Diuji: 79 skenario API ke SENJA_DEMO (hak menu, brand, validasi, penomoran, ganda, kolom tidak tertimpa, cek pemakaian, audit; data uji dihapus lagi) + screenshot semua halaman di 390/768/1280 px. Responsif report diperbaiki (filter periode satu baris, tabel jadi daftar kartu di HP).

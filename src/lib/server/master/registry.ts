@@ -100,7 +100,7 @@ export const RESOURCES: Record<string, Resource> = {
 			['Transaksi gudang', 'dbo.T_GUDANG1 WHERE toko_id = @toko_id'],
 			['Penjualan', 'dbo.T_JUAL1 WHERE toko_id = @toko_id'],
 			['Saldo awal toko', 'dbo.S_AWAL_TOKO WHERE toko_id = @toko_id'],
-			['Pengguna', 'web.users WHERE toko_id = @toko_id']
+			['Pengguna', 'dbo.AppUser WHERE toko_id = @toko_id']
 		]
 	},
 	customer: {

@@ -244,7 +244,7 @@ async function findOne(res: Resource, user: SessionUser, keys: Values, req: sql.
 
 /** nama pengguna aplikasi lama untuk kolom usrupd (akun salinan SYS_USER), selain itu username web */
 export async function legacyUser(user: SessionUser) {
-	const r = await (await request()).input('id', sql.Int, user.id).query('SELECT legacy_user_id AS l FROM web.users WHERE id = @id');
+	const r = await (await request()).input('id', sql.Int, user.id).query('SELECT legacy_user_id AS l FROM dbo.AppUser WHERE id = @id');
 	return String(r.recordset[0]?.l ?? user.username);
 }
 

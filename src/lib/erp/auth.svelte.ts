@@ -1,5 +1,5 @@
 /**
- * Sesi login di sisi browser. Sumber kebenarannya server: cookie httpOnly + web.sessions,
+ * Sesi login di sisi browser. Sumber kebenarannya server: cookie httpOnly + dbo.AppSession,
  * dan hak akses juga dicek di server untuk setiap endpoint /api.
  *
  * Model akses: admin = akses penuh; pengguna lain diatur menu on/off (menu aktif = semua aksi).
