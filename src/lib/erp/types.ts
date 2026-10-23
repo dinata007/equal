@@ -86,6 +86,8 @@ export interface FieldDef {
 	/** lookup ke data server (nama di /api/lookup/[name]), pengganti `ref` untuk master dari database */
 	source?: string;
 	refFilter?: (row: Row, form: Record<string, any>) => boolean;
+	/** jumlah desimal isian angka (default: uang 0, angka 2) */
+	decimals?: number;
 	/** panjang maksimum teks (mengikuti kolom database) */
 	maxLength?: number;
 	/** kode dibuat otomatis oleh server saat data baru disimpan */
@@ -102,6 +104,8 @@ export interface FieldDef {
 	readonly?: boolean;
 	showIf?: (form: Record<string, any>) => boolean;
 	hint?: string;
+	/** judul kelompok isian, ditampilkan sebelum field ini di form */
+	section?: string;
 }
 export interface DefaultCtx {
 	userStoreId?: string;
@@ -120,6 +124,10 @@ export interface MasterDef {
 	/** field status aktif (default `active`) */
 	activeField?: string;
 	fields: FieldDef[];
+	/** tombol "Salin jadi baru": isian data terbuka disalin ke form tambah (kode otomatis dikosongkan) */
+	copyable?: boolean;
+	/** isian turunan: dipanggil setelah pengguna mengubah `key` (mis. hitung harga per satuan) */
+	derive?: (form: Record<string, any>, key: string) => void;
 }
 
 /** Pilihan lookup dari server: kode/nama + atribut tambahan untuk filter (mis. site) */

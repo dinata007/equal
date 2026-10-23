@@ -64,6 +64,8 @@ function sqlType(m: ColMeta): sql.ISqlType | (() => sql.ISqlType) {
 }
 const isText = (m: ColMeta) => ['varchar', 'nvarchar', 'char', 'nchar', 'text', 'ntext'].includes(m.type);
 const isNumber = (m: ColMeta) => ['int', 'smallint', 'tinyint', 'bigint', 'numeric', 'decimal', 'float', 'real', 'money'].includes(m.type);
+/** nilai kunci dari id baris / query string (teks) → tipe kolom */
+const keyVal = (m: ColMeta, v: unknown) => (isNumber(m) && typeof v === 'string' ? Number(v) : v);
 
 /* ---------------- hak akses & brand ---------------- */
 
@@ -117,6 +119,8 @@ const localDate = (d: Date) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${p
 function decode(f: FieldDef | undefined, m: ColMeta, v: unknown) {
 	if (f?.type === 'toggle') return m.type === 'bit' ? !!v : String(v ?? '').trim().toUpperCase() === 'Y';
 	if (v == null) return isNumber(m) ? null : '';
+	// kode lookup selalu teks (pilihan dropdown berkunci teks), walau kolomnya angka (mis. jab_id)
+	if (f?.type === 'lookup') return String(v).trim();
 	if (v instanceof Date) return localDate(v);
 	if (typeof v === 'string') return v.trimEnd();
 	return v;
@@ -201,7 +205,7 @@ function listFilters(res: Resource, req: sql.Request, meta: Map<string, ColMeta>
 			req.input(`f_${c}`, sql.Bit, raw === '1' || raw === 'true');
 			where.push(`ISNULL(${c}, 1) = @f_${c}`);
 		} else {
-			req.input(`f_${c}`, sqlType(m), raw.trim());
+			req.input(`f_${c}`, sqlType(m), keyVal(m, raw.trim()));
 			where.push(isText(m) ? `RTRIM(${c}) = @f_${c}` : `${c} = @f_${c}`);
 		}
 	}
@@ -229,7 +233,7 @@ export async function get(name: string, user: SessionUser, id: unknown) {
 /** satu baris (dengan cakupan brand pengguna) atau 404 */
 async function findOne(res: Resource, user: SessionUser, keys: Values, req: sql.Request) {
 	const { meta, cols } = await selectList(res);
-	const where = res.keys.map((k) => (req.input(`k_${k}`, sqlType(meta.get(k.toLowerCase())!), keys[k]), `${k} = @k_${k}`));
+	const where = res.keys.map((k) => (req.input(`k_${k}`, sqlType(meta.get(k.toLowerCase())!), keyVal(meta.get(k.toLowerCase())!, keys[k])), `${k} = @k_${k}`));
 	if (res.brand) where.push(brandWhere(req, res.brand.column, res.brand.open, brandScope(user)));
 	const r = await req.query(`SELECT ${cols.join(', ')} FROM ${res.table} WHERE ${where.join(' AND ')}`);
 	if (!r.recordset[0]) throw new AuthError('Data tidak ditemukan atau di luar cakupan brand Anda', 404);
@@ -311,7 +315,7 @@ function requireBrand(res: Resource, user: SessionUser, values: Values) {
 function keyedRequest(tx: sql.Transaction, res: Resource, meta: Map<string, ColMeta>, keys: Values) {
 	return () => {
 		const req = new sql.Request(tx);
-		for (const k of res.keys) if (keys[k] != null) req.input(k, sqlType(meta.get(k.toLowerCase())!), keys[k]);
+		for (const k of res.keys) if (keys[k] != null) req.input(k, sqlType(meta.get(k.toLowerCase())!), keyVal(meta.get(k.toLowerCase())!, keys[k]));
 		return req;
 	};
 }
@@ -331,14 +335,19 @@ export async function create(name: string, user: SessionUser, input: Values, ip:
 	await tx.begin();
 	try {
 		if (res.next) await res.next(keyedRequest(tx, res, meta, values), values);
-		for (const k of res.keys) if (values[k] == null || values[k] === '') throw new AuthError(`${res.def.fields.find((f) => f.key === k)?.label ?? k} wajib diisi`);
-		const dup = new sql.Request(tx);
-		const where = res.keys.map((k) => (dup.input(`k_${k}`, sqlType(meta.get(k.toLowerCase())!), values[k]), `${k} = @k_${k}`));
-		const exists = await dup.query(`SELECT COUNT(*) AS n FROM ${res.table} WITH (UPDLOCK, HOLDLOCK) WHERE ${where.join(' AND ')}`);
-		if (exists.recordset[0].n) throw new AuthError(`Data dengan kode ${rowId(res, values).replaceAll(KEY_SEP, ' / ')} sudah ada`, 409);
+		if (res.identity) delete values[res.identity];
+		else {
+			for (const k of res.keys) if (values[k] == null || values[k] === '') throw new AuthError(`${res.def.fields.find((f) => f.key === k)?.label ?? k} wajib diisi`);
+			const dup = new sql.Request(tx);
+			const where = res.keys.map((k) => (dup.input(`k_${k}`, sqlType(meta.get(k.toLowerCase())!), values[k]), `${k} = @k_${k}`));
+			const exists = await dup.query(`SELECT COUNT(*) AS n FROM ${res.table} WITH (UPDLOCK, HOLDLOCK) WHERE ${where.join(' AND ')}`);
+			if (exists.recordset[0].n) throw new AuthError(`Data dengan kode ${rowId(res, values).replaceAll(KEY_SEP, ' / ')} sudah ada`, 409);
+		}
 		const ins = new sql.Request(tx);
 		const params = bind(ins, meta, values, 'v_');
-		await ins.query(`INSERT INTO ${res.table} (${Object.keys(values).join(', ')}) VALUES (${params.join(', ')})`);
+		const out = res.identity ? `OUTPUT INSERTED.${res.identity} AS _id` : '';
+		const r = await ins.query(`INSERT INTO ${res.table} (${Object.keys(values).join(', ')}) ${out} VALUES (${params.join(', ')})`);
+		if (res.identity) values[res.identity] = r.recordset[0]._id;
 		await tx.commit();
 	} catch (e) {
 		await tx.rollback().catch(() => {});
@@ -376,7 +385,7 @@ export async function update(name: string, user: SessionUser, id: unknown, input
 	try {
 		const req = new sql.Request(tx);
 		const sets = bind(req, meta, changed, 'v_').map((p, i) => `${Object.keys(changed)[i]} = ${p}`);
-		const where = res.keys.map((k) => (req.input(`k_${k}`, sqlType(meta.get(k.toLowerCase())!), keys[k]), `${k} = @k_${k}`));
+		const where = res.keys.map((k) => (req.input(`k_${k}`, sqlType(meta.get(k.toLowerCase())!), keyVal(meta.get(k.toLowerCase())!, keys[k])), `${k} = @k_${k}`));
 		await req.query(`UPDATE ${res.table} SET ${sets.join(', ')} WHERE ${where.join(' AND ')}`);
 		await res.afterUpdate?.(keyedRequest(tx, res, meta, keys), changed);
 		await tx.commit();
@@ -392,7 +401,7 @@ export async function update(name: string, user: SessionUser, id: unknown, input
 async function usage(res: Resource, meta: Map<string, ColMeta>, keys: Values) {
 	if (!res.usedIn) return null;
 	const req = await request();
-	for (const k of res.keys) req.input(k, sqlType(meta.get(k.toLowerCase())!), keys[k]);
+	for (const k of res.keys) req.input(k, sqlType(meta.get(k.toLowerCase())!), keyVal(meta.get(k.toLowerCase())!, keys[k]));
 	const list = typeof res.usedIn === 'function' ? await res.usedIn(req, keys) : res.usedIn;
 	if (!list.length) return null;
 	const parts = list.map(([label, from], i) => {
@@ -442,7 +451,7 @@ export async function setActive(name: string, user: SessionUser, ids: unknown, a
 			const keys = parseId(res, id);
 			const req = new sql.Request(tx);
 			req.input('v', sqlType(m), encode(field, m, active));
-			const where = res.keys.map((k) => (req.input(`k_${k}`, sqlType(meta.get(k.toLowerCase())!), keys[k]), `${k} = @k_${k}`));
+			const where = res.keys.map((k) => (req.input(`k_${k}`, sqlType(meta.get(k.toLowerCase())!), keyVal(meta.get(k.toLowerCase())!, keys[k])), `${k} = @k_${k}`));
 			if (res.brand) where.push(brandWhere(req, res.brand.column, res.brand.open, brandScope(user)));
 			const n = (await req.query(`UPDATE ${res.table} SET ${field.key} = @v WHERE ${where.join(' AND ')}`)).rowsAffected[0];
 			if (n) await res.afterUpdate?.(keyedRequest(tx, res, meta, keys), { [field.key]: encode(field, m, active) });

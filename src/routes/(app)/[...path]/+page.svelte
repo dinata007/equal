@@ -18,7 +18,8 @@
 	import Closing from '#lib/pages/custom/Closing.svelte';
 	import Users from '#lib/pages/custom/Users.svelte';
 	import Products from '#lib/pages/custom/Products.svelte';
-	import ProductAttributes from '#lib/pages/custom/ProductAttributes.svelte';
+	import Employees from '#lib/pages/custom/Employees.svelte';
+	import Attributes from '#lib/pages/custom/Attributes.svelte';
 
 	const components: Record<string, Component<any>> = {
 		'stock-mutation': StockMutation,
@@ -32,7 +33,8 @@
 		closing: Closing,
 		users: Users,
 		products: Products,
-		'product-attributes': ProductAttributes
+		attributes: Attributes,
+		employees: Employees
 	};
 
 	const node = $derived(findNode('/' + page.params.path));

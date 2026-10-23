@@ -1,31 +1,22 @@
 <script lang="ts">
-	/** Atribut produk (tabel lama): satu menu bertab, seperti tombol Brand/Gender/… di window produk PowerBuilder. */
-	import * as M from '#lib/erp/defs/masters.ts';
+	/**
+	 * Atribut master (tabel lama) dalam satu menu bertab, seperti tombol Brand/Gender/… di window produk
+	 * PowerBuilder. Daftar tab per menu: ATTRIBUTES di defs/masters.ts.
+	 */
+	import { ATTRIBUTES } from '#lib/erp/defs/masters.ts';
 	import type { Leaf } from '#lib/erp/menu.ts';
-	import type { MasterDef } from '#lib/erp/types.ts';
 	import { loadSession, saveSession } from '#lib/components/grid/core.ts';
 	import { auth } from '#lib/erp/auth.svelte.ts';
 	import MasterPage from '#lib/pages/MasterPage.svelte';
 
-	let { leaf }: { leaf: Leaf } = $props();
+	let { leaf, set }: { leaf: Leaf; set: keyof typeof ATTRIBUTES } = $props();
 
-	const TABS: { key: string; label: string; def: MasterDef }[] = [
-		{ key: 'brand', label: 'Brand', def: M.productBrand },
-		{ key: 'gender', label: 'Gender', def: M.productGender },
-		{ key: 'grup-dept', label: 'Grup Dept', def: M.productDeptGroup },
-		{ key: 'dept', label: 'Department', def: M.productDept },
-		{ key: 'bahan', label: 'Bahan', def: M.productMaterial },
-		{ key: 'warna', label: 'Warna', def: M.productColor },
-		{ key: 'size', label: 'Size', def: M.productSize },
-		{ key: 'aplikasi', label: 'Aplikasi', def: M.productApplication },
-		{ key: 'jenis', label: 'Jenis', def: M.productKind },
-		{ key: 'tipe', label: 'Tipe', def: M.productType }
-	];
+	const TABS = $derived(ATTRIBUTES[set]);
 
 	// tab terakhir diingat selama aplikasi terbuka
 	// svelte-ignore state_referenced_locally
 	const sKey = `senja:page:${auth.user?.id ?? 'anon'}:${leaf.path}`;
-	let tab = $state(loadSession(sKey, { tab: 'brand' }).tab);
+	let tab = $state(loadSession(sKey, { tab: '' }).tab);
 	$effect(() => saveSession(sKey, { tab }));
 	const cur = $derived(TABS.find((t) => t.key === tab) ?? TABS[0]);
 </script>

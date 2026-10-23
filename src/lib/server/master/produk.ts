@@ -6,7 +6,7 @@ import * as M from '#lib/erp/defs/masters.ts';
 import { hargaBarcode } from '#lib/erp/produk.ts';
 import { AuthError } from '../auth/users.ts';
 import { request, sql } from '../db.ts';
-import { letters3, likeEscape, seq } from './codes.ts';
+import { kodeUrut, letters3, likeEscape } from './codes.ts';
 import type { Resource, Values } from './registry.ts';
 
 const ATRIBUT = '/inventory/master/atribut-produk';
@@ -19,10 +19,6 @@ const dipakai = (col: string): [string, string][] => [
 	['Artikel produk', `dbo.M_PRODUK WHERE ${col} = @${col}`]
 ];
 
-/** kode diketik pengguna, atau nomor berikutnya bila kosong */
-const kodeUrut = (table: string, col: string, width: number) => async (req: () => sql.Request, v: Values) => {
-	if (!v[col]) v[col] = await seq(req(), table, col, '', width);
-};
 
 const SKU_TABLES: [string, string][] = [
 	['Transaksi toko', 'dbo.T_TOKO2'],
@@ -41,6 +37,13 @@ const SKU_TABLES: [string, string][] = [
 	['Arsip transaksi toko', 'dbo.T_TOKO2XX'],
 	['Arsip transaksi toko', 'dbo.T_TOKOX2'],
 	['Arsip transaksi toko', 'dbo.T_TOKOXX2']
+];
+
+/** warna produk juga dipakai raw material (W_10_M04 memakai tabel yang sama) */
+export const WARNA_DIPAKAI: [string, string][] = [
+	['Warna model', 'dbo.M_PRODUK_MODEL2 WHERE warna_id = @warna_id'],
+	['Artikel produk', 'dbo.M_PRODUK WHERE warna_id = @warna_id'],
+	['Raw material', 'dbo.m_bahan_art WHERE warna_id = @warna_id']
 ];
 
 const pad = (n: number, w: number) => String(n).padStart(w, '0');
@@ -207,7 +210,7 @@ export const PRODUK: Record<string, Resource> = {
 		keys: ['warna_id'],
 		order: 'warna_id',
 		stamp,
-		usedIn: [['Warna model', 'dbo.M_PRODUK_MODEL2 WHERE warna_id = @warna_id'], ['Artikel produk', 'dbo.M_PRODUK WHERE warna_id = @warna_id']]
+		usedIn: WARNA_DIPAKAI
 	},
 	'produk-size': {
 		def: M.productSize,
