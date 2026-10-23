@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
-	import { Ban, CircleCheck, Download, Plus, RotateCw, Trash, TriangleAlert } from '@lucide/svelte';
+	import { untrack, type Snippet } from 'svelte';
+	import { Ban, CircleCheck, Copy, Download, Plus, RotateCw, Trash, TriangleAlert } from '@lucide/svelte';
 	import { ApiError, api } from '#lib/erp/api.ts';
 	import { auth } from '#lib/erp/auth.svelte.ts';
 	import { db } from '#lib/erp/db.svelte.ts';
@@ -21,7 +21,8 @@
 		leaf,
 		page: pageDef,
 		label: pageLabel,
-		nav
+		nav,
+		tabs = []
 	}: {
 		leaf: Leaf;
 		/** definisi master lain di bawah menu yang sama (halaman bertab); default = halaman menu */
@@ -30,6 +31,8 @@
 		label?: string;
 		/** navigasi tambahan di bawah judul (tab) */
 		nav?: Snippet;
+		/** tab tambahan di form ubah (data terkait baris ini, mis. kontrak pegawai); `reload` memuat ulang baris */
+		tabs?: { key: string; label: string; panel: Snippet<[Row, () => Promise<void>]> }[];
 	} = $props();
 
 	const def = $derived(pageDef ?? (leaf.page as MasterDef));
@@ -120,8 +123,23 @@
 	const rowLabel = (r: Row) => (remote ? [r[codeKey], r[def.nameField ?? 'name']].filter(Boolean).join(' — ') : db.label(def.table!, r.id));
 
 	/** isian form: kode otomatis & kunci tabel lama tidak bisa diubah setelah tersimpan */
-	const formField = (f: FieldDef): FieldDef => (f.auto && !editing ? { ...f, placeholder: 'Otomatis saat disimpan', required: false } : f);
 	const locked = (f: FieldDef) => (editing ? !!f.lockOnEdit : !!f.auto);
+	/** petunjuk isian hanya untuk kolom yang masih bisa diisi (kolom terkunci saat ubah tanpa petunjuk) */
+	const formField = (f: FieldDef): FieldDef =>
+		f.auto && !editing ? { ...f, placeholder: 'Otomatis saat disimpan', required: false } : editing && f.lockOnEdit ? { ...f, hint: undefined } : f;
+
+	/** isian turunan (def.derive) hanya bereaksi pada perubahan oleh pengguna, bukan saat data dibuka */
+	let seen: Record<string, any> = {};
+	const remember = () => (seen = $state.snapshot(form));
+	$effect(() => {
+		if (!def.derive || !open) return;
+		const cur = $state.snapshot(form);
+		untrack(() => {
+			const k = Object.keys(cur).find((x) => x in seen && JSON.stringify(cur[x]) !== JSON.stringify(seen[x]));
+			if (k) def.derive!(form, k);
+			remember();
+		});
+	});
 
 	function openNew() {
 		const ctx = { userStoreId: auth.user?.storeId ?? undefined, today: today() };
@@ -129,15 +147,57 @@
 		for (const fd of def.fields) f[fd.key] = typeof fd.default === 'function' ? fd.default(ctx) : (fd.default ?? (fd.type === 'toggle' ? false : ''));
 		if (!remote && def.fields.some((x) => x.key === codeKey && x.required)) f[codeKey] = db.nextCode(def.table!, codeKey);
 		form = f;
+		remember();
 		editing = null;
 		errors = {};
 		open = true;
 	}
-	function openEdit(r: Row) {
+	let opening = $state(false);
+	async function openEdit(r: Row) {
 		form = $state.snapshot(r) as Record<string, any>;
+		remember();
 		editing = r;
 		errors = {};
+		tab = '';
 		open = true;
+		if (!remote) return;
+		// baris terbaru dari database (bisa saja baru diubah aplikasi lama), lengkap dengan semua kolom form
+		opening = true;
+		try {
+			const full = (await api<{ row: Row }>(`${url}?id=${encodeURIComponent(r.id)}`)).row;
+			if (editing?.id !== r.id) return;
+			editing = full;
+			form = $state.snapshot(full) as Record<string, any>;
+			remember();
+			replaceRow(full);
+		} catch (e) {
+			toast.error(e instanceof ApiError ? e.message : 'Gagal memuat data');
+			open = false;
+		} finally {
+			opening = false;
+		}
+	}
+	let tab = $state('');
+	/** baris yang terbuka dimuat ulang dari database (setelah panel tab mengubah data terkait) */
+	async function reloadRow() {
+		if (!editing) return;
+		const full = (await api<{ row: Row }>(`${url}?id=${encodeURIComponent(editing.id)}`)).row;
+		editing = full;
+		form = $state.snapshot(full) as Record<string, any>;
+		remember();
+		replaceRow(full);
+	}
+
+	/** salin isian data yang terbuka menjadi data baru (kode otomatis dibuat lagi saat simpan) */
+	function copyAsNew() {
+		const f = $state.snapshot(form) as Record<string, any>;
+		for (const fd of def.fields) if (fd.auto) f[fd.key] = '';
+		delete f.id;
+		form = f;
+		remember();
+		editing = null;
+		errors = {};
+		toast.info('Salinan dibuat — periksa isian lalu simpan sebagai data baru');
 	}
 
 	function validate() {
@@ -163,7 +223,7 @@
 	}
 
 	async function save() {
-		if (saving) return;
+		if (saving || opening) return;
 		if (!validate()) return toast.error('Periksa kembali isian form');
 		saving = true;
 		try {
@@ -349,16 +409,42 @@
 {/if}
 
 <Sheet bind:open title={editing ? `Ubah ${label}` : `Tambah ${label}`} subtitle={editing ? rowLabel(editing) : undefined}>
-	<form bind:this={formEl} id="master-form" class="grid gap-4 py-1 sm:grid-cols-2" onsubmit={(e) => (e.preventDefault(), save())} {@attach formNav({ onsave: () => canSave && save(), last: () => saveBtn })}>
+	{#if editing && tabs.length}
+		<div class="sticky top-0 z-10 -mx-1 mb-4 bg-white px-1 pb-1 dark:bg-stone-900">
+			<div class="flex gap-1 rounded-xl bg-stone-100 p-1 dark:bg-stone-800/60" role="tablist" aria-label="Bagian data">
+				{#each [{ key: '', label }, ...tabs] as t (t.key)}
+					<button
+						role="tab"
+						aria-selected={tab === t.key}
+						class="flex-1 rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition {tab === t.key ? 'bg-white shadow-sm dark:bg-stone-700' : 'text-stone-500'}"
+						onclick={() => (tab = t.key)}>{t.label}</button
+					>
+				{/each}
+			</div>
+		</div>
+	{/if}
+	{#if editing && tab}
+		{@const t = tabs.find((x) => x.key === tab)}
+		{#if t}{@render t.panel(editing, reloadRow)}{/if}
+	{/if}
+	<form bind:this={formEl} id="master-form" class="grid gap-4 py-1 sm:grid-cols-2 {editing && tab ? 'hidden' : ''}" onsubmit={(e) => (e.preventDefault(), save())} {@attach formNav({ onsave: () => canSave && save(), last: () => saveBtn })}>
 		{#each def.fields as f (f.key)}
 			{#if !f.showIf || f.showIf(form)}
-				<Field field={formField(f)} bind:form disabled={!canSave || locked(f)} error={errors[f.key]} />
+				{#if f.section}<h3 class="-mb-1 pt-2 text-xs font-medium tracking-wide text-stone-500 uppercase first:pt-0 sm:col-span-2">{f.section}</h3>{/if}
+				<Field field={formField(f)} bind:form disabled={!canSave || locked(f) || opening} error={errors[f.key]} />
 			{/if}
 		{/each}
 	</form>
 	{#snippet footer()}
+		{#if editing && tab}
+			<div class="flex-1"></div>
+			<button class="btn btn-secondary" onclick={() => (open = false)}>Tutup</button>
+		{:else}
 		{#if editing && can.delete}
-			<button class="btn btn-ghost text-rose-600" onclick={remove}><Trash class="size-4" /> <span class="hidden sm:inline">Hapus</span></button>
+			<button class="btn btn-ghost text-rose-600" onclick={remove} disabled={opening}><Trash class="size-4" /> <span class="hidden sm:inline">Hapus</span></button>
+		{/if}
+		{#if editing && def.copyable && can.create}
+			<button class="btn btn-ghost" onclick={copyAsNew} disabled={opening} {@attach tooltip('Salin isian ini menjadi data baru')}><Copy class="size-4" /> <span class="hidden sm:inline">Salin jadi baru</span></button>
 		{/if}
 		<div class="flex-1"></div>
 		<button class="btn btn-secondary" onclick={() => (open = false)}>Batal</button>
@@ -366,6 +452,7 @@
 			<button bind:this={saveBtn} class="btn btn-primary" type="submit" form="master-form" disabled={saving} {@attach tooltip('Simpan', { kbd: 'Ctrl S' })}>
 				{saving ? 'Menyimpan…' : 'Simpan'}
 			</button>
+		{/if}
 		{/if}
 	{/snippet}
 </Sheet>

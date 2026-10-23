@@ -9,10 +9,18 @@
 		field,
 		form = $bindable(),
 		disabled = false,
-		error
-	}: { field: FieldDef; form: Record<string, any>; disabled?: boolean; error?: string } = $props();
+		error,
+		prefix = 'f'
+	}: {
+		field: FieldDef;
+		form: Record<string, any>;
+		disabled?: boolean;
+		error?: string;
+		/** awalan id elemen (beda per form bila dua form tampil bersamaan) */
+		prefix?: string;
+	} = $props();
 
-	const id = $derived('f-' + field.key);
+	const id = $derived(`${prefix}-${field.key}`);
 	const type = $derived(field.type ?? 'text');
 	const ro = $derived(disabled || field.readonly);
 	const options = $derived((field.options ?? []).map((o) => (typeof o === 'string' ? o : { value: o.value, label: o.label })));
@@ -35,7 +43,7 @@
 		{:else if type === 'select'}
 			<Select {id} bind:value={form[field.key]} {options} disabled={ro} clearable={!field.required} label={field.label} placeholder="— Pilih —" />
 		{:else if type === 'money' || type === 'number'}
-			<NumberInput {id} bind:value={form[field.key]} money={type === 'money'} disabled={ro} />
+			<NumberInput {id} bind:value={form[field.key]} money={type === 'money'} decimals={field.decimals} disabled={ro} />
 		{:else if type === 'textarea'}
 			<textarea {id} class="input" rows="3" bind:value={form[field.key]} disabled={ro} placeholder={field.placeholder} maxlength={field.maxLength}></textarea>
 		{:else if type === 'date'}

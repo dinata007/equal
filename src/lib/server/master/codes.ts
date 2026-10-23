@@ -18,3 +18,8 @@ export const likeEscape = (s: string) => s.replace(/[[%_]/g, (c) => `[${c}]`);
 
 /** 0 → AAA, 1 → AAB, … (huruf berurut 3 digit basis 26, seperti kode department PB) */
 export const letters3 = (n: number) => [676, 26, 1].map((d) => String.fromCharCode(65 + (Math.floor(n / d) % 26))).join('');
+
+/** kode diketik pengguna, atau nomor berikutnya bila kosong (hook `next` resource master) */
+export const kodeUrut = (table: string, col: string, width: number) => async (req: () => sql.Request, v: Record<string, any>) => {
+	if (!v[col]) v[col] = await seq(req(), table, col, '', width);
+};

@@ -1,21 +1,5 @@
 import type { FieldDef, MasterDef } from '../types';
 
-const active = { key: 'active', label: 'Aktif', type: 'toggle', default: true, list: true } as const;
-
-export const rawMaterial: MasterDef = {
-	kind: 'master',
-	table: 'raw_materials',
-	fields: [
-		{ key: 'code', label: 'Kode', required: true, unique: true, list: true, mobile: 'meta' },
-		{ key: 'name', label: 'Nama Material', required: true, list: true, mobile: 'title', span: 2 },
-		{ key: 'category', label: 'Kategori', type: 'select', options: ['Kain', 'Benang', 'Aksesoris', 'Packaging'], list: true, mobile: 'subtitle' },
-		{ key: 'unit', label: 'Satuan', type: 'select', options: ['Meter', 'Yard', 'Kg', 'Roll', 'Cone', 'Pcs', 'Lusin', 'Pack'], required: true, list: true },
-		{ key: 'price', label: 'Harga Standar', type: 'money', list: true },
-		{ key: 'minStock', label: 'Stok Minimum', type: 'number' },
-		active
-	]
-};
-
 /* ---------- master dari database (tabel lama; key = nama kolom) ---------- */
 
 const aktif = { key: 'flag_aktif', label: 'Aktif', type: 'toggle', default: true, list: true } as const;
@@ -304,48 +288,297 @@ export const productSku: MasterDef = {
 	]
 };
 
+/* ---------- raw material (tabel lama, PowerBuilder W_10_M01–M08) ---------- */
+
+const flagY = (key = 'flag'): FieldDef => ({ key, label: 'Aktif', type: 'toggle', default: true, list: true });
+const bahanAttr = (resource: string, nameField: string, fields: FieldDef[], activeField: string | null = 'flag'): MasterDef => ({
+	kind: 'master',
+	resource,
+	codeField: fields[0].key,
+	nameField,
+	...(activeField ? { activeField } : {}),
+	fields: activeField ? [...fields, flagY(activeField)] : fields
+});
+const namaBahan = (key: string, maxLength: number): FieldDef => ({ key, label: 'Nama', required: true, maxLength, list: true, mobile: 'title', span: 2 });
+
+/** dbo.m_bahan_induk — W_10_M01 */
+export const materialInduk = bahanAttr('bahan-induk', 'induk_desc', [
+	kodeKetik('induk_id', 1, 'Satu karakter, bagian kode raw material'),
+	namaBahan('induk_desc', 50),
+	{ key: 'brand_id', label: 'Brand', type: 'lookup', source: 'brand', required: true, list: true, mobile: 'subtitle' },
+	{ ...akun('coa', 'COA Persediaan'), section: 'Akun' },
+	akun('coa_biaya', 'COA Biaya'),
+	akun('coa_jual', 'COA Penjualan'),
+	akun('coa_hpp', 'COA HPP'),
+	akun('coa_ak_susut', 'COA Akum. Penyusutan'),
+	{ key: 'cek_aset', label: 'Barang Aset', type: 'toggle' }
+]);
+/** dbo.m_bahan_jenis — W_10_M02 */
+export const materialJenis = bahanAttr('bahan-jenis', 'jenis_desc', [kodeKetik('jenis_id', 2, 'Dua karakter, bagian kode raw material'), namaBahan('jenis_desc', 40)]);
+/** dbo.m_bahan_tipe — W_10_M03 */
+export const materialTipe = bahanAttr('bahan-tipe', 'tipe_desc', [kodeKetik('tipe_id', 1, 'Satu karakter, bagian kode raw material'), namaBahan('tipe_desc', 40)]);
+/** W_10_M04 memakai tabel warna produk (dbo.M_PRODUK_WARNA) */
+export const materialColor: MasterDef = { ...productColor, resource: 'bahan-warna' };
+/** dbo.m_bahan_acc — W_10_M05 (jenis COA per brand) */
+export const materialCoa = bahanAttr('bahan-coa', 'acc_ap_desc', [
+	kodeKetik('acc_ap_id', 2),
+	{ key: 'brand_id', label: 'Brand', type: 'lookup', source: 'brand', required: true, lockOnEdit: true, list: true, mobile: 'subtitle' },
+	namaBahan('acc_ap_desc', 50),
+	{ ...akun('acc_ap', 'Akun COA'), list: true }
+]);
+/** dbo.m_bahan_sat — W_10_M06 */
+export const materialUnit = bahanAttr('bahan-satuan', 'sat_desc', [kodeUrut('sat_id', 2), namaBahan('sat_desc', 10)], null);
+/** dbo.m_bahan_dept — W_10_M08 */
+export const materialDept = bahanAttr('bahan-dept', 'dept_desc', [kodeUrut('dept_id', 3), namaBahan('dept_desc', 30)], 'aktif');
+
+const round3 = (n: number) => Math.round(n * 1000) / 1000;
+const isNum = (v: unknown) => v !== '' && v != null && Number.isFinite(Number(v));
+
+/**
+ * dbo.m_bahan_art — W_10_M07. Kode = brand + 3 digit akhir supplier + induk + jenis + tipe + tahun (2) + warna + urut (3).
+ * Harga 1 per satuan kecil, harga 2 per satuan besar (isi = con_sat).
+ */
+export const rawMaterial: MasterDef = {
+	kind: 'master',
+	resource: 'bahan',
+	codeField: 'art_id',
+	nameField: 'art_desc',
+	activeField: 'flag',
+	copyable: true,
+	// itemchanged W_10_M07_ENTRY: harga satuan kecil ↔ satuan besar
+	derive: (f, k) => {
+		const con = Number(f.con_sat) > 0 ? Number(f.con_sat) : 1;
+		for (const [kecil, besar] of [
+			['hbeli', 'hbeli2'],
+			['hjual', 'hjual2']
+		]) {
+			if ((k === besar || k === 'con_sat') && isNum(f[besar])) f[kecil] = round3(Number(f[besar]) / con);
+			else if (k === kecil && isNum(f[kecil])) f[besar] = round3(Number(f[kecil]) * con);
+		}
+	},
+	fields: [
+		{ key: 'art_id', label: 'Kode', auto: true, lockOnEdit: true, list: true, mobile: 'meta', section: 'Pembentuk kode', hint: 'Brand + supplier + induk + jenis + tipe + tahun + warna + nomor urut' },
+		{ key: 'brand_id', label: 'Brand', type: 'lookup', source: 'brand', required: true, lockOnEdit: true, list: true },
+		{ key: 'supp_id', label: 'Supplier', type: 'lookup', source: 'supplier', required: true, lockOnEdit: true, list: true, refFilter: (r, f) => r.brand === f.brand_id },
+		{ key: 'induk_id', label: 'Induk', type: 'lookup', source: 'bahan-induk', required: true, lockOnEdit: true, list: true },
+		{ key: 'jenis_id', label: 'Jenis', type: 'lookup', source: 'bahan-jenis', required: true, lockOnEdit: true, list: true },
+		{ key: 'tipe_id', label: 'Tipe', type: 'lookup', source: 'bahan-tipe', required: true, lockOnEdit: true },
+		{ key: 'warna_id', label: 'Warna', type: 'lookup', source: 'produk-warna', required: true, lockOnEdit: true, list: true },
+		{ key: 'thn', label: 'Tahun', type: 'date', required: true, lockOnEdit: true, default: (c) => c.today, hint: 'Dua digit tahun menjadi bagian kode' },
+		{ key: 'art_desc', label: 'Nama Raw Material', required: true, maxLength: 60, list: true, mobile: 'title', span: 2, section: 'Keterangan' },
+		{ key: 'art_pendek', label: 'Nama Pendek', required: true, maxLength: 10, list: true, mobile: 'subtitle' },
+		{ key: 'dept_id', label: 'Dept', type: 'lookup', source: 'bahan-dept', lockOnEdit: true, list: true },
+		{ key: 'item_id', label: 'Jenis COA', type: 'lookup', source: 'bahan-coa', required: true, refFilter: (r, f) => r.brand === f.brand_id },
+		{ key: 'lkain', label: 'Ukuran', maxLength: 15 },
+		{ key: 'berat', label: 'Berat', maxLength: 15 },
+		{ key: 'sat_id', label: 'Satuan Kecil', type: 'lookup', source: 'bahan-satuan', section: 'Satuan & harga', list: true },
+		{ key: 'sat_id2', label: 'Satuan Besar', type: 'lookup', source: 'bahan-satuan' },
+		{ key: 'con_sat', label: 'Isi per Satuan Besar', type: 'number', decimals: 3, lockOnEdit: true, hint: 'Jumlah satuan kecil dalam 1 satuan besar' },
+		{ key: 'hbeli', label: 'Harga Beli / Sat. Kecil', type: 'number', decimals: 3, lockOnEdit: true, list: true },
+		{ key: 'hbeli2', label: 'Harga Beli / Sat. Besar', type: 'number', decimals: 3, lockOnEdit: true },
+		{ key: 'hjual', label: 'Harga Jual / Sat. Kecil', type: 'number', decimals: 3, lockOnEdit: true },
+		{ key: 'hjual2', label: 'Harga Jual / Sat. Besar', type: 'number', decimals: 3, lockOnEdit: true },
+		flagY()
+	]
+};
+
+
+/* ---------- HR (tabel lama, PowerBuilder W_MS_08, W_100_06, W_100_07 & w_ms_*) ---------- */
+
+const ya = (key: string, label: string): FieldDef => ({ key, label, type: 'toggle', default: true });
+
+/** dbo.M_PEGAWAI — W_MS_08_ENTRY. NIK = SJ + yyMM tanggal masuk + 2 digit urut. Riwayat kontrak: tab Kontrak. */
 export const employee: MasterDef = {
 	kind: 'master',
-	table: 'employees',
+	resource: 'pegawai',
 	codeField: 'nik',
+	nameField: 'nama',
+	activeField: 'flag_active',
 	fields: [
-		{ key: 'nik', label: 'NIK', required: true, unique: true, list: true, mobile: 'meta' },
-		{ key: 'name', label: 'Nama Lengkap', required: true, list: true, mobile: 'title' },
-		{ key: 'position', label: 'Jabatan', list: true, mobile: 'subtitle' },
-		{ key: 'department', label: 'Departemen', type: 'select', options: ['Produksi', 'Gudang', 'Toko', 'Keuangan', 'HRD', 'Manajemen'], list: true },
-		{ key: 'siteId', label: 'Site', type: 'lookup', ref: 'sites', required: true },
-		{ key: 'joinDate', label: 'Tanggal Masuk', type: 'date' },
-		{ key: 'status', label: 'Status', type: 'select', options: ['Tetap', 'Kontrak', 'Harian'], default: 'Kontrak', list: true },
-		{ key: 'baseSalary', label: 'Gaji Pokok', type: 'money' },
-		{ key: 'phone', label: 'Telepon', type: 'tel' },
-		{ key: 'email', label: 'Email', type: 'email' },
-		active
+		{ key: 'nik', label: 'NIK', auto: true, lockOnEdit: true, list: true, mobile: 'meta', section: 'Data pribadi', hint: 'Otomatis: SJ + tahun & bulan masuk + nomor urut' },
+		{ key: 'nama', label: 'Nama Lengkap', required: true, maxLength: 50, list: true, mobile: 'title', span: 2 },
+		{ key: 'kelamin', label: 'Jenis Kelamin', type: 'select', options: [{ value: 'L', label: 'Laki-laki' }, { value: 'P', label: 'Perempuan' }], list: true },
+		{ key: 'status', label: 'Status Nikah', type: 'lookup', source: 'status-nikah' },
+		{ key: 'tempat_lahir', label: 'Tempat Lahir', maxLength: 50 },
+		{ key: 'tgl_lahir', label: 'Tanggal Lahir', type: 'date' },
+		{ key: 'pendidikan', label: 'Pendidikan', maxLength: 30 },
+		{ key: 'no_ktp', label: 'No. KTP', maxLength: 20 },
+		{ key: 'telepon', label: 'Telepon', type: 'tel', maxLength: 30, list: true },
+		{ key: 'alamat', label: 'Alamat', type: 'textarea', maxLength: 200, span: 2 },
+		{ key: 'tgl_kontrak_awal', label: 'Tanggal Masuk', type: 'date', required: true, lockOnEdit: true, default: (c) => c.today, list: true, section: 'Kepegawaian', hint: 'Tahun & bulan masuk menjadi bagian NIK' },
+		{ key: 'sts_peg', label: 'Status Pegawai', type: 'select', default: 'PKWT', options: ['PKWT', 'Tetap'], list: true },
+		{ key: 'jab_id', label: 'Jabatan', type: 'lookup', source: 'jabatan', required: true, list: true, mobile: 'subtitle' },
+		{ key: 'divisi_id', label: 'Divisi', type: 'lookup', source: 'divisi', required: true, list: true },
+		{ key: 'group_peg_id', label: 'Group Premi', type: 'lookup', source: 'group-pegawai' },
+		{ key: 'shift_id', label: 'Shift', type: 'lookup', source: 'shift' },
+		{ key: 'tipe_gaji_id', label: 'Tipe Gajian', type: 'lookup', source: 'tipe-gaji' },
+		{ key: 'no_absen', label: 'No. Absen', type: 'number', decimals: 0 },
+		{ key: 'bpjs_rp', label: 'BPJS (Rp)', type: 'money' },
+		ya('flag_gaji', 'Ikut Penggajian'),
+		{ ...ya('flag_active', 'Aktif'), list: true },
+		{ key: 'norek', label: 'No. Rekening', maxLength: 50, section: 'Rekening gaji' },
+		{ key: 'bank_rek', label: 'Nama Bank', maxLength: 50 },
+		{ key: 'nama_rek', label: 'Atas Nama', maxLength: 50 },
+		{ key: 'nama_dkt', label: 'Nama', maxLength: 50, section: 'Kontak darurat' },
+		{ key: 'hub', label: 'Hubungan', maxLength: 50 },
+		{ key: 'tlp_dkt', label: 'Telepon', type: 'tel', maxLength: 50 },
+		{ key: 'al_dkt', label: 'Alamat', maxLength: 50 }
 	]
 };
 
+const upah = (key: string, label: string, extra: Partial<FieldDef> = {}): FieldDef => ({ key, label, type: 'money', ...extra });
+
+/** dbo.M_GAJI_UMR — W_100_07_ENTRY. Upah per hari & jam dihitung dari UMR seperti aplikasi lama. */
 export const umr: MasterDef = {
 	kind: 'master',
-	table: 'umr',
-	codeField: 'region',
-	nameField: 'region',
+	resource: 'umr',
+	codeField: 'periode',
 	fields: [
-		{ key: 'region', label: 'Wilayah (Kab/Kota)', required: true, list: true, mobile: 'title', span: 2 },
-		{ key: 'year', label: 'Tahun', type: 'number', required: true, list: true, mobile: 'meta', default: () => new Date().getFullYear() },
-		{ key: 'amount', label: 'Nominal UMR', type: 'money', required: true, list: true, mobile: 'subtitle' },
-		{ key: 'decree', label: 'No. SK', list: true }
-	]
+		{ key: 'periode', label: 'Periode', type: 'date', required: true, default: (c) => c.today, list: true, mobile: 'title' },
+		upah('umr', 'UMR / Bulan', { required: true, list: true, mobile: 'subtitle' }),
+		{ key: 'hari', label: 'Total Hari Kerja', type: 'number', decimals: 0, required: true, list: true },
+		{ key: 'jam_weekday', label: 'Jam Kerja Weekday', type: 'number', decimals: 2, list: true },
+		{ key: 'jam_weekend', label: 'Jam Kerja Weekend', type: 'number', decimals: 2, list: true },
+		{ key: 'min_telat', label: 'Telat Minimal (menit)', type: 'number', decimals: 0, section: 'Keterlambatan & lembur' },
+		{ key: 'max_telat', label: 'Telat Maksimal (menit)', type: 'number', decimals: 0 },
+		upah('pot_absen_telat', 'Potongan Telat'),
+		upah('uang_lembur', 'Uang Lembur'),
+		upah('umr_hari', 'Upah / Hari Weekday 1', { section: 'Upah per hari & jam', hint: 'UMR ÷ total hari' }),
+		upah('umr_hari2', 'Upah / Hari Weekend 1'),
+		upah('umr_hari3', 'Upah / Hari Weekday 2'),
+		upah('umr_hari4', 'Upah / Hari Weekend 2'),
+		upah('umr_jam', 'Upah / Jam Weekday 1', { hint: 'Upah hari ÷ jam kerja' }),
+		upah('umr_jam2', 'Upah / Jam Weekend 1'),
+		upah('umr_jam3', 'Upah / Jam Weekday 2'),
+		upah('umr_jam4', 'Upah / Jam Weekend 2')
+	],
+	// editchanged W_100_07_ENTRY: semua isian pokok terisi → upah per hari & jam dihitung ulang
+	derive: (f) => {
+		const [u, h, wd, we] = [f.umr, f.hari, f.jam_weekday, f.jam_weekend].map(Number);
+		if (!u || !h || !wd || !we) return;
+		const hari = Math.round(u / h);
+		Object.assign(f, {
+			umr_hari: hari,
+			umr_hari2: hari,
+			umr_jam: Math.round(hari / wd),
+			umr_jam2: Math.round(hari / we),
+			umr_jam3: Math.round((Number(f.umr_hari3) || 0) / wd),
+			umr_jam4: Math.round((Number(f.umr_hari4) || 0) / we)
+		});
+	}
 };
 
+/** dbo.M_PEGAWAI_TUNJANGAN — W_100_06_ENTRY: gaji total dipecah gapok & premi per bulan/hari/jam */
 export const allowance: MasterDef = {
 	kind: 'master',
-	table: 'allowances',
+	resource: 'tunjangan',
+	codeField: 'nik',
 	fields: [
-		{ key: 'code', label: 'Kode', required: true, unique: true, list: true, mobile: 'meta' },
-		{ key: 'name', label: 'Nama Tunjangan', required: true, list: true, mobile: 'title' },
-		{ key: 'type', label: 'Sifat', type: 'select', options: ['Tetap', 'Tidak Tetap'], list: true, mobile: 'subtitle' },
-		{ key: 'basis', label: 'Dasar Hitung', type: 'select', options: ['Per Bulan', 'Per Hari Hadir', '% Gaji Pokok'], list: true },
-		{ key: 'amount', label: 'Nominal / %', type: 'number', list: true },
-		active
+		{ key: 'tgl', label: 'Tanggal', type: 'date', required: true, lockOnEdit: true, default: (c) => c.today, list: true, mobile: 'meta' },
+		{ key: 'peg_id', label: 'Pegawai', type: 'lookup', source: 'pegawai-id', required: true, lockOnEdit: true, list: true, mobile: 'title', span: 2 },
+		{ key: 'nik', label: 'NIK', auto: true, lockOnEdit: true, list: true, hint: 'Diambil dari data pegawai' },
+		upah('gaji_total', 'Gaji Total', { required: true, list: true, mobile: 'subtitle', section: 'Komposisi gaji' }),
+		{ key: 'hr', label: 'Hari Kerja', type: 'number', decimals: 0, required: true },
+		{ key: 'per_gapok', label: 'Persen Gapok (%)', type: 'number', decimals: 0, required: true },
+		{ key: 'per_premi', label: 'Persen Premi (%)', type: 'number', decimals: 0, required: true },
+		upah('jumlah', 'Gapok / Bulan', { list: true, section: 'Hasil hitung', hint: 'Gaji total × persen gapok' }),
+		upah('jumlah2', 'Premi / Bulan', { list: true }),
+		upah('hr_gapok', 'Gapok / Hari'),
+		upah('hr_premi', 'Premi / Hari'),
+		upah('jam_gapok', 'Gapok / Jam', { hint: 'Per hari ÷ 8 jam' }),
+		upah('jam_premi', 'Premi / Jam'),
+		upah('umakan', 'Uang Makan', { list: true })
+	],
+	// editchanged W_100_06_ENTRY: hanya bila hari, persen gapok, persen premi & gaji total terisi
+	derive: (f) => {
+		const [hr, pg, pp, g] = [f.hr, f.per_gapok, f.per_premi, f.gaji_total].map(Number);
+		if (!hr || !pg || !pp || !g) return;
+		const gapok = Math.round((g * pg) / 100);
+		const premi = Math.round((g * pp) / 100);
+		Object.assign(f, {
+			jumlah: gapok,
+			jumlah2: premi,
+			hr_gapok: Math.round(gapok / hr),
+			hr_premi: Math.round(premi / hr),
+			jam_gapok: Math.round(gapok / hr / 8),
+			jam_premi: Math.round(premi / hr / 8)
+		});
+	}
+};
+
+/* atribut pegawai (w_ms_jabatan, w_ms_divisi, w_ms_group_peg, w_ms_shift, w_ms_lembur) */
+const kodeDb = (key: string): FieldDef => ({ key, label: 'Kode', auto: true, lockOnEdit: true, list: true, mobile: 'meta' });
+/** dbo.M_PEGAWAI_JABATAN */
+export const employeePosition: MasterDef = { kind: 'master', resource: 'jabatan', codeField: 'jab_id', nameField: 'jab_desc', fields: [kodeDb('jab_id'), namaBahan('jab_desc', 50)] };
+/** dbo.M_DIVISI */
+export const employeeDivision: MasterDef = { kind: 'master', resource: 'divisi', codeField: 'divisi_id', nameField: 'divisi_desc', fields: [kodeDb('divisi_id'), namaBahan('divisi_desc', 50)] };
+/** dbo.M_PEGAWAI_GROUP: premi hadir per hari */
+export const employeeGroup: MasterDef = {
+	kind: 'master',
+	resource: 'group-pegawai',
+	codeField: 'group_peg_id',
+	nameField: 'nama',
+	fields: [kodeDb('group_peg_id'), namaBahan('nama', 50), upah('premi', 'Premi Hadir', { list: true, mobile: 'subtitle' })]
+};
+/** dbo.M_PEGAWAI_SHIFT */
+export const employeeShift: MasterDef = {
+	kind: 'master',
+	resource: 'shift',
+	codeField: 'shift_id',
+	nameField: 'nama',
+	activeField: 'flag_aktif',
+	fields: [
+		kodeDb('shift_id'),
+		namaBahan('nama', 50),
+		{ key: 'jam_masuk', label: 'Masuk Weekday', type: 'time', required: true, list: true, section: 'Jam kerja' },
+		{ key: 'jam_keluar', label: 'Keluar Weekday', type: 'time', required: true, list: true },
+		{ key: 'jam_masuk2', label: 'Masuk Weekend', type: 'time', list: true },
+		{ key: 'jam_keluar2', label: 'Keluar Weekend', type: 'time', list: true },
+		aktif
+	]
+};
+/** dbo.M_PEGAWAI_LEMBUR: rentang lama lembur → jam lembur yang dihitung */
+export const employeeOvertime: MasterDef = {
+	kind: 'master',
+	resource: 'lembur',
+	codeField: 'lembur_id',
+	fields: [
+		kodeDb('lembur_id'),
+		{ key: 'jam1', label: 'Lama Lembur Dari', type: 'time', required: true, list: true, mobile: 'title' },
+		{ key: 'jam2', label: 'Sampai', type: 'time', required: true, list: true },
+		{ key: 'jumlah', label: 'Dihitung (jam)', type: 'number', decimals: 1, required: true, list: true, mobile: 'subtitle' },
+		upah('rp', 'Nominal (Rp)', { list: true })
 	]
 };
 
+/** atribut per menu bertab (pages/custom/Attributes.svelte) */
+export const ATTRIBUTES: Record<string, { key: string; label: string; def: MasterDef }[]> = {
+	produk: [
+		{ key: 'brand', label: 'Brand', def: productBrand },
+		{ key: 'gender', label: 'Gender', def: productGender },
+		{ key: 'grup-dept', label: 'Grup Dept', def: productDeptGroup },
+		{ key: 'dept', label: 'Department', def: productDept },
+		{ key: 'bahan', label: 'Bahan', def: productMaterial },
+		{ key: 'warna', label: 'Warna', def: productColor },
+		{ key: 'size', label: 'Size', def: productSize },
+		{ key: 'aplikasi', label: 'Aplikasi', def: productApplication },
+		{ key: 'jenis', label: 'Jenis', def: productKind },
+		{ key: 'tipe', label: 'Tipe', def: productType }
+	],
+	material: [
+		{ key: 'induk', label: 'Induk', def: materialInduk },
+		{ key: 'jenis', label: 'Jenis', def: materialJenis },
+		{ key: 'tipe', label: 'Tipe', def: materialTipe },
+		{ key: 'warna', label: 'Warna', def: materialColor },
+		{ key: 'coa', label: 'Jenis COA', def: materialCoa },
+		{ key: 'satuan', label: 'Satuan', def: materialUnit },
+		{ key: 'dept', label: 'Dept', def: materialDept }
+	],
+	pegawai: [
+		{ key: 'jabatan', label: 'Jabatan', def: employeePosition },
+		{ key: 'divisi', label: 'Divisi', def: employeeDivision },
+		{ key: 'group', label: 'Group Premi', def: employeeGroup },
+		{ key: 'shift', label: 'Shift', def: employeeShift },
+		{ key: 'lembur', label: 'Lembur', def: employeeOvertime }
+	]
+};

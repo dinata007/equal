@@ -1,4 +1,4 @@
-/** Jejak keamanan ke web.audit_log (gagal mencatat tidak boleh menggagalkan proses utama). */
+/** Jejak keamanan ke dbo.AppAuditLog (gagal mencatat tidak boleh menggagalkan proses utama). */
 import { request, sql } from '../db.ts';
 
 export interface AuditInfo {
@@ -16,7 +16,7 @@ export async function audit(event: string, info: AuditInfo = {}) {
 			.input('e', sql.VarChar(40), event)
 			.input('ip', sql.VarChar(45), info.ip?.slice(0, 45) ?? null)
 			.input('d', sql.NVarChar(500), info.detail?.slice(0, 500) ?? null)
-			.query('INSERT INTO web.audit_log (user_id, username, event, ip, detail) VALUES (@uid, @u, @e, @ip, @d)');
+			.query('INSERT INTO dbo.AppAuditLog (user_id, username, event, ip, detail) VALUES (@uid, @u, @e, @ip, @d)');
 	} catch (e) {
 		console.error('[audit] gagal mencatat', event, e);
 	}

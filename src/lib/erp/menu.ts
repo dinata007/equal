@@ -69,7 +69,14 @@ export const MENU: MenuNode[] = [
 		icon: Factory,
 		description: 'Bahan baku & pembelian material',
 		children: [
-			{ slug: 'master', label: 'Master', children: [{ slug: 'raw-material', label: 'Raw Material', icon: Layers, page: M.rawMaterial }] },
+			{
+				slug: 'master',
+				label: 'Master',
+				children: [
+					{ slug: 'raw-material', label: 'Raw Material', icon: Layers, page: M.rawMaterial },
+					{ slug: 'atribut-material', label: 'Atribut Raw Material', icon: Tags, page: C('attributes', { set: 'material' }) }
+				]
+			},
 			{
 				slug: 'transaksi',
 				label: 'Transaksi',
@@ -93,7 +100,7 @@ export const MENU: MenuNode[] = [
 				label: 'Master',
 				children: [
 					{ slug: 'produk', label: 'Produk', icon: Package, page: C('products') },
-					{ slug: 'atribut-produk', label: 'Atribut Produk', icon: Tags, page: C('product-attributes') },
+					{ slug: 'atribut-produk', label: 'Atribut Produk', icon: Tags, page: C('attributes', { set: 'produk' }) },
 					{ slug: 'supplier', label: 'Supplier', icon: Building, page: M.supplier },
 					{ slug: 'ekspedisi', label: 'Ekspedisi', icon: Truck, page: M.expedition }
 				]
@@ -265,9 +272,10 @@ export const MENU: MenuNode[] = [
 				slug: 'master',
 				label: 'Master',
 				children: [
-					{ slug: 'pegawai', label: 'Pegawai', icon: UserCheck, page: M.employee },
+					{ slug: 'pegawai', label: 'Pegawai', icon: UserCheck, page: C('employees') },
 					{ slug: 'umr', label: 'UMR', icon: BadgePercent, page: M.umr },
-					{ slug: 'tunjangan', label: 'Tunjangan', icon: HandCoins, page: M.allowance }
+					{ slug: 'tunjangan', label: 'Tunjangan Pegawai', icon: HandCoins, page: M.allowance },
+					{ slug: 'atribut-pegawai', label: 'Atribut Pegawai', icon: Tags, page: C('attributes', { set: 'pegawai' }) }
 				]
 			},
 			{

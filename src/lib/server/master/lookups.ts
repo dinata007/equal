@@ -118,6 +118,52 @@ export const LOOKUPS: Record<string, LookupDef> = {
 	'sls-tipe': {
 		sql: `SELECT RTRIM(sls_tipe) AS id, RTRIM(sls_tipe) AS code, nama AS name, NULL AS hint, CAST(1 AS bit) AS active FROM dbo.M_PRODUK_SLS_TIPE`
 	},
+	/* ---- atribut raw material (dddw form article W_10_M07_ENTRY) ---- */
+	'bahan-induk': {
+		sql: `SELECT RTRIM(i.induk_id) AS id, RTRIM(i.induk_id) AS code, i.induk_desc AS name, b.nama AS hint, ${yes('i.flag')} AS active, RTRIM(i.brand_id) AS brand
+			FROM dbo.m_bahan_induk i LEFT JOIN dbo.M_PRODUK_BRAND b ON b.brand_id = i.brand_id`
+	},
+	'bahan-jenis': {
+		sql: `SELECT RTRIM(jenis_id) AS id, RTRIM(jenis_id) AS code, jenis_desc AS name, NULL AS hint, ${yes('flag')} AS active FROM dbo.m_bahan_jenis`
+	},
+	'bahan-tipe': {
+		sql: `SELECT RTRIM(tipe_id) AS id, RTRIM(tipe_id) AS code, tipe_desc AS name, NULL AS hint, ${yes('flag')} AS active FROM dbo.m_bahan_tipe`
+	},
+	// d_10_m05_coa: jenis COA per brand (kode sama dipakai beberapa brand)
+	'bahan-coa': {
+		sql: `SELECT RTRIM(acc_ap_id) AS id, RTRIM(acc_ap_id) AS code, acc_ap_desc AS name, RTRIM(brand_id) AS hint, ${yes('flag')} AS active, RTRIM(brand_id) AS brand
+			FROM dbo.m_bahan_acc`,
+		brand: { column: 'brand' }
+	},
+	'bahan-satuan': {
+		sql: `SELECT RTRIM(sat_id) AS id, RTRIM(sat_id) AS code, sat_desc AS name, NULL AS hint, CAST(1 AS bit) AS active FROM dbo.m_bahan_sat`
+	},
+	'bahan-dept': {
+		sql: `SELECT RTRIM(dept_id) AS id, RTRIM(dept_id) AS code, dept_desc AS name, NULL AS hint, ${yes('aktif')} AS active FROM dbo.m_bahan_dept`
+	},
+	/* ---- HR (dddw form pegawai W_MS_08_ENTRY) ---- */
+	jabatan: {
+		sql: `SELECT CAST(jab_id AS varchar(18)) AS id, CAST(jab_id AS varchar(18)) AS code, jab_desc AS name, NULL AS hint, CAST(1 AS bit) AS active FROM dbo.M_PEGAWAI_JABATAN`
+	},
+	divisi: {
+		sql: `SELECT RTRIM(divisi_id) AS id, RTRIM(divisi_id) AS code, divisi_desc AS name, NULL AS hint, CAST(1 AS bit) AS active FROM dbo.M_DIVISI`
+	},
+	'group-pegawai': {
+		sql: `SELECT CAST(group_peg_id AS varchar(18)) AS id, CAST(group_peg_id AS varchar(18)) AS code, nama AS name, NULL AS hint, CAST(1 AS bit) AS active, premi FROM dbo.M_PEGAWAI_GROUP`
+	},
+	shift: {
+		sql: `SELECT CAST(shift_id AS varchar(18)) AS id, CAST(shift_id AS varchar(18)) AS code, nama AS name, NULL AS hint, ${bit('flag_aktif')} AS active FROM dbo.M_PEGAWAI_SHIFT`
+	},
+	'tipe-gaji': {
+		sql: `SELECT RTRIM(tipe_gaji_id) AS id, RTRIM(tipe_gaji_id) AS code, tipe_gaji_desc AS name, NULL AS hint, CAST(1 AS bit) AS active FROM dbo.M_TIPE_GAJI`
+	},
+	'status-nikah': {
+		sql: `SELECT RTRIM(status_id) AS id, RTRIM(status_id) AS code, RTRIM(status_desc) AS name, NULL AS hint, CAST(1 AS bit) AS active FROM dbo.m_status`
+	},
+	// tunjangan menyimpan peg_id
+	'pegawai-id': {
+		sql: `SELECT CAST(peg_id AS varchar(18)) AS id, RTRIM(nik) AS code, nama AS name, NULL AS hint, ${yes('flag_active')} AS active FROM dbo.M_PEGAWAI`
+	},
 	// dddw_pegawai: customer menyimpan NIK pegawai pegangan
 	pegawai: {
 		sql: `SELECT RTRIM(nik) AS id, RTRIM(nik) AS code, nama AS name, NULL AS hint, ${yes('flag_active')} AS active

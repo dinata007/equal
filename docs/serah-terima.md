@@ -10,23 +10,23 @@ Ringkasan keputusan & status agar pekerjaan bisa dilanjutkan tanpa riwayat perca
 
 ## Keputusan yang sudah disepakati
 
-- **Tabel lama tidak diubah.** Struktur baru hanya di schema `web`, lewat script migrasi **idempoten** di `db/migrations/` (lihat README di folder itu). Script yang sama nanti dijalankan ke database live.
-- **Keamanan login harus yang paling aman.** Tidak memakai `SYS_USER.user_psw` (teks biasa). Akun lama disalin ke `web.users` **tanpa** password; admin membuat password sementara, pengguna wajib menggantinya.
+- **Tabel lama tidak diubah.** Struktur baru hanya berupa tabel `dbo` berawalan `App` (mis. `dbo.AppUser`), lewat script migrasi **idempoten** di `db/migrations/` (lihat README di folder itu). Script yang sama nanti dijalankan ke database live.
+- **Keamanan login harus yang paling aman.** Tidak memakai `SYS_USER.user_psw` (teks biasa). Akun lama disalin ke `dbo.AppUser` **tanpa** password; admin membuat password sementara, pengguna wajib menggantinya.
 - **Hak akses sama dengan prototipe:** admin = akses penuh; pengguna lain **menu on/off** (menu aktif = semua aksi). Tidak ada rincian per aksi (lihat/tambah/ubah/hapus/cetak).
-- **Brand** diatur per pengguna (ada yang boleh beberapa brand) → `web.user_scopes` scope `brand`, nilai `*` = semua.
+- **Brand** diatur per pengguna (ada yang boleh beberapa brand) → `dbo.AppUserScope` scope `brand`, nilai `*` = semua.
 - **Urutan pengerjaan:** login & hak akses → per modul: **master dulu, lalu transaksi, terakhir laporan**.
 - Angka di dashboard tanpa "Rp" (format ringkas `short()`).
 - Alur kerja git: kerjakan di branch, buat PR per bagian; pemilik repo yang merge.
 
 ## Status Fase 1 — login & hak akses: **selesai** (lihat PR "Fase 1")
 
-- `db/migrations/001_web-auth.sql` (web.users, sessions, user_menus, user_scopes, audit_log) & `002_salin-user-lama.sql`; setiap script diawali `SET QUOTED_IDENTIFIER ON` (dibutuhkan index bersyarat; sqlcmd defaultnya OFF).
+- `db/migrations/001_app-auth.sql` (`AppUser`, `AppSession`, `AppUserMenu`, `AppUserScope`, `AppAuditLog`; versi awal di schema `web` dipindah oleh `000_pindah-dari-schema-web.sql`) & `002_salin-user-lama.sql`; setiap script diawali `SET QUOTED_IDENTIFIER ON` (dibutuhkan index bersyarat; sqlcmd defaultnya OFF).
 - `npm run db:migrate` (runner, aman diulang) & `npm run db:admin` (buat/pulihkan admin interaktif).
 - Server: `src/lib/server/auth/` — scrypt N=2^17; sesi cookie httpOnly berisi token acak, DB hanya menyimpan hash SHA-256; idle 12 jam / maks 7 hari; kunci 15 menit setelah 5× salah; maks 50 login gagal per IP per 15 menit (login sukses tidak dihitung); audit log. `src/hooks.server.ts` mewajibkan login untuk `/api`, menolak Origin asing, memasang header keamanan; endpoint `/api/auth/*` & `/api/users*` (admin-only dicek di server).
 - Klien: `auth.svelte.ts` membaca sesi dari `src/routes/+layout.server.ts`; `auth.can(path)` = admin atau menu aktif. Halaman login, `/ganti-password` (wajib untuk password sementara), menu Pengguna & Hak Akses lewat API.
 - Diuji end-to-end (30 skenario) ke SQL Server 2019 sementara: login/salah password, cookie httpOnly, akun salinan SYS_USER, atur menu & brand, password sementara → wajib ganti, pembatasan menu & API non-admin, nonaktifkan akun mencabut sesi di semua perangkat, admin tak bisa mencabut dirinya, logout, kunci akun, batas per IP, Origin asing ditolak; smoke test 56 halaman; build.
 
-Belum: brand di `web.user_scopes` baru disimpan — **diterapkan sebagai filter data mulai Fase 2** (master & transaksi dari database). Bila aplikasi dipasang di balik reverse proxy, set `ADDRESS_HEADER` (lihat README).
+Belum: brand di `dbo.AppUserScope` baru disimpan — **diterapkan sebagai filter data mulai Fase 2** (master & transaksi dari database). Bila aplikasi dipasang di balik reverse proxy, set `ADDRESS_HEADER` (lihat README).
 
 ## Status Fase 2a — master sederhana dari database: **selesai** (branch `fase-2-master`)
 
@@ -37,7 +37,7 @@ Keputusan pemilik (23/10/2026): web **menulis langsung** ke tabel master lama de
 - Penomoran meniru PB, dalam transaksi dengan `UPDLOCK, HOLDLOCK`: supplier `S`+3 digit, ekspedisi `E`+2, toko `T`+3, bank 3 digit, customer site+YY+3 digit per site. COA/site/kas-bank kodenya diketik pengguna.
 - Brand: supplier & kas-bank disaring `brand_id`; toko brand `%`/kosong terlihat semua; **COA tidak disaring saat dibaca** (aplikasi lama menyimpan hampir semua akun di brand A, dipakai bersama), tapi menambah/mengubah COA tetap hanya untuk brand pengguna. Nilai lookup (brand, site, akun, …) divalidasi di server sesuai cakupan.
 - Ubah data: browser hanya mengirim isian yang diganti, server hanya meng-UPDATE kolom yang berubah (tidak menimpa perubahan dari aplikasi lama). Kunci (kode, brand, site) tidak bisa diubah. `usrupd/usrtgl` diisi `legacy_user_id` (atau username web).
-- Hapus hanya bila belum dipakai (lebih ketat dari PB yang menghapus tanpa cek); selain itu Nonaktifkan. Semua perubahan tercatat di `web.audit_log` (`master.create/update/delete`).
+- Hapus hanya bila belum dipakai (lebih ketat dari PB yang menghapus tanpa cek); selain itu Nonaktifkan. Semua perubahan tercatat di `dbo.AppAuditLog` (`master.create/update/delete`).
 - Belum diterapkan: pembatasan **site** per pengguna seperti `gs_usersite` PB (model akses web hanya admin/menu/brand).
 - Transisi: halaman **transaksi & report prototipe masih memakai data contoh** (`seed.ts`) untuk supplier/toko/COA/dst. sampai Fase 3.
 - Diuji: 79 skenario API ke SENJA_DEMO (hak menu, brand, validasi, penomoran, ganda, kolom tidak tertimpa, cek pemakaian, audit; data uji dihapus lagi) + screenshot semua halaman di 390/768/1280 px. Responsif report diperbaiki (filter periode satu baris, tabel jadi daftar kartu di HP).
@@ -56,10 +56,26 @@ Keputusan pemilik (23/10/2026): web **menulis langsung** ke tabel master lama de
 - Kerangka master diperluas (`registry.ts`): `filters` (saringan daftar, `required` untuk tabel besar), `slim` (daftar ringkas + `GET ?id=` untuk satu baris lengkap), `noCreate`, `cascade`, `afterUpdate`, `usedIn` berupa fungsi; ubah & hapus kini dalam transaksi; brand baris baru dicek ke cakupan pengguna; tanggal dibaca/ditulis sebagai tanggal lokal. `auto` = kode dibuat server saat tambah; terkunci saat ubah hanya bila `lockOnEdit`.
 - Diuji: 65 skenario API produk + 18 regresi master Fase 2a ke SENJA_DEMO (data uji dihapus lagi), alur UI lengkap (tambah model → warna/size → proses artikel → ubah artikel → hapus) dan screenshot 390/1280 px tanpa error konsol; `npm run check` & build bersih.
 
+## Status Fase 2c — raw material: **selesai** (branch `fase-2c-material`, di atas `fase-2b-produk`)
+
+- **Material › Master › Raw Material** = article `m_bahan_art` (W_10_M07), form MasterPage bertajuk seksi. Kode (pb_save) = brand + 3 digit akhir supplier + induk + jenis (2) + tipe + 2 digit tahun + warna (2) + urut (3); urut = maks+1 per 12 karakter awal. Baru: supplier & jenis COA harus milik brand article, `supp_desc` dari nama supplier, `acc_ap_id` = jenis COA (tombol COA PB mengisi keduanya). Harga 1 = per satuan kecil (`sat_id`), harga 2 = per satuan besar (`sat_id2`), `con_sat` = isi; harga saling dihitung saat diketik (itemchanged). Pembentuk kode, dept, isi & harga terkunci setelah simpan (seperti `protect` DW; induk juga dikunci karena bagian kode). Tombol **Salin jadi baru** = mode "C" PB. Hapus hanya bila belum dipakai (PO/terima/roll/kirim/pakai/jual/costing material, saldo awal, opname, aset).
+- **Material › Master › Atribut Raw Material** (menu baru, bertab): Induk `m_bahan_induk` (brand + 5 akun COA + barang aset; daftar lintas brand, ubah hanya brand sendiri), Jenis, Tipe, Warna, Jenis COA `m_bahan_acc` (per brand), Satuan, Dept. **Warna = `M_PRODUK_WARNA`** (W_10_M04 memang memakai tabel warna produk; `m_bahan_warna` tidak dipakai form PB, tombol hapus PB-nya keliru ke tabel itu). Kode satuan & dept boleh kosong = nomor berikutnya.
+- Kerangka: halaman atribut bertab umum `pages/custom/Attributes.svelte` (daftar tab: `ATTRIBUTES` di `defs/masters.ts`); MasterPage memuat ulang baris dari database saat dibuka, mendukung `section` (judul kelompok isian), `decimals`, `copyable`, `derive` (isian turunan); `kodeUrut` pindah ke `server/master/codes.ts`.
+- Diuji: 45 skenario API raw material + cek ulang produk/master Fase 2a, alur UI (tambah dengan hitung harga, salin jadi baru, hapus) & halaman atribut tanpa error konsol; `npm run check` & build bersih.
+
+## Status Fase 2d — HR: **selesai** (branch `fase-2c-material`, belum di-commit)
+
+- **HR › Master › Pegawai** (`M_PEGAWAI`, W_MS_08) = MasterPage + tab **Kontrak** (`pages/custom/Employees.svelte`, `hr/KontrakPanel.svelte`). NIK (cb_save) = `SJ` + yyMM tanggal masuk + 2 digit urut per bulan (`gs_sing` PB: site 01/semua = SJ, 11 = GG, lainnya EQ — web tanpa site, semua data SJ); `pt_id` = 1. NIK & tanggal masuk terkunci setelah simpan. Hapus pegawai hanya bila belum dipakai (absensi, izin, cuti, tunjangan, customer pegangan); riwayat kontraknya ikut terhapus.
+- **Kontrak** (`M_PEGAWAI_KONTRAK`, W_MS_08_ENTRY2, `server/master/kontrak.ts`, `/api/pegawai/[id]/kontrak`): JOIN / PERPANJANG / ROLLING / RESIGN, isian bawaan dari kontrak terakhir (perpanjang mulai dari akhir kontrak lama). Aturan PB: JOIN ditolak bila masih ada JOIN aktif, tipe lain ditolak bila belum pernah JOIN; PERPANJANG/ROLLING menutup kontrak lama (aktif 0, pegangan 1) & pegawai aktif; RESIGN menutup kontrak lama (aktif 0), kontrak resign pegangan 1, pegawai nonaktif. Tambahan web (PB tidak mengecek karena logika null): tanggal akhir wajib untuk PKWT & harus setelah tanggal awal, akhir perpanjangan harus melewati akhir kontrak lama; JOIN ulang mengaktifkan pegawai lagi. `user_entry` = nama pengguna (seperti `gs_user_name`).
+- **UMR** (`M_GAJI_UMR`, W_100_07) & **Tunjangan Pegawai** (`M_PEGAWAI_TUNJANGAN`, W_100_06): rumus editchanged PB lewat `derive` (upah/hari = UMR ÷ hari, upah/jam = upah/hari ÷ jam kerja; gapok/premi = gaji total × persen, per hari ÷ hari kerja, per jam ÷ 8). NIK tunjangan disalin dari pegawai.
+- **HR › Master › Atribut Pegawai** (menu baru, bertab): Jabatan, Divisi (kode maks+1), Group Premi, Shift (jam weekday/weekend), Lembur. `w_ms_tipe_peg` (status kontrak) tidak bisa diekstrak (biner) → belum ada.
+- Kerangka: kunci IDENTITY (`identity` di registry, INSERT … OUTPUT), kunci angka dari id baris dikonversi ke tipe kolom, kode lookup berkolom angka dibaca sebagai teks, `tabs` di MasterPage (panel data terkait di form ubah), `prefix` id di Field (dua form tampil bersamaan). Perbaikan `DateInput`: tahun yang belum selesai diketik ("202") tidak lagi membuat kalender error.
+- Diuji: 46 skenario API HR, alur UI (pegawai baru → kontrak JOIN → hapus, rumus UMR & tunjangan, atribut) di 1280/390 px tanpa error konsol; `npm run check` & build bersih. Data uji dihapus lagi.
+
 ## Langkah berikutnya
 
-1. Di lokal: `npm run db:migrate` → `npm run db:admin` → atur pengguna (sekali saja per database); beri akses menu **Atribut Produk** ke pengguna yang mengelola produk.
-2. Fase 2b lanjutan — **Raw Material** (W_10_M01–M08, `m_bahan_*`). Fase 2c — HR (Pegawai W_MS_08, UMR W_100_07, Tunjangan W_100_06).
+1. Di lokal: `npm run db:migrate` → `npm run db:admin` → atur pengguna (sekali saja per database); beri akses menu **Atribut Produk**, **Atribut Raw Material** & **Atribut Pegawai** ke pengguna yang mengelolanya.
+2. Fase 2 master selesai → Fase 3 transaksi.
 3. Fase 3 — transaksi (setelah membaca source PowerBuilder untuk penomoran & jurnal). Pola nomor bukti per `tipe_trans` ada di `docs/database/schema.md` (bagian "Pola nomor … per jenis").
 4. Fase 4 — laporan (VIEW / stored procedure). Rumus stok lama: saldo awal bulanan `S_AWAL_GUDANG`/`S_AWAL_TOKO` + mutasi bulan berjalan (lihat `sp_Dashboard_Stok` di `docs/database/objects.sql`).
 

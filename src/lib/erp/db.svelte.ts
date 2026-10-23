@@ -126,7 +126,7 @@ class Database {
 }
 
 /**
- * Bersihkan data lokal versi lama: akun & hak akses kini dikelola di server (web.users),
+ * Bersihkan data lokal versi lama: akun & hak akses kini dikelola di server (dbo.AppUser),
  * jadi tabel users prototipe (berisi password teks biasa) dihapus dari browser.
  */
 function migrate(t: Record<string, Row[]>) {

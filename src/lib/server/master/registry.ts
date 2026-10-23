@@ -7,6 +7,8 @@ import * as M from '#lib/erp/defs/masters.ts';
 import type { MasterDef } from '#lib/erp/types.ts';
 import type { sql } from '../db.ts';
 import { seq, yy } from './codes.ts';
+import { HR } from './hr.ts';
+import { MATERIAL } from './material.ts';
 import { PRODUK } from './produk.ts';
 
 export type Values = Record<string, any>;
@@ -35,6 +37,8 @@ export interface Resource {
 	 * menyusunnya saat dicek (boleh menambah parameter ke `req`, mis. daftar kode artikel sebuah model)
 	 */
 	usedIn?: [string, string][] | ((req: sql.Request, keys: Values) => Promise<[string, string][]>);
+	/** kolom kunci IDENTITY: nomornya dibuat database saat tambah (field definisinya `auto`) */
+	identity?: string;
 	/** kolom yang boleh disaring lewat query daftar (?kolom=nilai); `required`: daftar wajib disaring (tabel besar) */
 	filters?: { columns: string[]; required?: string[] };
 	/** daftar hanya memuat kunci + field `list` (tabel besar); data lengkap per baris lewat GET ?id= */
@@ -96,7 +100,7 @@ export const RESOURCES: Record<string, Resource> = {
 			['Transaksi gudang', 'dbo.T_GUDANG1 WHERE toko_id = @toko_id'],
 			['Penjualan', 'dbo.T_JUAL1 WHERE toko_id = @toko_id'],
 			['Saldo awal toko', 'dbo.S_AWAL_TOKO WHERE toko_id = @toko_id'],
-			['Pengguna', 'web.users WHERE toko_id = @toko_id']
+			['Pengguna', 'dbo.AppUser WHERE toko_id = @toko_id']
 		]
 	},
 	customer: {
@@ -181,7 +185,9 @@ export const RESOURCES: Record<string, Resource> = {
 			['Tutup kas', 'dbo.cb_close WHERE site_id = @site_id AND kd_bank = @kd_bank']
 		]
 	},
-	...PRODUK
+	...PRODUK,
+	...MATERIAL,
+	...HR
 };
 
 /** master yang memakai menu ini (untuk pengecekan hak akses) */

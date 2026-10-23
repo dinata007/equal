@@ -84,6 +84,8 @@
 		const mo = m[2] ? +m[2] : tm;
 		let y = m[3] ? +m[3] : ty;
 		if (y < 100) y += 2000;
+		// tahun yang masih diketik (mis. "202") belum dianggap tanggal
+		if (y < 1900 || y > 2100) return null;
 		const s = `${y}-${pad(mo)}-${pad(d)}`;
 		const dt = new Date(y, mo - 1, d);
 		return dt.getMonth() === mo - 1 && dt.getDate() === d ? s : null;

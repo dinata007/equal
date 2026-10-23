@@ -22,7 +22,7 @@ export async function createSession(userId: number, ip: string | null, userAgent
 		.input('uid', sql.Int, userId)
 		.input('ip', sql.VarChar(45), ip?.slice(0, 45) ?? null)
 		.input('ua', sql.NVarChar(300), userAgent?.slice(0, 300) ?? null)
-		.query(`INSERT INTO web.sessions (id, user_id, expires_at, absolute_expires_at, ip, user_agent)
+		.query(`INSERT INTO dbo.AppSession (id, user_id, expires_at, absolute_expires_at, ip, user_agent)
 			VALUES (@id, @uid, DATEADD(HOUR, ${IDLE_HOURS}, SYSUTCDATETIME()), DATEADD(DAY, ${ABSOLUTE_DAYS}, SYSUTCDATETIME()), @ip, @ua)`);
 	return token;
 }
@@ -44,13 +44,13 @@ export async function readSession(token: string): Promise<SessionRow | null> {
 	const r = await (await request()).input('id', sql.Char(64), id).query(`
 		SELECT s.id AS sessionId, u.id AS userId, u.username, u.name, u.is_admin AS isAdmin, u.must_change_password AS mustChange, u.toko_id AS tokoId,
 			CASE WHEN s.last_seen_at < DATEADD(MINUTE, -${TOUCH_MINUTES}, SYSUTCDATETIME()) THEN 1 ELSE 0 END AS stale
-		FROM web.sessions s JOIN web.users u ON u.id = s.user_id
+		FROM dbo.AppSession s JOIN dbo.AppUser u ON u.id = s.user_id
 		WHERE s.id = @id AND s.expires_at > SYSUTCDATETIME() AND s.absolute_expires_at > SYSUTCDATETIME() AND u.active = 1`);
 	const row = r.recordset[0];
 	if (!row) return null;
 	if (row.stale)
 		await (await request()).input('id', sql.Char(64), id).query(`
-			UPDATE web.sessions SET last_seen_at = SYSUTCDATETIME(),
+			UPDATE dbo.AppSession SET last_seen_at = SYSUTCDATETIME(),
 				expires_at = CASE WHEN DATEADD(HOUR, ${IDLE_HOURS}, SYSUTCDATETIME()) < absolute_expires_at THEN DATEADD(HOUR, ${IDLE_HOURS}, SYSUTCDATETIME()) ELSE absolute_expires_at END
 			WHERE id = @id`);
 	const { stale: _, ...rest } = row;
@@ -58,7 +58,7 @@ export async function readSession(token: string): Promise<SessionRow | null> {
 }
 
 export async function deleteSession(sessionId: string) {
-	await (await request()).input('id', sql.Char(64), sessionId).query('DELETE FROM web.sessions WHERE id = @id');
+	await (await request()).input('id', sql.Char(64), sessionId).query('DELETE FROM dbo.AppSession WHERE id = @id');
 }
 
 /** Cabut semua sesi pengguna (kecuali sesi yang sedang dipakai bila diberikan) */
@@ -66,10 +66,10 @@ export async function deleteUserSessions(userId: number, exceptSessionId?: strin
 	await (await request())
 		.input('uid', sql.Int, userId)
 		.input('ex', sql.Char(64), exceptSessionId ?? '')
-		.query('DELETE FROM web.sessions WHERE user_id = @uid AND id <> @ex');
+		.query('DELETE FROM dbo.AppSession WHERE user_id = @uid AND id <> @ex');
 }
 
 /** Bersihkan sesi kedaluwarsa (dipanggil sesekali saat login) */
 export async function purgeExpiredSessions() {
-	await (await request()).query('DELETE FROM web.sessions WHERE expires_at <= SYSUTCDATETIME() OR absolute_expires_at <= SYSUTCDATETIME()');
+	await (await request()).query('DELETE FROM dbo.AppSession WHERE expires_at <= SYSUTCDATETIME() OR absolute_expires_at <= SYSUTCDATETIME()');
 }
