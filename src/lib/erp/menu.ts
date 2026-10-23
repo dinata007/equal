@@ -36,6 +36,7 @@ import {
 	Settings,
 	ShoppingCart,
 	Store,
+	Tags,
 	TrendingUp,
 	Truck,
 	Undo2,
@@ -91,7 +92,8 @@ export const MENU: MenuNode[] = [
 				slug: 'master',
 				label: 'Master',
 				children: [
-					{ slug: 'produk', label: 'Produk', icon: Package, page: M.product },
+					{ slug: 'produk', label: 'Produk', icon: Package, page: C('products') },
+					{ slug: 'atribut-produk', label: 'Atribut Produk', icon: Tags, page: C('product-attributes') },
 					{ slug: 'supplier', label: 'Supplier', icon: Building, page: M.supplier },
 					{ slug: 'ekspedisi', label: 'Ekspedisi', icon: Truck, page: M.expedition }
 				]

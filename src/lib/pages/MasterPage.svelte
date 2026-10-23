@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import { Ban, CircleCheck, Download, Plus, RotateCw, Trash, TriangleAlert } from '@lucide/svelte';
 	import { ApiError, api } from '#lib/erp/api.ts';
 	import { auth } from '#lib/erp/auth.svelte.ts';
@@ -16,9 +17,23 @@
 	import { fields, formNav } from '#lib/ui/formNav.ts';
 	import { tooltip } from '#lib/ui/tooltip.ts';
 
-	let { leaf }: { leaf: Leaf } = $props();
+	let {
+		leaf,
+		page: pageDef,
+		label: pageLabel,
+		nav
+	}: {
+		leaf: Leaf;
+		/** definisi master lain di bawah menu yang sama (halaman bertab); default = halaman menu */
+		page?: MasterDef;
+		/** nama data untuk judul form & pesan; default = label menu */
+		label?: string;
+		/** navigasi tambahan di bawah judul (tab) */
+		nav?: Snippet;
+	} = $props();
 
-	const def = $derived(leaf.page as MasterDef);
+	const def = $derived(pageDef ?? (leaf.page as MasterDef));
+	const label = $derived(pageLabel ?? leaf.label);
 	/** master dari database (tabel lama) — selain itu data prototipe di browser */
 	const remote = $derived(!!def.resource);
 	const codeKey = $derived(def.codeField ?? 'code');
@@ -106,7 +121,7 @@
 
 	/** isian form: kode otomatis & kunci tabel lama tidak bisa diubah setelah tersimpan */
 	const formField = (f: FieldDef): FieldDef => (f.auto && !editing ? { ...f, placeholder: 'Otomatis saat disimpan', required: false } : f);
-	const locked = (f: FieldDef) => (editing ? !!(f.lockOnEdit || f.auto) : !!f.auto);
+	const locked = (f: FieldDef) => (editing ? !!f.lockOnEdit : !!f.auto);
 
 	function openNew() {
 		const ctx = { userStoreId: auth.user?.storeId ?? undefined, today: today() };
@@ -161,11 +176,11 @@
 					: await api<{ row: Row }>(url, { method: 'POST', body: values });
 				replaceRow(r.row, editing?.id);
 				lookups.refresh();
-				toast.success(`${leaf.label} ${editing ? 'diperbarui' : `${r.row[codeKey] ?? ''} ditambahkan`}`);
+				toast.success(`${label} ${editing ? 'diperbarui' : `${r.row[codeKey] ?? ''} ditambahkan`}`);
 			} else {
 				if (editing) await db.update(def.table!, editing.id, form);
 				else await db.insert(def.table!, form);
-				toast.success(`${leaf.label} ${editing ? 'diperbarui' : 'ditambahkan'}`);
+				toast.success(`${label} ${editing ? 'diperbarui' : 'ditambahkan'}`);
 			}
 			open = false;
 		} catch (e) {
@@ -266,7 +281,7 @@
 
 	function exportCsv() {
 		const fs = def.fields.filter((f) => f.type !== 'password');
-		downloadCsv(leaf.label, fs.map((f) => f.label), rows.map((r) => fs.map((f) => (f.type === 'money' || f.type === 'number' ? (r[f.key] ?? '') : display(f, r)))));
+		downloadCsv(label, fs.map((f) => f.label), rows.map((r) => fs.map((f) => (f.type === 'money' || f.type === 'number' ? (r[f.key] ?? '') : display(f, r)))));
 	}
 </script>
 
@@ -302,6 +317,8 @@
 	{/snippet}
 </PageHeader>
 
+{#if nav}{@render nav()}{/if}
+
 {#if loadError}
 	<div class="card mb-3 flex items-center gap-3 border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
 		<TriangleAlert class="size-5 shrink-0" />
@@ -319,7 +336,8 @@
 		{bulk}
 		onrow={openEdit}
 		initialSort={{ key: def.fields[0].key, dir: 1 }}
-		exportName={leaf.label}
+		id={pageDef?.resource ? `${leaf.path}:${pageDef.resource}` : undefined}
+		exportName={label}
 		empty={loading ? 'Memuat data dari database…' : 'Belum ada data'}
 	/>
 </div>
@@ -330,7 +348,7 @@
 	</button>
 {/if}
 
-<Sheet bind:open title={editing ? `Ubah ${leaf.label}` : `Tambah ${leaf.label}`} subtitle={editing ? rowLabel(editing) : undefined}>
+<Sheet bind:open title={editing ? `Ubah ${label}` : `Tambah ${label}`} subtitle={editing ? rowLabel(editing) : undefined}>
 	<form bind:this={formEl} id="master-form" class="grid gap-4 py-1 sm:grid-cols-2" onsubmit={(e) => (e.preventDefault(), save())} {@attach formNav({ onsave: () => canSave && save(), last: () => saveBtn })}>
 		{#each def.fields as f (f.key)}
 			{#if !f.showIf || f.showIf(form)}

@@ -6,6 +6,8 @@
 import * as M from '#lib/erp/defs/masters.ts';
 import type { MasterDef } from '#lib/erp/types.ts';
 import type { sql } from '../db.ts';
+import { seq, yy } from './codes.ts';
+import { PRODUK } from './produk.ts';
 
 export type Values = Record<string, any>;
 
@@ -21,24 +23,29 @@ export interface Resource {
 	order: string;
 	/** kolom jejak pengubah aplikasi lama */
 	stamp?: { user: string; time: string };
-	/** isi kode otomatis saat tambah (dijalankan dalam transaksi, kunci tabel ditahan sampai commit) */
-	next?: (req: sql.Request, v: Values) => Promise<void>;
+	/**
+	 * isi kode otomatis saat tambah (dijalankan dalam transaksi, kunci tabel ditahan sampai commit);
+	 * `req()` = request baru dalam transaksi dengan parameter @<kolom kunci> yang sudah terisi
+	 */
+	next?: (req: () => sql.Request, v: Values) => Promise<void>;
 	/** validasi tambahan atas nilai yang sudah dikonversi ke format kolom (toggle char = 'Y'/'N'); kembalikan pesan error */
 	check?: (req: () => sql.Request, v: Values) => Promise<string | null>;
-	/** tabel yang memakai data ini: [label, `tabel WHERE …`] dengan parameter @<kolom kunci> */
-	usedIn?: [string, string][];
+	/**
+	 * tabel yang memakai data ini: [label, `tabel WHERE …`] dengan parameter @<kolom kunci>; atau fungsi yang
+	 * menyusunnya saat dicek (boleh menambah parameter ke `req`, mis. daftar kode artikel sebuah model)
+	 */
+	usedIn?: [string, string][] | ((req: sql.Request, keys: Values) => Promise<[string, string][]>);
+	/** kolom yang boleh disaring lewat query daftar (?kolom=nilai); `required`: daftar wajib disaring (tabel besar) */
+	filters?: { columns: string[]; required?: string[] };
+	/** daftar hanya memuat kunci + field `list` (tabel besar); data lengkap per baris lewat GET ?id= */
+	slim?: boolean;
+	/** baris dibuat proses lain (mis. proses artikel), bukan lewat form tambah */
+	noCreate?: boolean;
+	/** data anak yang ikut dihapus dalam transaksi yang sama: `tabel WHERE …` dengan @<kolom kunci> */
+	cascade?: string[];
+	/** dijalankan dalam transaksi setelah ubah / aktif-nonaktif, dengan kolom yang berubah */
+	afterUpdate?: (req: () => sql.Request, changed: Values) => Promise<void>;
 }
-
-/** nomor urut berikutnya dari kolom kode berawalan tetap, mis. S341 → S342 */
-async function seq(req: sql.Request, table: string, col: string, prefix: string, width: number, where = '1 = 1') {
-	const r = await req.input('_pfx', prefix).query(`
-		SELECT MAX(TRY_CAST(SUBSTRING(${col}, LEN(@_pfx) + 1, 20) AS int)) AS n
-		FROM ${table} WITH (UPDLOCK, HOLDLOCK)
-		WHERE ${col} LIKE @_pfx + '%' AND ${where}`);
-	return prefix + String((r.recordset[0]?.n ?? 0) + 1).padStart(width, '0');
-}
-
-const yy = () => String(new Date().getFullYear()).slice(2);
 
 export const RESOURCES: Record<string, Resource> = {
 	supplier: {
@@ -49,7 +56,7 @@ export const RESOURCES: Record<string, Resource> = {
 		brand: { column: 'brand_id' },
 		order: 'supp_id',
 		// W_01_M02: "S" + 3 digit, satu urutan untuk semua brand
-		next: async (req, v) => void (v.supp_id = await seq(req, 'dbo.M_SUPPLIER', 'supp_id', 'S', 3)),
+		next: async (req, v) => void (v.supp_id = await seq(req(), 'dbo.M_SUPPLIER', 'supp_id', 'S', 3)),
 		usedIn: [
 			['Pembelian barang', 'dbo.T_BELI1 WHERE supp_id = @supp_id'],
 			['Penerimaan gudang', 'dbo.T_GUDANG1 WHERE supp_id = @supp_id'],
@@ -67,7 +74,7 @@ export const RESOURCES: Record<string, Resource> = {
 		keys: ['ekspedisi_id'],
 		order: 'ekspedisi_id',
 		// W_01_M03: "E" + 2 digit
-		next: async (req, v) => void (v.ekspedisi_id = await seq(req, 'dbo.M_EKSPEDISI', 'ekspedisi_id', 'E', 2)),
+		next: async (req, v) => void (v.ekspedisi_id = await seq(req(), 'dbo.M_EKSPEDISI', 'ekspedisi_id', 'E', 2)),
 		usedIn: [
 			['Kirim barang (GIT)', 'dbo.T_GIT1 WHERE ekspedisi_id = @ekspedisi_id'],
 			['Transaksi gudang', 'dbo.T_GUDANG1 WHERE ekspedisi_id = @ekspedisi_id']
@@ -82,7 +89,7 @@ export const RESOURCES: Record<string, Resource> = {
 		order: 'toko_id',
 		stamp: { user: 'usrupd', time: 'usrtgl' },
 		// W_02_M01: "T" + 3 digit
-		next: async (req, v) => void (v.toko_id = await seq(req, 'dbo.M_TOKO', 'toko_id', 'T', 3)),
+		next: async (req, v) => void (v.toko_id = await seq(req(), 'dbo.M_TOKO', 'toko_id', 'T', 3)),
 		usedIn: [
 			['Transaksi toko', 'dbo.T_TOKO1 WHERE toko_id = @toko_id'],
 			['Kirim barang (GIT)', 'dbo.T_GIT1 WHERE toko_id = @toko_id'],
@@ -100,7 +107,7 @@ export const RESOURCES: Record<string, Resource> = {
 		order: 'site_id, cust_id',
 		stamp: { user: 'usrupd', time: 'usrtgl' },
 		// W_02B_M01: site + 2 digit tahun + 3 digit urut per site & tahun
-		next: async (req, v) => void (v.cust_id = await seq(req, 'dbo.M_CUSTOMER', 'cust_id', String(v.site_id) + yy(), 3, 'site_id = @site_id')),
+		next: async (req, v) => void (v.cust_id = await seq(req(), 'dbo.M_CUSTOMER', 'cust_id', String(v.site_id) + yy(), 3, 'site_id = @site_id')),
 		usedIn: [
 			['Transaksi toko', 'dbo.T_TOKO1 WHERE site_id = @site_id AND cust_id = @cust_id'],
 			['Piutang (AR)', 'dbo.ar_trans1 WHERE site_id = @site_id AND cust_id = @cust_id']
@@ -113,7 +120,7 @@ export const RESOURCES: Record<string, Resource> = {
 		keys: ['bank_id'],
 		order: 'bank_id',
 		// W_02B_M02: 3 digit
-		next: async (req, v) => void (v.bank_id = await seq(req, 'dbo.M_BANK', 'bank_id', '', 3)),
+		next: async (req, v) => void (v.bank_id = await seq(req(), 'dbo.M_BANK', 'bank_id', '', 3)),
 		usedIn: [
 			['Pembayaran toko', 'dbo.T_PAYMENT WHERE bank_id = @bank_id'],
 			['Transaksi toko', 'dbo.T_TOKO1 WHERE bank_id = @bank_id'],
@@ -173,7 +180,8 @@ export const RESOURCES: Record<string, Resource> = {
 			['Jurnal kas/bank', 'dbo.cb_journal WHERE site_id = @site_id AND kd_bank = @kd_bank AND brand_id = @brand_id'],
 			['Tutup kas', 'dbo.cb_close WHERE site_id = @site_id AND kd_bank = @kd_bank']
 		]
-	}
+	},
+	...PRODUK
 };
 
 /** master yang memakai menu ini (untuk pengecekan hak akses) */

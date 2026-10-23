@@ -16,22 +16,6 @@ export const rawMaterial: MasterDef = {
 	]
 };
 
-export const product: MasterDef = {
-	kind: 'master',
-	table: 'products',
-	fields: [
-		{ key: 'code', label: 'Kode', required: true, unique: true, list: true, mobile: 'meta' },
-		{ key: 'barcode', label: 'Barcode', unique: true },
-		{ key: 'name', label: 'Nama Produk', required: true, list: true, mobile: 'title', span: 2 },
-		{ key: 'category', label: 'Kategori', type: 'select', options: ['Atasan', 'Bawahan', 'Outer', 'Aksesoris'], list: true, mobile: 'subtitle' },
-		{ key: 'unit', label: 'Satuan', type: 'select', options: ['Pcs', 'Set', 'Lusin'], default: 'Pcs' },
-		{ key: 'buyPrice', label: 'Harga Beli', type: 'money', list: true },
-		{ key: 'sellPrice', label: 'Harga Jual', type: 'money', list: true },
-		{ key: 'minStock', label: 'Stok Minimum', type: 'number' },
-		active
-	]
-};
-
 /* ---------- master dari database (tabel lama; key = nama kolom) ---------- */
 
 const aktif = { key: 'flag_aktif', label: 'Aktif', type: 'toggle', default: true, list: true } as const;
@@ -196,6 +180,127 @@ export const cashBank: MasterDef = {
 		{ key: 'currency_id', label: 'Mata Uang', required: true, maxLength: 3, default: 'IDR' },
 		{ key: 'account_id', label: 'Akun G/L', type: 'lookup', source: 'akun-site', required: true, list: true, refFilter: (r, f) => r.site === f.site_id, hint: 'Akun COA di site yang sama' },
 		{ key: 'kas_kecil', label: 'Kas Kecil', type: 'toggle', list: true }
+	]
+};
+
+/* ---------- produk (tabel lama, PowerBuilder W_01_M01 & w_m_*) ---------- */
+
+/** kode diketik, atau kosong = nomor berikutnya (aplikasi lama: diketik bebas, kodenya selalu angka berurut) */
+const kodeUrut = (key: string, maxLength: number): FieldDef => ({
+	key,
+	label: 'Kode',
+	lockOnEdit: true,
+	maxLength,
+	list: true,
+	mobile: 'meta',
+	placeholder: 'Otomatis',
+	hint: 'Kosongkan untuk nomor berikutnya'
+});
+const kodeKetik = (key: string, maxLength: number, hint?: string): FieldDef => ({ key, label: 'Kode', required: true, lockOnEdit: true, maxLength, list: true, mobile: 'meta', hint });
+const nama = (maxLength = 50): FieldDef => ({ key: 'nama', label: 'Nama', required: true, maxLength, list: true, mobile: 'title', span: 2 });
+const singkatan = (maxLength: number, hint = 'Dipakai menyusun Model Produk'): FieldDef => ({ key: 'nama_pendek', label: 'Singkatan', maxLength, list: true, mobile: 'subtitle', hint });
+
+const attr = (resource: string, fields: FieldDef[], codeField = fields[0].key): MasterDef => ({
+	kind: 'master',
+	resource,
+	codeField,
+	nameField: 'nama',
+	activeField: 'flag_aktif',
+	fields: [...fields, aktif]
+});
+
+/** dbo.M_PRODUK_BRAND — w_m_brand */
+export const productBrand = attr('produk-brand', [kodeKetik('brand_id', 1, 'Satu huruf, huruf pertama kode model'), nama(), akun('coa_inv', 'Akun Persediaan')]);
+/** dbo.M_PRODUK_GENDER — w_m_gender */
+export const productGender = attr('produk-gender', [kodeKetik('gender_id', 1, 'Satu karakter, bagian kode model'), nama()]);
+/** dbo.M_PRODUK_DEPT — w_m_dept (grup) */
+export const productDeptGroup = attr('produk-grup-dept', [
+	kodeKetik('grup_dept', 1, 'Satu huruf, huruf awal kode department'),
+	nama(),
+	{ key: 'grup_dept2', label: 'Singkatan', maxLength: 5, list: true, mobile: 'subtitle', hint: 'Dipakai menyusun Model Produk' },
+	{ key: 'disc', label: 'Diskon (%)', type: 'number', list: true, hint: 'Rasio harga barcode bawaan model: diskon / (100 − diskon)' }
+]);
+/** dbo.M_PRODUK_DEPT2 — w_m_dept (department per grup) */
+export const productDept = attr('produk-dept', [
+	{ key: 'dept_id', label: 'Kode', auto: true, lockOnEdit: true, list: true, mobile: 'meta', hint: 'Otomatis: huruf grup + 3 karakter berurut' },
+	{ key: 'grup_dept', label: 'Grup Dept', type: 'lookup', source: 'produk-grup-dept', required: true, lockOnEdit: true, list: true },
+	nama(),
+	singkatan(20)
+]);
+/** dbo.M_PRODUK_BAHAN — w_m_bahan */
+export const productMaterial = attr('produk-bahan', [kodeUrut('bahan_id', 3), nama(), singkatan(20)]);
+/** dbo.M_PRODUK_WARNA — w_m_warna */
+export const productColor = attr('produk-warna', [kodeKetik('warna_id', 2, 'Dua karakter, bagian kode artikel'), nama()]);
+/** dbo.M_PRODUK_SIZE — w_m_size */
+export const productSize = attr('produk-size', [
+	kodeKetik('size_id', 2, 'Dua karakter, bagian kode artikel'),
+	nama(),
+	singkatan(10, 'Nama singkat di label'),
+	{ key: 'urut', label: 'Urutan', type: 'number', list: true }
+]);
+/** dbo.M_APLIKASI — w_m_aplikasi */
+export const productApplication = attr('produk-aplikasi', [kodeUrut('aps_id', 2), nama(), singkatan(20)]);
+/** dbo.M_PRODUK_JENIS — w_m_jenis */
+export const productKind = attr('produk-jenis', [kodeUrut('jenis_id', 5), nama(40), singkatan(10)]);
+/** dbo.M_PRODUK_TIPE — w_m_tipe (per brand) */
+export const productType = attr('produk-tipe', [kodeUrut('tipe_id', 2), { key: 'brand_id', label: 'Brand', type: 'lookup', source: 'brand', required: true, list: true }, nama()]);
+
+/** dbo.M_PRODUK_MODEL — W_01_M01_ENTRY. Kode model = brand + gender + dept + bahan + nomor + tahun (2) + huruf bulan. */
+export const productModel: MasterDef = {
+	kind: 'master',
+	resource: 'produk',
+	codeField: 'model_id',
+	nameField: 'nama',
+	activeField: 'flag_aktif',
+	fields: [
+		{ key: 'model_id', label: 'Kode Model', auto: true, lockOnEdit: true, list: true, mobile: 'meta' },
+		{ key: 'brand_id', label: 'Brand', type: 'lookup', source: 'brand', required: true, lockOnEdit: true },
+		{ key: 'gender_id', label: 'Gender', type: 'lookup', source: 'produk-gender', required: true, lockOnEdit: true, list: true },
+		{ key: 'dept_id', label: 'Department', type: 'lookup', source: 'produk-dept', required: true, lockOnEdit: true, list: true },
+		{ key: 'bahan_id', label: 'Bahan', type: 'lookup', source: 'produk-bahan', required: true, lockOnEdit: true, list: true },
+		{ key: 'jenis_id', label: 'Jenis', type: 'lookup', source: 'produk-jenis', required: true, lockOnEdit: true, list: true },
+		{ key: 'aps_id', label: 'Aplikasi', type: 'lookup', source: 'produk-aplikasi', required: true, lockOnEdit: true, list: true },
+		{ key: 'period', label: 'Bulan-Tahun', type: 'date', required: true, lockOnEdit: true, default: (c) => c.today, list: true, hint: 'Tahun & bulan menjadi bagian kode model' },
+		{ key: 'nomor', label: 'No. Artikel', lockOnEdit: true, maxLength: 3, placeholder: 'Otomatis', hint: '3 digit; kosongkan untuk nomor berikutnya' },
+		{ key: 'tipe_id', label: 'Tipe', type: 'lookup', source: 'produk-tipe', lockOnEdit: true, refFilter: (r, f) => r.brand === f.brand_id },
+		{ key: 'supp_id', label: 'Supplier', type: 'lookup', source: 'supplier', lockOnEdit: true, refFilter: (r, f) => r.brand === f.brand_id },
+		{ key: 'model_produk', label: 'Model Produk', auto: true, maxLength: 25, list: true, mobile: 'title', hint: 'Disusun dari singkatan brand, tahun, dept, bahan, jenis & aplikasi + nomor urut' },
+		{ key: 'nama', label: 'Nama', maxLength: 50, span: 2, hint: 'Kosongkan = sama dengan Model Produk' },
+		{ key: 'nama_pendek', label: 'Nama Pendek', lockOnEdit: true, maxLength: 25, hint: 'Kosongkan = sama dengan Model Produk' },
+		{ key: 'nama_pendek2', label: 'Nama Retail', maxLength: 25, list: true, mobile: 'subtitle' },
+		{ key: 'model_id_lama', label: 'Kode Model Designer', maxLength: 20, list: true },
+		{ key: 'hbeli', label: 'Harga Beli', type: 'money' },
+		{ key: 'hjual', label: 'Harga Jual', type: 'money', list: true },
+		{ key: 'hgrosir', label: 'Harga Grosir', type: 'money' },
+		{ key: 'pembilang', label: 'Rasio Pembilang', type: 'number' },
+		{ key: 'penyebut', label: 'Rasio Penyebut', type: 'number' },
+		{ key: 'hjual_barcode', label: 'Harga Barcode', type: 'money', list: true, hint: 'Grosir + grosir × pembilang / penyebut' },
+		{ key: 'mall_barcode', label: 'Harga Mall', type: 'money', hint: 'Kosong = sama dengan Harga Barcode' },
+		{ key: 'prioritas', label: 'Prioritas', type: 'select', default: 'NORMAL', options: ['NORMAL', 'PRIORITAS'] },
+		{ key: 'sls_tipe', label: 'Tipe Sales', type: 'lookup', source: 'sls-tipe' },
+		aktif
+	]
+};
+
+/** dbo.M_PRODUK — artikel (SKU) = model × warna × size; dibuat lewat Proses Artikel, diubah seperti W_01_M01_B */
+export const productSku: MasterDef = {
+	kind: 'master',
+	resource: 'produk-artikel',
+	codeField: 'produk_id',
+	nameField: 'nama',
+	fields: [
+		{ key: 'produk_id', label: 'Kode Artikel', auto: true, lockOnEdit: true, list: true, mobile: 'meta' },
+		{ key: 'warna_id', label: 'Warna', type: 'lookup', source: 'produk-warna', readonly: true, list: true },
+		{ key: 'size_id', label: 'Size', type: 'lookup', source: 'produk-size', readonly: true, list: true, mobile: 'subtitle' },
+		{ key: 'nama', label: 'Nama', required: true, maxLength: 50, list: true, mobile: 'title', span: 2 },
+		{ key: 'nama_pendek', label: 'Nama Pendek', maxLength: 25 },
+		{ key: 'nama_pendek2', label: 'Nama Retail', maxLength: 25, list: true },
+		{ key: 'kode_mall', label: 'Kode Mall', maxLength: 20, list: true },
+		{ key: 'hbeli', label: 'Harga Beli', type: 'money', readonly: true },
+		{ key: 'hjual', label: 'Harga Jual', type: 'money', readonly: true, list: true },
+		{ key: 'hgrosir', label: 'Harga Grosir', type: 'money', readonly: true },
+		{ key: 'hjual_barcode', label: 'Harga Barcode', type: 'money', list: true },
+		{ key: 'mall_barcode', label: 'Harga Mall', type: 'money', list: true }
 	]
 };
 
