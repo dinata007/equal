@@ -79,10 +79,19 @@ export interface FieldDef {
 	required?: boolean;
 	unique?: boolean;
 	placeholder?: string;
-	options?: string[];
+	/** pilihan select: teks apa adanya, atau kode database + label */
+	options?: (string | { value: string; label: string })[];
 	/** lookup ke tabel lain */
 	ref?: string;
+	/** lookup ke data server (nama di /api/lookup/[name]), pengganti `ref` untuk master dari database */
+	source?: string;
 	refFilter?: (row: Row, form: Record<string, any>) => boolean;
+	/** panjang maksimum teks (mengikuti kolom database) */
+	maxLength?: number;
+	/** kode dibuat otomatis oleh server saat data baru disimpan */
+	auto?: boolean;
+	/** tidak bisa diubah setelah data tersimpan (bagian kunci tabel lama) */
+	lockOnEdit?: boolean;
 	/** lebar di grid form: 1 | 2 (full) */
 	span?: 1 | 2;
 	default?: string | number | boolean | ((ctx: DefaultCtx) => any);
@@ -102,10 +111,25 @@ export interface DefaultCtx {
 /* ---------- Definisi halaman ---------- */
 export interface MasterDef {
 	kind: 'master';
-	table: string;
+	/** tabel data prototipe (localStorage) */
+	table?: string;
+	/** master dari database: nama resource di /api/master/[resource] (key field = nama kolom tabel lama) */
+	resource?: string;
 	codeField?: string;
 	nameField?: string;
+	/** field status aktif (default `active`) */
+	activeField?: string;
 	fields: FieldDef[];
+}
+
+/** Pilihan lookup dari server: kode/nama + atribut tambahan untuk filter (mis. site) */
+export interface LookupOption {
+	id: string;
+	code: string;
+	name: string;
+	hint?: string;
+	active: boolean;
+	[k: string]: any;
 }
 
 export interface LineField {

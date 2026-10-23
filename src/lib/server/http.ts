@@ -31,6 +31,9 @@ export async function handle(fn: () => Promise<Response>) {
 		return await fn();
 	} catch (e) {
 		if (e instanceof AuthError) return json({ error: e.message }, { status: e.status });
+		// pelanggaran primary key / unique index (mis. kode dipakai bersamaan oleh pengguna lain)
+		const n = (e as { number?: number })?.number;
+		if (n === 2627 || n === 2601) return json({ error: 'Kode sudah dipakai data lain, coba simpan ulang' }, { status: 409 });
 		console.error('[api]', e);
 		return json({ error: 'Terjadi kesalahan di server' }, { status: 500 });
 	}

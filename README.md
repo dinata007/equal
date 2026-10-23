@@ -28,6 +28,7 @@ Material · Inventory · Sales · Toko · Akunting (AR, AP, Kas & Bank, GL) · H
 | `src/lib/erp/ledger.ts` | Mesin perhitungan stok, piutang/hutang, kas-bank, jurnal, closing (dari dokumen *posted*) |
 | `src/lib/erp/db.svelte.ts` | Lapisan data (satu-satunya titik akses data) |
 | `src/lib/erp/auth.svelte.ts` | Sesi di browser & `can(path)` — admin = akses penuh, lainnya menu on/off |
+| `src/lib/server/master/` | Master dari tabel lama: `registry.ts` (tabel, kunci, brand, penomoran & cek pemakaian meniru PowerBuilder), `lookups.ts` (pilihan dropdown), `service.ts` (baca/tulis + validasi). API: `/api/master/[resource]`, `/api/lookup/[name]` |
 | `src/lib/server/auth/` | Login, sesi cookie httpOnly, hash password (scrypt), pengelolaan pengguna; dicek ulang di server untuk setiap `/api` |
 | `src/lib/pages/*` | Halaman generik: `MasterPage`, `TransactionPage`, report & utilitas |
 | `src/routes/(app)/[...path]` | Satu route dinamis me-render halaman sesuai menu |
@@ -38,7 +39,7 @@ Alur dokumen: **Draft → Posting → (Batal)**. Validasi saat posting: field wa
 
 ## Koneksi database (SQL Server)
 
-Aplikasi ini akan memakai **database aplikasi lama (PowerBuilder)** apa adanya. Selama pengembangan dipakai salinan hasil restore bernama `SENJA_DEMO`. Login & hak akses sudah memakai database; modul lain masih data contoh di browser sampai dipindahkan bertahap.
+Aplikasi ini akan memakai **database aplikasi lama (PowerBuilder)** apa adanya. Selama pengembangan dipakai salinan hasil restore bernama `SENJA_DEMO`. Login & hak akses serta master Supplier, Ekspedisi, Toko, Customer, Bank, COA, Site & Kas Bank sudah memakai database (tabel lama, ditulis langsung); modul lain masih data contoh di browser sampai dipindahkan bertahap.
 
 Butuh **Node.js 22** atau lebih baru.
 
@@ -47,7 +48,8 @@ Butuh **Node.js 22** atau lebih baru.
 3. Buat admin pertama: `npm run db:admin` (username & password ditanyakan; password diketik tidak tampil).
 4. Jalankan `npm run dev`, login dengan admin tadi. Di **Pengaturan → Pengguna & Hak Akses**, atur menu & brand tiap pengguna lalu **Buat password sementara** (tampil sekali); pengguna wajib menggantinya saat login pertama. Status koneksi terlihat di **Profil → Server database** atau `http://localhost:5173/api/health`.
 5. Dokumentasikan struktur database: `npm run db:schema` menulis `docs/database/schema.md`, `schema.json`, dan `objects.sql` (definisi view/procedure/trigger). Isi data tidak disertakan, kecuali contoh nilai kolom kode pendek seperti status/flag (matikan dengan `npm run db:schema -- --no-codes`). Periksa `objects.sql` sebelum di-commit.
-6. Produksi: `npm run build` lalu `npm start` (membaca `.env` bila ada). Gunakan HTTPS di produksi agar cookie sesi hanya dikirim lewat koneksi aman. Bila dipasang di balik reverse proxy (IIS/nginx), set `ADDRESS_HEADER=X-Forwarded-For` (dan `XFF_DEPTH`) agar batas percobaan login memakai IP asli pengguna, bukan IP proxy.
+6. Source PowerBuilder (`legacy/powerbuilder/*.pbl`, tidak ikut git): `npm run legacy:extract` menulis source teks (.srw/.srd/…) ke `legacy/src/` untuk dibaca saat memetakan master/transaksi.
+7. Produksi: `npm run build` lalu `npm start` (membaca `.env` bila ada). Gunakan HTTPS di produksi agar cookie sesi hanya dikirim lewat koneksi aman. Bila dipasang di balik reverse proxy (IIS/nginx), set `ADDRESS_HEADER=X-Forwarded-For` (dan `XFF_DEPTH`) agar batas percobaan login memakai IP asli pengguna, bukan IP proxy.
 
 **Keamanan login:** password di-hash scrypt (tidak bisa dikembalikan ke teks asli); 5× salah password → akun dikunci 15 menit, plus batas 50 login gagal per IP per 15 menit; sesi berakhir setelah 12 jam tidak dipakai atau maksimal 7 hari; ganti password / nonaktifkan akun langsung mencabut sesi di perangkat lain; semua kejadian penting tercatat di `web.audit_log`.
 
