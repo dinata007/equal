@@ -1,12 +1,19 @@
 /**
  * Master dari tabel lama (hak menu dicek di server):
- * GET → daftar · POST → tambah · PUT {id, values} → ubah · PATCH {ids, active} → aktif/nonaktif · DELETE ?id= → hapus
+ * GET → daftar (?kolom=nilai menyaring) · GET ?id= → satu baris lengkap · POST → tambah · PUT {id, values} → ubah ·
+ * PATCH {ids, active} → aktif/nonaktif · DELETE ?id= → hapus
  */
 import { json } from '@sveltejs/kit';
-import { create, list, remove, setActive, update } from '#lib/server/master/service.ts';
+import { create, get, list, remove, setActive, update } from '#lib/server/master/service.ts';
 import { body, clientIp, handle } from '#lib/server/http.ts';
 
-export const GET = (event) => handle(async () => json({ rows: await list(event.params.resource, event.locals.user!) }));
+export const GET = (event) =>
+	handle(async () => {
+		const { resource } = event.params;
+		const id = event.url.searchParams.get('id');
+		if (id != null) return json({ row: await get(resource, event.locals.user!, id) });
+		return json({ rows: await list(resource, event.locals.user!, event.url.searchParams) });
+	});
 
 export const POST = (event) =>
 	handle(async () => {

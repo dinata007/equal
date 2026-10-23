@@ -460,8 +460,30 @@
 		prefs.order = keys;
 	}
 
-	/* ---------------- drag: pindah kolom (judul) & geser tabel (isi) ---------------- */
+	/* ---------------- tinggi grid = sisa layar (halaman tidak perlu digulir, yang digulir isi data) ---------------- */
 	let wrapEl = $state<HTMLDivElement>();
+	let fitH = $state<number | null>(null);
+	const fitScreen: Attachment<HTMLElement> = (el) => {
+		const main = el.closest('main');
+		function fit() {
+			if (!wrapEl || !el.offsetParent) return;
+			const r = el.getBoundingClientRect();
+			const wrap = wrapEl.getBoundingClientRect();
+			// di bawah area data: baris status, sisa kartu pembungkus, padding bawah halaman
+			const status = wrap.bottom - r.bottom;
+			const box = wrapEl.parentElement ? wrapEl.parentElement.getBoundingClientRect().bottom - wrap.bottom : 0;
+			const pad = main ? parseFloat(getComputedStyle(main).paddingBottom) || 0 : 0;
+			fitH = Math.max(280, Math.floor(window.innerHeight - (r.top + window.scrollY) - status - box - pad));
+		}
+		fit();
+		// konten di atas grid bisa berubah tinggi (chip filter, pesan error, toolbar turun baris)
+		const ro = new ResizeObserver(() => fit());
+		ro.observe(main ?? document.body);
+		addEventListener('resize', fit);
+		return () => (ro.disconnect(), removeEventListener('resize', fit));
+	};
+
+	/* ---------------- drag: pindah kolom (judul) & geser tabel (isi) ---------------- */
 	let headRow = $state<HTMLTableRowElement>();
 	/** kolom yang sedang di-drag: posisi kursor + indeks jatuh (di antara kolom tampil) */
 	let colDrag = $state<{ key: string; label: string; x: number; y: number; drop: number; line: number } | null>(null);
@@ -712,7 +734,8 @@
 			bind:clientHeight={viewH}
 			onpointerdown={startPan}
 			class="dg-scroll overflow-auto overscroll-x-contain outline-none {scrolledX ? 'is-scrolled-x' : ''} {resizing ? 'cursor-col-resize select-none' : ''} {panning || colDrag ? 'is-dragging' : ''}"
-			style="max-height: calc(100dvh - 12.5rem)"
+			style="max-height: {fitH ? `${fitH}px` : 'calc(100dvh - 12.5rem)'}"
+			{@attach fitScreen}
 			tabindex="0"
 			role="region"
 			aria-label="Tabel data · panah atas/bawah untuk berpindah baris"
@@ -853,6 +876,43 @@
 			</div>
 		{/if}
 
+		<!-- aksi massal -->
+		{#if selectedRows.length}
+			<!-- menempel di bawah layar selama grid terlihat (grid bisa lebih tinggi dari layar), selain itu tepat di atas baris status -->
+			<div class="no-print pointer-events-none sticky bottom-3 z-10 h-0">
+				<div class="absolute inset-x-0 flex justify-center px-3" style="bottom: {fh + 12}px">
+					<div
+						transition:fly={{ y: 12, duration: 160 }}
+						class="pointer-events-auto flex max-w-full items-center gap-1 overflow-x-auto rounded-2xl bg-stone-900 p-1.5 pl-4 text-sm text-white shadow-2xl shadow-stone-900/30 dark:bg-stone-100 dark:text-stone-900"
+						role="toolbar"
+						aria-label="Aksi untuk baris terpilih"
+					>
+						<span class="font-medium whitespace-nowrap tabular-nums">{num(selectedRows.length)} terpilih</span>
+						{#if !allSel}
+							<button type="button" class="ml-1 rounded-lg px-2 py-1 text-xs whitespace-nowrap text-white/60 hover:bg-white/10 hover:text-white dark:text-stone-500 dark:hover:bg-stone-900/10 dark:hover:text-stone-900" onclick={toggleAll}>
+								Pilih semua {num(filtered.length)}
+							</button>
+						{/if}
+						<span class="mx-1 h-5 w-px shrink-0 bg-white/15 dark:bg-stone-900/15"></span>
+						<button type="button" class="btn btn-sm text-white hover:bg-white/10 dark:text-stone-900 dark:hover:bg-stone-900/10" onclick={() => exportRows(selectedRows)}><Download class="size-3.5" /> Export</button>
+						{#each bulkShown as { a, n } (a.label)}
+							<button
+								type="button"
+								class="btn btn-sm {a.danger ? 'text-rose-300 hover:bg-rose-500/20 dark:text-rose-600 dark:hover:bg-rose-500/10' : 'text-white hover:bg-white/10 dark:text-stone-900 dark:hover:bg-stone-900/10'}"
+								onclick={() => runBulk(a)}
+							>
+								{#if a.icon}<a.icon class="size-3.5" />{/if}
+								{a.label}{#if n !== selectedRows.length}<span class="opacity-60">({num(n)})</span>{/if}
+							</button>
+						{/each}
+						<button type="button" class="btn btn-icon btn-sm text-white/70 hover:bg-white/10 hover:text-white dark:text-stone-500 dark:hover:bg-stone-900/10 dark:hover:text-stone-900" aria-label="Batalkan pilihan (Esc)" {@attach tooltip()} onclick={() => selected.clear()}>
+							<X class="size-4" />
+						</button>
+					</div>
+				</div>
+			</div>
+		{/if}
+
 		<!-- status -->
 		<div class="no-print flex items-center justify-between gap-3 border-t border-stone-100 px-4 py-2 text-xs text-stone-500 dark:border-stone-800">
 			<span class="tabular-nums">
@@ -866,40 +926,6 @@
 				<span><kbd class="dg-kbd">Shift</kbd>+klik judul: multi-sort</span>
 			</span>
 		</div>
-
-		<!-- aksi massal -->
-		{#if selectedRows.length}
-			<div class="no-print pointer-events-none absolute inset-x-0 z-10 flex justify-center px-3" style="bottom: {fh + 44}px">
-				<div
-					transition:fly={{ y: 12, duration: 160 }}
-					class="pointer-events-auto flex max-w-full items-center gap-1 overflow-x-auto rounded-2xl bg-stone-900 p-1.5 pl-4 text-sm text-white shadow-2xl shadow-stone-900/30 dark:bg-stone-100 dark:text-stone-900"
-					role="toolbar"
-					aria-label="Aksi untuk baris terpilih"
-				>
-					<span class="font-medium whitespace-nowrap tabular-nums">{num(selectedRows.length)} terpilih</span>
-					{#if !allSel}
-						<button type="button" class="ml-1 rounded-lg px-2 py-1 text-xs whitespace-nowrap text-white/60 hover:bg-white/10 hover:text-white dark:text-stone-500 dark:hover:bg-stone-900/10 dark:hover:text-stone-900" onclick={toggleAll}>
-							Pilih semua {num(filtered.length)}
-						</button>
-					{/if}
-					<span class="mx-1 h-5 w-px shrink-0 bg-white/15 dark:bg-stone-900/15"></span>
-					<button type="button" class="btn btn-sm text-white hover:bg-white/10 dark:text-stone-900 dark:hover:bg-stone-900/10" onclick={() => exportRows(selectedRows)}><Download class="size-3.5" /> Export</button>
-					{#each bulkShown as { a, n } (a.label)}
-						<button
-							type="button"
-							class="btn btn-sm {a.danger ? 'text-rose-300 hover:bg-rose-500/20 dark:text-rose-600 dark:hover:bg-rose-500/10' : 'text-white hover:bg-white/10 dark:text-stone-900 dark:hover:bg-stone-900/10'}"
-							onclick={() => runBulk(a)}
-						>
-							{#if a.icon}<a.icon class="size-3.5" />{/if}
-							{a.label}{#if n !== selectedRows.length}<span class="opacity-60">({num(n)})</span>{/if}
-						</button>
-					{/each}
-					<button type="button" class="btn btn-icon btn-sm text-white/70 hover:bg-white/10 hover:text-white dark:text-stone-500 dark:hover:bg-stone-900/10 dark:hover:text-stone-900" aria-label="Batalkan pilihan (Esc)" {@attach tooltip()} onclick={() => selected.clear()}>
-						<X class="size-4" />
-					</button>
-				</div>
-			</div>
-		{/if}
 	</div>
 
 	<!-- ============ HP: kartu ============ -->

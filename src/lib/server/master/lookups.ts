@@ -79,6 +79,45 @@ export const LOOKUPS: Record<string, LookupDef> = {
 	bank: {
 		sql: `SELECT RTRIM(bank_id) AS id, RTRIM(bank_id) AS code, bank_desc AS name, NULL AS hint, ${bit('flag_aktif')} AS active FROM dbo.M_BANK`
 	},
+	/* ---- atribut produk (dddw_* form model W_01_M01_ENTRY) ---- */
+	'produk-gender': {
+		sql: `SELECT RTRIM(gender_id) AS id, RTRIM(gender_id) AS code, nama AS name, NULL AS hint, ${bit('flag_aktif')} AS active FROM dbo.M_PRODUK_GENDER`
+	},
+	// disc = diskon bawaan rasio harga barcode model
+	'produk-grup-dept': {
+		sql: `SELECT RTRIM(grup_dept) AS id, RTRIM(grup_dept) AS code, nama AS name, RTRIM(grup_dept2) AS hint, ${bit('flag_aktif')} AS active, disc
+			FROM dbo.M_PRODUK_DEPT`
+	},
+	'produk-dept': {
+		sql: `SELECT RTRIM(d.dept_id) AS id, RTRIM(d.dept_id) AS code, d.nama AS name, g.nama AS hint, ${bit('d.flag_aktif')} AS active, RTRIM(d.grup_dept) AS grup,
+				RTRIM(d.nama_pendek) AS short
+			FROM dbo.M_PRODUK_DEPT2 d LEFT JOIN dbo.M_PRODUK_DEPT g ON g.grup_dept = d.grup_dept`
+	},
+	'produk-bahan': {
+		sql: `SELECT RTRIM(bahan_id) AS id, RTRIM(bahan_id) AS code, nama AS name, RTRIM(nama_pendek) AS hint, ${bit('flag_aktif')} AS active FROM dbo.M_PRODUK_BAHAN`
+	},
+	'produk-warna': {
+		sql: `SELECT RTRIM(warna_id) AS id, RTRIM(warna_id) AS code, nama AS name, NULL AS hint, ${bit('flag_aktif')} AS active FROM dbo.M_PRODUK_WARNA`
+	},
+	'produk-size': {
+		sql: `SELECT RTRIM(size_id) AS id, RTRIM(size_id) AS code, nama AS name, RTRIM(nama_pendek) AS hint, ${bit('flag_aktif')} AS active, urut
+			FROM dbo.M_PRODUK_SIZE`
+	},
+	'produk-aplikasi': {
+		sql: `SELECT RTRIM(aps_id) AS id, RTRIM(aps_id) AS code, nama AS name, RTRIM(nama_pendek) AS hint, ${bit('flag_aktif')} AS active FROM dbo.M_APLIKASI`
+	},
+	'produk-jenis': {
+		sql: `SELECT RTRIM(jenis_id) AS id, RTRIM(jenis_id) AS code, nama AS name, RTRIM(nama_pendek) AS hint, ${bit('flag_aktif')} AS active FROM dbo.M_PRODUK_JENIS`
+	},
+	// dddw_tipe: tipe per brand
+	'produk-tipe': {
+		sql: `SELECT RTRIM(tipe_id) AS id, RTRIM(tipe_id) AS code, nama AS name, RTRIM(brand_id) AS hint, ${bit('flag_aktif')} AS active, RTRIM(brand_id) AS brand
+			FROM dbo.M_PRODUK_TIPE`,
+		brand: { column: 'brand' }
+	},
+	'sls-tipe': {
+		sql: `SELECT RTRIM(sls_tipe) AS id, RTRIM(sls_tipe) AS code, nama AS name, NULL AS hint, CAST(1 AS bit) AS active FROM dbo.M_PRODUK_SLS_TIPE`
+	},
 	// dddw_pegawai: customer menyimpan NIK pegawai pegangan
 	pegawai: {
 		sql: `SELECT RTRIM(nik) AS id, RTRIM(nik) AS code, nama AS name, NULL AS hint, ${yes('flag_active')} AS active

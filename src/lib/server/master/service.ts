@@ -109,11 +109,15 @@ function parseId(res: Resource, id: unknown): Values {
 	return Object.fromEntries(res.keys.map((k, i) => [k, parts[i]]));
 }
 
+const pad2 = (n: number) => String(n).padStart(2, '0');
+/** tanggal kolom datetime dibaca sebagai waktu lokal (useUTC: false) → yyyy-mm-dd lokal */
+const localDate = (d: Date) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+
 /** nilai database → nilai form */
 function decode(f: FieldDef | undefined, m: ColMeta, v: unknown) {
 	if (f?.type === 'toggle') return m.type === 'bit' ? !!v : String(v ?? '').trim().toUpperCase() === 'Y';
 	if (v == null) return isNumber(m) ? null : '';
-	if (v instanceof Date) return v.toISOString().slice(0, 10);
+	if (v instanceof Date) return localDate(v);
 	if (typeof v === 'string') return v.trimEnd();
 	return v;
 }
@@ -143,8 +147,11 @@ function encode(f: FieldDef, m: ColMeta, v: unknown) {
 	}
 	if (['datetime', 'smalldatetime', 'date'].includes(m.type)) {
 		if (v === '' || v == null) return null;
-		const d = new Date(String(v));
-		if (Number.isNaN(d.getTime())) throw new AuthError(`${f.label} bukan tanggal yang valid`);
+		const s = String(v);
+		const ymd = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+		// tanggal saja = tengah malam waktu lokal (bukan UTC), sama seperti isian tanggal aplikasi lama
+		const d = ymd ? new Date(+ymd[1], +ymd[2] - 1, +ymd[3]) : new Date(s);
+		if (Number.isNaN(d.getTime()) || d.getFullYear() < 1900 || d.getFullYear() > 2078) throw new AuthError(`${f.label} bukan tanggal yang valid`);
 		return d;
 	}
 	throw new AuthError(`${f.label} tidak bisa disimpan`);
@@ -154,9 +161,12 @@ const same = (a: unknown, b: unknown) => JSON.stringify(a instanceof Date ? a.to
 
 /* ---------------- baca ---------------- */
 
-async function selectList(res: Resource) {
+/** kolom yang dibaca; `slim` = hanya kunci, field daftar, kode/nama/status (daftar tabel besar) */
+async function selectList(res: Resource, slim = false) {
 	const meta = await columns(res.table);
-	const cols = new Set([...res.keys, ...res.def.fields.map((f) => f.key), ...(res.brand ? [res.brand.column] : [])]);
+	const { def } = res;
+	const fields = slim ? def.fields.filter((f) => f.list || [def.codeField, def.nameField, def.activeField].includes(f.key)) : def.fields;
+	const cols = new Set([...res.keys, ...fields.map((f) => f.key), ...(res.brand ? [res.brand.column] : [])]);
 	for (const c of cols) if (!meta.has(c.toLowerCase())) throw new Error(`Kolom ${c} tidak ada di ${res.table}`);
 	return { meta, cols: [...cols] };
 }
@@ -175,14 +185,45 @@ function resourceFor(name: string) {
 	return res;
 }
 
-export async function list(name: string, user: SessionUser) {
+/** saringan daftar dari query string, hanya kolom yang diizinkan resource */
+function listFilters(res: Resource, req: sql.Request, meta: Map<string, ColMeta>, params: URLSearchParams) {
+	const where: string[] = [];
+	for (const c of res.filters?.columns ?? []) {
+		const raw = params.get(c);
+		if (raw == null || raw === '') {
+			if (res.filters?.required?.includes(c)) throw new AuthError(`Parameter ${c} wajib diisi`);
+			continue;
+		}
+		if (raw.length > 50) throw new AuthError('Parameter tidak valid');
+		const m = meta.get(c.toLowerCase())!;
+		if (m.type === 'bit') {
+			// mengikuti aplikasi lama: status kosong dianggap aktif
+			req.input(`f_${c}`, sql.Bit, raw === '1' || raw === 'true');
+			where.push(`ISNULL(${c}, 1) = @f_${c}`);
+		} else {
+			req.input(`f_${c}`, sqlType(m), raw.trim());
+			where.push(isText(m) ? `RTRIM(${c}) = @f_${c}` : `${c} = @f_${c}`);
+		}
+	}
+	return where;
+}
+
+export async function list(name: string, user: SessionUser, params = new URLSearchParams()) {
 	const res = resourceFor(name);
 	requireMenu(user, res);
-	const { meta, cols } = await selectList(res);
+	const { meta, cols } = await selectList(res, res.slim);
 	const req = await request();
-	const where = res.brand && res.brand.list !== false ? brandWhere(req, res.brand.column, res.brand.open, brandScope(user)) : '1 = 1';
-	const r = await req.query(`SELECT ${cols.join(', ')} FROM ${res.table} WHERE ${where} ORDER BY ${res.order}`);
+	const where = listFilters(res, req, meta, params);
+	if (res.brand && res.brand.list !== false) where.push(brandWhere(req, res.brand.column, res.brand.open, brandScope(user)));
+	const r = await req.query(`SELECT ${cols.join(', ')} FROM ${res.table} WHERE ${where.join(' AND ') || '1 = 1'} ORDER BY ${res.order}`);
 	return r.recordset.map((raw) => toRow(res, meta, cols, raw));
+}
+
+/** satu baris lengkap (daftar `slim` hanya memuat sebagian kolom) */
+export async function get(name: string, user: SessionUser, id: unknown) {
+	const res = resourceFor(name);
+	requireMenu(user, res);
+	return (await findOne(res, user, parseId(res, id), await request())).row;
 }
 
 /** satu baris (dengan cakupan brand pengguna) atau 404 */
@@ -198,7 +239,7 @@ async function findOne(res: Resource, user: SessionUser, keys: Values, req: sql.
 /* ---------------- tulis ---------------- */
 
 /** nama pengguna aplikasi lama untuk kolom usrupd (akun salinan SYS_USER), selain itu username web */
-async function legacyUser(user: SessionUser) {
+export async function legacyUser(user: SessionUser) {
 	const r = await (await request()).input('id', sql.Int, user.id).query('SELECT legacy_user_id AS l FROM web.users WHERE id = @id');
 	return String(r.recordset[0]?.l ?? user.username);
 }
@@ -213,7 +254,7 @@ async function readInput(res: Resource, user: SessionUser, input: Values, base: 
 	const merged: Values = { ...(base ?? {}) };
 	for (const f of res.def.fields) {
 		if (f.auto && !editing) continue;
-		if (editing && (f.lockOnEdit || f.auto || f.readonly)) continue;
+		if (editing && (f.lockOnEdit || f.readonly)) continue;
 		if (!(f.key in input)) {
 			if (!editing) merged[f.key] = f.type === 'toggle' ? !!f.default : typeof f.default === 'function' ? '' : (f.default ?? '');
 			continue;
@@ -257,10 +298,30 @@ async function stampValues(res: Resource, meta: Map<string, ColMeta>, user: Sess
 	values[res.stamp.time] = new Date();
 }
 
+/** brand baris baru harus di cakupan pengguna (brand '%' / kosong boleh untuk resource `open`) */
+function requireBrand(res: Resource, user: SessionUser, values: Values) {
+	const scope = brandScope(user);
+	if (!res.brand || !scope) return;
+	const b = String(values[res.brand.column] ?? '').trim();
+	if (res.brand.open && (!b || b === '%')) return;
+	if (!scope.includes(b)) throw new AuthError(`Brand ${b || '(kosong)'} di luar cakupan Anda`, 403);
+}
+
+/** request baru dalam transaksi dengan parameter @<kolom kunci> */
+function keyedRequest(tx: sql.Transaction, res: Resource, meta: Map<string, ColMeta>, keys: Values) {
+	return () => {
+		const req = new sql.Request(tx);
+		for (const k of res.keys) if (keys[k] != null) req.input(k, sqlType(meta.get(k.toLowerCase())!), keys[k]);
+		return req;
+	};
+}
+
 export async function create(name: string, user: SessionUser, input: Values, ip: string) {
 	const res = resourceFor(name);
 	requireMenu(user, res);
+	if (res.noCreate) throw new AuthError('Data ini tidak bisa ditambah lewat form ini', 405);
 	const { meta, values } = await readInput(res, user, input, null);
+	requireBrand(res, user, values);
 	const pool = await getPool();
 	const msg = res.check && (await res.check(() => pool.request(), values));
 	if (msg) throw new AuthError(msg);
@@ -269,11 +330,7 @@ export async function create(name: string, user: SessionUser, input: Values, ip:
 	const tx = new sql.Transaction(pool);
 	await tx.begin();
 	try {
-		if (res.next) {
-			const req = new sql.Request(tx);
-			for (const k of res.keys) if (values[k] != null) req.input(k, sqlType(meta.get(k.toLowerCase())!), values[k]);
-			await res.next(req, values);
-		}
+		if (res.next) await res.next(keyedRequest(tx, res, meta, values), values);
 		for (const k of res.keys) if (values[k] == null || values[k] === '') throw new AuthError(`${res.def.fields.find((f) => f.key === k)?.label ?? k} wajib diisi`);
 		const dup = new sql.Request(tx);
 		const where = res.keys.map((k) => (dup.input(`k_${k}`, sqlType(meta.get(k.toLowerCase())!), values[k]), `${k} = @k_${k}`));
@@ -314,20 +371,31 @@ export async function update(name: string, user: SessionUser, id: unknown, input
 	const cols = Object.keys(changed);
 	await stampValues(res, meta, user, changed);
 
-	const req = await request();
-	const sets = bind(req, meta, changed, 'v_').map((p, i) => `${Object.keys(changed)[i]} = ${p}`);
-	const where = res.keys.map((k) => (req.input(`k_${k}`, sqlType(meta.get(k.toLowerCase())!), keys[k]), `${k} = @k_${k}`));
-	await req.query(`UPDATE ${res.table} SET ${sets.join(', ')} WHERE ${where.join(' AND ')}`);
+	const tx = new sql.Transaction(pool);
+	await tx.begin();
+	try {
+		const req = new sql.Request(tx);
+		const sets = bind(req, meta, changed, 'v_').map((p, i) => `${Object.keys(changed)[i]} = ${p}`);
+		const where = res.keys.map((k) => (req.input(`k_${k}`, sqlType(meta.get(k.toLowerCase())!), keys[k]), `${k} = @k_${k}`));
+		await req.query(`UPDATE ${res.table} SET ${sets.join(', ')} WHERE ${where.join(' AND ')}`);
+		await res.afterUpdate?.(keyedRequest(tx, res, meta, keys), changed);
+		await tx.commit();
+	} catch (e) {
+		await tx.rollback().catch(() => {});
+		throw e;
+	}
 	await audit('master.update', { userId: user.id, username: user.username, ip, detail: `${name} ${cur.row.id}: ${cols.join(', ')}` });
 	return (await findOne(res, user, keys, await request())).row;
 }
 
 /** label pemakaian pertama (transaksi/master lain) atau null bila belum dipakai */
 async function usage(res: Resource, meta: Map<string, ColMeta>, keys: Values) {
-	if (!res.usedIn?.length) return null;
+	if (!res.usedIn) return null;
 	const req = await request();
 	for (const k of res.keys) req.input(k, sqlType(meta.get(k.toLowerCase())!), keys[k]);
-	const parts = res.usedIn.map(([label, from], i) => {
+	const list = typeof res.usedIn === 'function' ? await res.usedIn(req, keys) : res.usedIn;
+	if (!list.length) return null;
+	const parts = list.map(([label, from], i) => {
 		req.input(`_u${i}`, sql.NVarChar(100), label);
 		return `SELECT @_u${i} AS l WHERE EXISTS (SELECT 1 FROM ${from})`;
 	});
@@ -342,9 +410,18 @@ export async function remove(name: string, user: SessionUser, id: unknown, ip: s
 	const cur = await findOne(res, user, keys, await request());
 	const used = await usage(res, cur.meta, keys);
 	if (used) throw new AuthError(`Tidak bisa dihapus: sudah dipakai di ${used}.${res.def.activeField ? ' Nonaktifkan saja.' : ''}`, 409);
-	const req = await request();
-	const where = res.keys.map((k) => (req.input(`k_${k}`, sqlType(cur.meta.get(k.toLowerCase())!), keys[k]), `${k} = @k_${k}`));
-	await req.query(`DELETE FROM ${res.table} WHERE ${where.join(' AND ')}`);
+	const tx = new sql.Transaction(await getPool());
+	await tx.begin();
+	try {
+		const keyed = keyedRequest(tx, res, cur.meta, keys);
+		for (const from of res.cascade ?? []) await keyed().query(`DELETE FROM ${from}`);
+		const where = res.keys.map((k) => `${k} = @${k}`);
+		await keyed().query(`DELETE FROM ${res.table} WHERE ${where.join(' AND ')}`);
+		await tx.commit();
+	} catch (e) {
+		await tx.rollback().catch(() => {});
+		throw e;
+	}
 	await audit('master.delete', { userId: user.id, username: user.username, ip, detail: `${name} ${cur.row.id}` });
 }
 
@@ -367,7 +444,9 @@ export async function setActive(name: string, user: SessionUser, ids: unknown, a
 			req.input('v', sqlType(m), encode(field, m, active));
 			const where = res.keys.map((k) => (req.input(`k_${k}`, sqlType(meta.get(k.toLowerCase())!), keys[k]), `${k} = @k_${k}`));
 			if (res.brand) where.push(brandWhere(req, res.brand.column, res.brand.open, brandScope(user)));
-			count += (await req.query(`UPDATE ${res.table} SET ${field.key} = @v WHERE ${where.join(' AND ')}`)).rowsAffected[0];
+			const n = (await req.query(`UPDATE ${res.table} SET ${field.key} = @v WHERE ${where.join(' AND ')}`)).rowsAffected[0];
+			if (n) await res.afterUpdate?.(keyedRequest(tx, res, meta, keys), { [field.key]: encode(field, m, active) });
+			count += n;
 		}
 		await tx.commit();
 	} catch (e) {
