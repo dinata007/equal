@@ -14,7 +14,10 @@ declare global {
 		}
 		// interface Error {}
 		// interface PageData {}
-		// interface PageState {}
+		interface PageState {
+			/** jumlah lapisan terbuka (sheet/dialog/dropdown) — tombol back menutupnya satu per satu, lihat ui/backClose.svelte.ts */
+			layers?: number;
+		}
 		// interface Platform {}
 	}
 }

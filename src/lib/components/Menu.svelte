@@ -17,6 +17,7 @@
 	import type { Placement } from '@floating-ui/dom';
 	import type { Snippet } from 'svelte';
 	import { tick } from 'svelte';
+	import { backClose } from '#lib/ui/backClose.svelte.ts';
 	import { float, uidEl } from '#lib/ui/floating.ts';
 
 	let {
@@ -37,6 +38,7 @@
 	let pop = $state<HTMLDivElement>();
 	let open = $state(false);
 	let stop: (() => void) | null = null;
+	backClose(() => open, () => pop?.hidePopover());
 
 	const triggerProps = $derived({ id: btnId, popovertarget: popId, 'aria-haspopup': 'menu', 'aria-expanded': open, 'aria-controls': popId });
 	const itemsEls = () => [...(pop?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [])];

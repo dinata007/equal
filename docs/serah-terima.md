@@ -59,7 +59,7 @@ Keputusan pemilik (23/10/2026): web **menulis langsung** ke tabel master lama de
 ## Status Fase 2c — raw material: **selesai** (branch `fase-2c-material`, di atas `fase-2b-produk`)
 
 - **Material › Master › Raw Material** = article `m_bahan_art` (W_10_M07), form MasterPage bertajuk seksi. Kode (pb_save) = brand + 3 digit akhir supplier + induk + jenis (2) + tipe + 2 digit tahun + warna (2) + urut (3); urut = maks+1 per 12 karakter awal. Baru: supplier & jenis COA harus milik brand article, `supp_desc` dari nama supplier, `acc_ap_id` = jenis COA (tombol COA PB mengisi keduanya). Harga 1 = per satuan kecil (`sat_id`), harga 2 = per satuan besar (`sat_id2`), `con_sat` = isi; harga saling dihitung saat diketik (itemchanged). Pembentuk kode, dept, isi & harga terkunci setelah simpan (seperti `protect` DW; induk juga dikunci karena bagian kode). Tombol **Salin jadi baru** = mode "C" PB. Hapus hanya bila belum dipakai (PO/terima/roll/kirim/pakai/jual/costing material, saldo awal, opname, aset).
-- **Material › Master › Atribut Raw Material** (menu baru, bertab): Induk `m_bahan_induk` (brand + 5 akun COA + barang aset; daftar lintas brand, ubah hanya brand sendiri), Jenis, Tipe, Warna, Jenis COA `m_bahan_acc` (per brand), Satuan, Dept. **Warna = `M_PRODUK_WARNA`** (W_10_M04 memang memakai tabel warna produk; `m_bahan_warna` tidak dipakai form PB, tombol hapus PB-nya keliru ke tabel itu). Kode satuan & dept boleh kosong = nomor berikutnya.
+- **Material › Master › Raw Material** (bertab; tab pertama article, lalu atribut — menu Atribut Raw Material digabung ke sini, migrasi `004`): Induk `m_bahan_induk` (brand + 5 akun COA + barang aset; daftar lintas brand, ubah hanya brand sendiri), Jenis, Tipe, Warna, Jenis COA `m_bahan_acc` (per brand), Satuan, Dept. **Warna = `M_PRODUK_WARNA`** (W_10_M04 memang memakai tabel warna produk; `m_bahan_warna` tidak dipakai form PB, tombol hapus PB-nya keliru ke tabel itu). Kode satuan & dept boleh kosong = nomor berikutnya.
 - Kerangka: halaman atribut bertab umum `pages/custom/Attributes.svelte` (daftar tab: `ATTRIBUTES` di `defs/masters.ts`); MasterPage memuat ulang baris dari database saat dibuka, mendukung `section` (judul kelompok isian), `decimals`, `copyable`, `derive` (isian turunan); `kodeUrut` pindah ke `server/master/codes.ts`.
 - Diuji: 45 skenario API raw material + cek ulang produk/master Fase 2a, alur UI (tambah dengan hitung harga, salin jadi baru, hapus) & halaman atribut tanpa error konsol; `npm run check` & build bersih.
 
@@ -83,7 +83,7 @@ Keputusan pemilik (23/10/2026): web **menulis langsung** ke tabel master lama de
 
 ## Langkah berikutnya
 
-1. Di lokal: `npm run db:migrate` → `npm run db:admin` → atur pengguna (sekali saja per database); beri akses menu **Atribut Produk**, **Atribut Raw Material** & **Atribut Pegawai** ke pengguna yang mengelolanya.
+1. Di lokal: `npm run db:migrate` → `npm run db:admin` → atur pengguna (sekali saja per database); beri akses menu **Atribut Produk**, **Raw Material** & **Atribut Pegawai** ke pengguna yang mengelolanya.
 2. Fase 2 master selesai → Fase 3 transaksi.
 3. Fase 3 — transaksi (setelah membaca source PowerBuilder untuk penomoran & jurnal). Pola nomor bukti per `tipe_trans` ada di `docs/database/schema.md` (bagian "Pola nomor … per jenis").
 4. Fase 4 — laporan (VIEW / stored procedure). Rumus stok lama: saldo awal bulanan `S_AWAL_GUDANG`/`S_AWAL_TOKO` + mutasi bulan berjalan (lihat `sp_Dashboard_Stok` di `docs/database/objects.sql`).

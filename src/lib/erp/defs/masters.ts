@@ -566,6 +566,7 @@ export const ATTRIBUTES: Record<string, { key: string; label: string; def: Maste
 		{ key: 'tipe', label: 'Tipe', def: productType }
 	],
 	material: [
+		{ key: 'raw-material', label: 'Raw Material', def: rawMaterial },
 		{ key: 'induk', label: 'Induk', def: materialInduk },
 		{ key: 'jenis', label: 'Jenis', def: materialJenis },
 		{ key: 'tipe', label: 'Tipe', def: materialTipe },

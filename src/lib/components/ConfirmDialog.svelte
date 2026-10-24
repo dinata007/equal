@@ -2,8 +2,10 @@
 	import { TriangleAlert } from '@lucide/svelte';
 	import { fade, scale } from 'svelte/transition';
 	import { confirmDialog } from '#lib/erp/ui.svelte.ts';
+	import { backClose } from '#lib/ui/backClose.svelte.ts';
 
 	const c = $derived(confirmDialog.current);
+	backClose(() => !!c, () => confirmDialog.close(false));
 </script>
 
 <svelte:window onkeydown={(e) => c && e.key === 'Escape' && confirmDialog.close(false)} />

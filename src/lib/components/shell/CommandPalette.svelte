@@ -5,6 +5,9 @@
 	import { auth } from '#lib/erp/auth.svelte.ts';
 	import { LEAVES } from '#lib/erp/menu.ts';
 	import { shell } from '#lib/erp/ui.svelte.ts';
+	import { backClose } from '#lib/ui/backClose.svelte.ts';
+
+	backClose(() => shell.palette, () => (shell.palette = false));
 
 	let q = $state('');
 	let idx = $state(0);

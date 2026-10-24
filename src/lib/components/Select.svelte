@@ -16,6 +16,7 @@
 	 */
 	import { Check, ChevronDown, Search, X } from '@lucide/svelte';
 	import { tick } from 'svelte';
+	import { backClose } from '#lib/ui/backClose.svelte.ts';
 	import { float, isMobile, uidEl } from '#lib/ui/floating.ts';
 
 	let {
@@ -63,8 +64,15 @@
 	let stop: (() => void) | null = null;
 	let typed = '';
 	let typedAt = 0;
+	backClose(() => open, () => pop?.hidePopover());
 
-	const opts = $derived<SelectOption[]>(options.map((o) => (typeof o === 'object' ? o : { value: o, label: String(o) })));
+	// nilai ganda dibuang (yang pertama dipakai): daftar ber-key nilai → key ganda membuat seluruh halaman error
+	const opts = $derived.by<SelectOption[]>(() => {
+		const seen = new Set<SelectValue>();
+		return options
+			.map((o) => (typeof o === 'object' ? o : { value: o, label: String(o) }))
+			.filter((o) => !seen.has(o.value) && (seen.add(o.value), true));
+	});
 	const canSearch = $derived(searchable ?? opts.length > 8);
 	const selected = $derived(opts.find((o) => o.value === value));
 	const shown = $derived.by(() => {
@@ -148,7 +156,8 @@
 	onkeydown={onTriggerKey}
 	class="input flex items-center gap-2 text-left {compact ? '!h-9 !rounded-lg' : ''} {open ? 'border-brand-400 ring-4 ring-brand-400/20' : ''} {disabled ? 'cursor-not-allowed' : 'cursor-pointer'}"
 >
-	<span class="min-w-0 flex-1 truncate {text ? '' : 'text-stone-400'}">{text || placeholder}</span>
+	<!-- contain-inline-size: teks panjang tidak ikut menentukan lebar minimum tombol (tanpa ini kolom form melebar & muncul scroll samping) -->
+	<span class="min-w-0 flex-1 truncate contain-inline-size {text ? '' : 'text-stone-400'}">{text || placeholder}</span>
 	{#if clearable && selected && !disabled}
 		<span
 			role="button"

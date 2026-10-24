@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { backClose } from '#lib/ui/backClose.svelte.ts';
 	import { tooltip } from '#lib/ui/tooltip.ts';
 	import { X } from '@lucide/svelte';
 	import type { Snippet } from 'svelte';
@@ -29,6 +30,7 @@
 		open = false;
 		onclose?.();
 	}
+	backClose(() => open, close);
 </script>
 
 <svelte:window onkeydown={(e) => open && e.key === 'Escape' && close()} />

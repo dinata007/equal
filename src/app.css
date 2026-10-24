@@ -58,9 +58,12 @@
 	html.dark {
 		color-scheme: dark;
 	}
-	/* popover bawaan browser memakai warna CanvasText (hitam) → ikuti warna teks aplikasi */
+	/* popover punya latar sendiri (putih / stone-900) → teksnya juga harus warna aplikasi, bukan warisan
+	   dari tempatnya ditaruh (mis. menu Export di bar aksi massal yang gelap jadi putih di atas putih).
+	   Tipografi ikut di-reset agar tidak mewarisi uppercase/bold/tracking pemicunya. Di layer base → kelas utilitas tetap menang. */
 	[popover] {
-		color: inherit;
+		@apply text-left text-stone-900 normal-case not-italic tracking-normal whitespace-normal dark:text-stone-100;
+		font-weight: 400;
 	}
 	body {
 		@apply bg-canvas text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100;
@@ -268,6 +271,25 @@ html.theme-vt::view-transition-new(root) {
 @media (prefers-reduced-motion: reduce) {
 	[popover].pop {
 		transition: none;
+	}
+}
+
+/* deret tab geser (lihat ui/scrollTabs.ts): tanpa scrollbar, tepi memudar bila masih ada tab di sisi itu */
+@utility scroll-tabs {
+	overflow-x: auto;
+	overscroll-behavior-x: contain;
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+	&[data-fade='start'] {
+		mask-image: linear-gradient(to right, transparent, #000 2rem);
+	}
+	&[data-fade='end'] {
+		mask-image: linear-gradient(to left, transparent, #000 2rem);
+	}
+	&[data-fade='both'] {
+		mask-image: linear-gradient(to right, transparent, #000 2rem, #000 calc(100% - 2rem), transparent);
 	}
 }
 

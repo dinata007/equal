@@ -73,8 +73,7 @@ export const MENU: MenuNode[] = [
 				slug: 'master',
 				label: 'Master',
 				children: [
-					{ slug: 'raw-material', label: 'Raw Material', icon: Layers, page: M.rawMaterial },
-					{ slug: 'atribut-material', label: 'Atribut Raw Material', icon: Tags, page: C('attributes', { set: 'material' }) }
+					{ slug: 'raw-material', label: 'Raw Material', icon: Layers, page: C('attributes', { set: 'material' }) }
 				]
 			},
 			{
