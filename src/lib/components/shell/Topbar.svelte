@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { ChevronRight, LogOut, Menu as MenuIcon, Moon, Search, Sun, UserRound, WifiOff } from '@lucide/svelte';
+	import { LogOut, Menu as MenuIcon, Moon, Search, Sun, UserRound, WifiOff } from '@lucide/svelte';
 	import Menu from '../Menu.svelte';
+	import PageTabs from './PageTabs.svelte';
 	import { tooltip } from '#lib/ui/tooltip.ts';
 	import { auth } from '#lib/erp/auth.svelte.ts';
 	import { chain } from '#lib/erp/menu.ts';
@@ -35,18 +36,8 @@
 				{#if crumbs.length > 1}<p class="truncate text-[11px] leading-none text-stone-400">{crumbs[0].label}</p>{/if}
 				<h1 class="truncate text-[15px] font-medium">{title}</h1>
 			</div>
-			<!-- desktop: breadcrumb -->
-			<nav class="hidden items-center gap-1.5 text-sm lg:flex" aria-label="Breadcrumb">
-				<a href="/" class="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200">Beranda</a>
-				{#each crumbs as c, i (c.path)}
-					<ChevronRight class="size-3.5 text-stone-300 dark:text-stone-600" />
-					{#if i === crumbs.length - 1}
-						<span class="font-medium">{c.label}</span>
-					{:else}
-						<a href={c.path} class="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200">{c.label}</a>
-					{/if}
-				{/each}
-			</nav>
+			<!-- desktop: tab halaman yang sudah dibuka (jalur menu tampil di tooltip tab) -->
+			<div class="hidden lg:block"><PageTabs /></div>
 		</div>
 
 		{#if !online}

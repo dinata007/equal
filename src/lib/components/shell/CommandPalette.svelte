@@ -5,7 +5,7 @@
 	import { auth } from '#lib/erp/auth.svelte.ts';
 	import { LEAVES } from '#lib/erp/menu.ts';
 	import { shell } from '#lib/erp/ui.svelte.ts';
-	import { backClose } from '#lib/ui/backClose.svelte.ts';
+	import { backClose, leaving } from '#lib/ui/backClose.svelte.ts';
 
 	backClose(() => shell.palette, () => (shell.palette = false));
 
@@ -38,6 +38,8 @@
 	});
 
 	function go(path: string) {
+		// palette & drawer ditutup sambil pindah halaman: entri riwayatnya jangan ditarik (membatalkan goto)
+		leaving();
 		shell.palette = false;
 		shell.drawer = false;
 		goto(path);
