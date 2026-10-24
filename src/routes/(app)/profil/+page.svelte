@@ -31,19 +31,19 @@
 		UserRoundX
 	} from '@lucide/svelte';
 	import type { Component } from 'svelte';
-	import AvatarEditor from '#lib/components/AvatarEditor.svelte';
-	import Avatar from '#lib/components/Avatar.svelte';
-	import Menu from '#lib/components/Menu.svelte';
-	import { api, ApiError } from '#lib/erp/api.ts';
-	import { appearance, clickPoint } from '#lib/erp/appearance.svelte.ts';
-	import { auth } from '#lib/erp/auth.svelte.ts';
-	import { db } from '#lib/erp/db.svelte.ts';
-	import { describeDevice } from '#lib/erp/device.ts';
-	import { ago, date, dateTime } from '#lib/erp/format.ts';
-	import { TEXT_SIZES, THEMES, type ThemeMode } from '#lib/erp/prefs.ts';
-	import { ask, toast } from '#lib/erp/ui.svelte.ts';
-	import { pwa } from '#lib/erp/pwa.svelte.ts';
-	import { tooltip } from '#lib/ui/tooltip.ts';
+	import AvatarEditor from '#lib/pages/profil/AvatarEditor.svelte';
+	import Avatar from '#lib/components/ui/Avatar.svelte';
+	import Menu from '#lib/components/ui/Menu.svelte';
+	import { api, ApiError } from '#lib/util/api.ts';
+	import { appearance, clickPoint } from '#lib/state/appearance.svelte.ts';
+	import { auth } from '#lib/state/auth.svelte.ts';
+	import { db } from '#lib/dev-data/db.svelte.ts';
+	import { describeDevice } from '#lib/util/device.ts';
+	import { ago, date, dateTime } from '#lib/util/format.ts';
+	import { TEXT_SIZES, THEMES, type ThemeMode } from '#lib/domain/prefs.ts';
+	import { ask, toast } from '#lib/state/ui.svelte.ts';
+	import { pwa } from '#lib/state/pwa.svelte.ts';
+	import { tooltip } from '#lib/dom/tooltip.ts';
 
 	const user = $derived(auth.user!);
 	const p = $derived(appearance.prefs);

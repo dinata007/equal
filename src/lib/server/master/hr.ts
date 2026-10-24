@@ -2,7 +2,7 @@
  * Master HR dari tabel lama (PowerBuilder W_MS_08, W_100_06, W_100_07, w_ms_*): pegawai, UMR, tunjangan
  * pegawai & atributnya. Riwayat kontrak pegawai: kontrak.ts.
  */
-import * as M from '#lib/erp/defs/masters.ts';
+import * as M from '#lib/domain/defs/masters.ts';
 import { AuthError } from '../auth/users.ts';
 import { sql } from '../db.ts';
 import { seq } from './codes.ts';

@@ -2,7 +2,7 @@
  * Riwayat kontrak pegawai (PowerBuilder W_MS_08_ENTRY2): JOIN, PERPANJANG, ROLLING, RESIGN.
  * Kontrak baru menonaktifkan kontrak sebelumnya; RESIGN menonaktifkan pegawai.
  */
-import type { SessionUser } from '#lib/erp/types.ts';
+import type { SessionUser } from '#lib/domain/types.ts';
 import { audit } from '../auth/audit.ts';
 import { AuthError } from '../auth/users.ts';
 import { getPool, request, sql } from '../db.ts';

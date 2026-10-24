@@ -1,13 +1,13 @@
 <script lang="ts">
-	/** Deret tab halaman yang sudah dibuka (desktop) — lihat erp/tabs.svelte.ts. Urutan bisa di-drag. */
+	/** Deret tab halaman yang sudah dibuka (desktop) — lihat state/tabs.svelte.ts. Urutan bisa di-drag. */
 	import { page } from '$app/state';
 	import { Ellipsis, X } from '@lucide/svelte';
 	import { untrack } from 'svelte';
 	import { flip } from 'svelte/animate';
-	import { tabInfo, tabs } from '#lib/erp/tabs.svelte.ts';
-	import { scrollTabs } from '#lib/ui/scrollTabs.ts';
-	import { tooltip } from '#lib/ui/tooltip.ts';
-	import Menu from '../Menu.svelte';
+	import { tabInfo, tabs } from '#lib/state/tabs.svelte.ts';
+	import { scrollTabs } from '#lib/dom/scrollTabs.ts';
+	import { tooltip } from '#lib/dom/tooltip.ts';
+	import Menu from '../ui/Menu.svelte';
 
 	// setiap halaman yang dibuka (sidebar, Ctrl K, link) otomatis jadi tab
 	$effect(() => {

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { ArrowLeft, Eye, EyeOff, KeyRound, LogOut } from '@lucide/svelte';
-	import { auth } from '#lib/erp/auth.svelte.ts';
-	import { toast } from '#lib/erp/ui.svelte.ts';
-	import Logo from '#lib/components/Logo.svelte';
+	import { auth } from '#lib/state/auth.svelte.ts';
+	import { toast } from '#lib/state/ui.svelte.ts';
+	import Logo from '#lib/components/ui/Logo.svelte';
 
 	let current = $state('');
 	let next = $state('');

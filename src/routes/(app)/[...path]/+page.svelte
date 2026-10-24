@@ -2,39 +2,41 @@
 	import { page } from '$app/state';
 	import { ShieldAlert } from '@lucide/svelte';
 	import type { Component } from 'svelte';
-	import { auth } from '#lib/erp/auth.svelte.ts';
-	import { findNode, isLeaf } from '#lib/erp/menu.ts';
-	import MasterPage from '#lib/pages/MasterPage.svelte';
-	import TransactionPage from '#lib/pages/TransactionPage.svelte';
+	import { auth } from '#lib/state/auth.svelte.ts';
+	import { findNode, isLeaf } from '#lib/domain/menu.ts';
+	import MasterPage from '#lib/pages/master/MasterPage.svelte';
+	import TransactionPage from '#lib/pages/transaksi/TransactionPage.svelte';
 	import ModuleOverview from '#lib/pages/ModuleOverview.svelte';
-	import StockMutation from '#lib/pages/reports/StockMutation.svelte';
-	import StockCard from '#lib/pages/reports/StockCard.svelte';
-	import SalesAnalysis from '#lib/pages/reports/SalesAnalysis.svelte';
-	import PartyMutation from '#lib/pages/reports/PartyMutation.svelte';
-	import PartyCard from '#lib/pages/reports/PartyCard.svelte';
-	import CashBook from '#lib/pages/reports/CashBook.svelte';
-	import JournalReport from '#lib/pages/reports/JournalReport.svelte';
-	import AttendanceReport from '#lib/pages/reports/AttendanceReport.svelte';
-	import Closing from '#lib/pages/custom/Closing.svelte';
-	import Users from '#lib/pages/custom/Users.svelte';
-	import Products from '#lib/pages/custom/Products.svelte';
-	import Employees from '#lib/pages/custom/Employees.svelte';
-	import Attributes from '#lib/pages/custom/Attributes.svelte';
+	import MutasiStok from '#lib/pages/laporan/MutasiStok.svelte';
+	import KartuStok from '#lib/pages/laporan/KartuStok.svelte';
+	import AnalisaPenjualan from '#lib/pages/laporan/AnalisaPenjualan.svelte';
+	import MutasiHutangPiutang from '#lib/pages/laporan/MutasiHutangPiutang.svelte';
+	import KartuHutangPiutang from '#lib/pages/laporan/KartuHutangPiutang.svelte';
+	import BukuKasBank from '#lib/pages/laporan/BukuKasBank.svelte';
+	import Jurnal from '#lib/pages/laporan/Jurnal.svelte';
+	import Absensi from '#lib/pages/laporan/Absensi.svelte';
+	import ClosingStok from '#lib/pages/utilitas/ClosingStok.svelte';
+	import Pengguna from '#lib/pages/pengguna/Pengguna.svelte';
+	import Produk from '#lib/pages/produk/Produk.svelte';
+	import Pegawai from '#lib/pages/pegawai/Pegawai.svelte';
+	import Atribut from '#lib/pages/master/Atribut.svelte';
+	import type { CustomPage, ReportPage } from '#lib/domain/types.ts';
 
-	const components: Record<string, Component<any>> = {
-		'stock-mutation': StockMutation,
-		'stock-card': StockCard,
-		'sales-analysis': SalesAnalysis,
-		'party-mutation': PartyMutation,
-		'party-card': PartyCard,
-		'cash-book': CashBook,
-		'journal-report': JournalReport,
-		'attendance-report': AttendanceReport,
-		closing: Closing,
-		users: Users,
-		products: Products,
-		attributes: Attributes,
-		employees: Employees
+	// kunci = R('…') / C('…') di domain/menu.ts; bertipe → kunci kurang / salah ketik jadi error saat check
+	const components: Record<ReportPage | CustomPage, Component<any>> = {
+		'mutasi-stok': MutasiStok,
+		'kartu-stok': KartuStok,
+		'analisa-penjualan': AnalisaPenjualan,
+		'mutasi-hutang-piutang': MutasiHutangPiutang,
+		'kartu-hutang-piutang': KartuHutangPiutang,
+		'buku-kas-bank': BukuKasBank,
+		jurnal: Jurnal,
+		absensi: Absensi,
+		'closing-stok': ClosingStok,
+		pengguna: Pengguna,
+		produk: Produk,
+		pegawai: Pegawai,
+		atribut: Atribut
 	};
 
 	const node = $derived(findNode('/' + page.params.path));

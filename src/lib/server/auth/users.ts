@@ -2,9 +2,9 @@
  * Pengguna web: login, hak akses, ganti password, dan pengelolaan oleh admin.
  * Semua validasi dilakukan di server — data dari browser tidak dipercaya.
  */
-import { GRANTABLE, isGrantable } from '#lib/erp/menu.ts';
-import { cleanPrefs } from '#lib/erp/prefs.ts';
-import type { ManagedUser, SessionUser } from '#lib/erp/types.ts';
+import { GRANTABLE, isGrantable } from '#lib/domain/menu.ts';
+import { cleanPrefs } from '#lib/domain/prefs.ts';
+import type { ManagedUser, SessionUser } from '#lib/domain/types.ts';
 import { getPool, request, sql, utcIso } from '../db.ts';
 import { audit } from './audit.ts';
 import { generatePassword, hashPassword, passwordProblem, verifyDummy, verifyPassword } from './password.js';

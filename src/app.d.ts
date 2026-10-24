@@ -1,5 +1,5 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
-import type { SessionUser } from '#lib/erp/types.ts';
+import type { SessionUser } from '#lib/domain/types.ts';
 
 declare global {
 	namespace App {
@@ -15,7 +15,7 @@ declare global {
 		// interface Error {}
 		// interface PageData {}
 		interface PageState {
-			/** jumlah lapisan terbuka (sheet/dialog/dropdown) — tombol back menutupnya satu per satu, lihat ui/backClose.svelte.ts */
+			/** jumlah lapisan terbuka (sheet/dialog/dropdown) — tombol back menutupnya satu per satu, lihat dom/backClose.svelte.ts */
 			layers?: number;
 		}
 		// interface Platform {}

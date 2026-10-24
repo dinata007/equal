@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { ChevronRight } from '@lucide/svelte';
-	import { auth } from '#lib/erp/auth.svelte.ts';
-	import { chain, visibleTree } from '#lib/erp/menu.ts';
-	import type { MenuNode } from '#lib/erp/types.ts';
-	import PageHeader from '#lib/components/PageHeader.svelte';
+	import { auth } from '#lib/state/auth.svelte.ts';
+	import { chain, visibleTree } from '#lib/domain/menu.ts';
+	import type { MenuNode } from '#lib/domain/types.ts';
+	import PageHeader from '#lib/components/data/PageHeader.svelte';
 
 	let { node }: { node: MenuNode } = $props();
 

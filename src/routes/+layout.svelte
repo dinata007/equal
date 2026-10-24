@@ -1,12 +1,12 @@
 <script lang="ts">
 	import '../app.css';
-	import { db } from '#lib/erp/db.svelte.ts';
-	import { auth } from '#lib/erp/auth.svelte.ts';
+	import { db } from '#lib/dev-data/db.svelte.ts';
+	import { auth } from '#lib/state/auth.svelte.ts';
 	// tangkap event "pasang aplikasi" sejak halaman pertama dimuat
-	import '#lib/erp/pwa.svelte.ts';
-	import Toaster from '#lib/components/Toaster.svelte';
-	import ConfirmDialog from '#lib/components/ConfirmDialog.svelte';
-	import { installBackClose } from '#lib/ui/backClose.svelte.ts';
+	import '#lib/state/pwa.svelte.ts';
+	import Toaster from '#lib/components/ui/Toaster.svelte';
+	import ConfirmDialog from '#lib/components/ui/ConfirmDialog.svelte';
+	import { installBackClose } from '#lib/dom/backClose.svelte.ts';
 	import type { LayoutProps } from './$types';
 
 	let { children, data }: LayoutProps = $props();

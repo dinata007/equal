@@ -21,22 +21,22 @@
 		Truck,
 		Wallet
 	} from '@lucide/svelte';
-	import { GROSIR, bucketStats, buckets, categoryOrder, pctChange, saleLines, saleStats, type SaleLine } from '#lib/erp/analytics.ts';
-	import { auth } from '#lib/erp/auth.svelte.ts';
-	import { db } from '#lib/erp/db.svelte.ts';
-	import { addDays, date as fdate, monthStart, money, num, short, today } from '#lib/erp/format.ts';
-	import { cashMoves, lastClosing, locMatch, openItems, partyMoves, stockInTransit, stockOnHand } from '#lib/erp/ledger.ts';
-	import { LEAVES, MENU, TX, visibleTree } from '#lib/erp/menu.ts';
-	import type { Doc, Row } from '#lib/erp/types.ts';
-	import Menu from '#lib/components/Menu.svelte';
-	import Select from '#lib/components/Select.svelte';
-	import Delta from '#lib/components/dash/Delta.svelte';
-	import Donut, { type Slice } from '#lib/components/dash/Donut.svelte';
-	import Heatmap from '#lib/components/dash/Heatmap.svelte';
-	import Sparkline from '#lib/components/dash/Sparkline.svelte';
-	import StackBar from '#lib/components/dash/StackBar.svelte';
-	import TrendChart, { type TrendPoint } from '#lib/components/dash/TrendChart.svelte';
-	import { tooltip } from '#lib/ui/tooltip.ts';
+	import { GROSIR, bucketStats, buckets, categoryOrder, pctChange, saleLines, saleStats, type SaleLine } from '#lib/domain/analytics.ts';
+	import { auth } from '#lib/state/auth.svelte.ts';
+	import { db } from '#lib/dev-data/db.svelte.ts';
+	import { addDays, date as fdate, monthStart, money, num, short, today } from '#lib/util/format.ts';
+	import { cashMoves, lastClosing, locMatch, openItems, partyMoves, stockInTransit, stockOnHand } from '#lib/domain/ledger.ts';
+	import { LEAVES, MENU, TX, visibleTree } from '#lib/domain/menu.ts';
+	import type { CustomPage, Doc, ReportPage, Row } from '#lib/domain/types.ts';
+	import Menu from '#lib/components/ui/Menu.svelte';
+	import Select from '#lib/components/ui/Select.svelte';
+	import Delta from '#lib/components/chart/Delta.svelte';
+	import Donut, { type Slice } from '#lib/components/chart/Donut.svelte';
+	import Heatmap from '#lib/components/chart/Heatmap.svelte';
+	import Sparkline from '#lib/components/chart/Sparkline.svelte';
+	import StackBar from '#lib/components/chart/StackBar.svelte';
+	import TrendChart, { type TrendPoint } from '#lib/components/chart/TrendChart.svelte';
+	import { tooltip } from '#lib/dom/tooltip.ts';
 
 	const T = today();
 	const hour = new Date().getHours();
@@ -47,7 +47,7 @@
 	const showSales = $derived(auth.canAny('/sales') || auth.canAny('/toko'));
 	const showFin = $derived(auth.canAny('/akunting'));
 	const showInv = $derived(auth.canAny('/inventory'));
-	const leafOf = (component: string, match: (p: Record<string, any>) => boolean = () => true) =>
+	const leafOf = (component: ReportPage | CustomPage, match: (p: Record<string, any>) => boolean = () => true) =>
 		LEAVES.find((l) => l.page.kind !== 'transaction' && 'component' in l.page && l.page.component === component && match(l.page.props ?? {}) && auth.can(l.path));
 
 	/* ---------------- filter (berlaku untuk semua angka penjualan di bawahnya) ---------------- */
@@ -224,8 +224,8 @@
 	});
 
 	/* ---------------- operasional (sesuai hak akses) ---------------- */
-	const arLeaf = $derived(leafOf('party-card', (p) => p.kind === 'ar'));
-	const stockLeaf = $derived(leafOf('stock-card', (p) => p.scope === 'INV'));
+	const arLeaf = $derived(leafOf('kartu-hutang-piutang', (p) => p.kind === 'ar'));
+	const stockLeaf = $derived(leafOf('kartu-stok', (p) => p.scope === 'INV'));
 	const finance = $derived.by(() => {
 		if (!showFin) return null;
 		const bal = (kind: 'ar' | 'ap') => partyMoves(kind).reduce((t, m) => t + m.inc - m.dec, 0);
@@ -273,7 +273,7 @@
 		const crit = lowStock.filter((x) => x.qty <= x.min);
 		if (crit.length) out.push({ icon: AlertTriangle, tone: 'rose', text: `${crit.length} produk di bawah stok minimum`, sub: crit.map((x) => x.p.name).slice(0, 2).join(', '), href: stockLeaf?.path });
 		const lastMonth = addDays(monthStart(T), -1).slice(0, 7);
-		const late = LEAVES.filter((x) => x.page.kind === 'custom' && x.page.component === 'closing' && auth.can(x.path)).filter((l) => {
+		const late = LEAVES.filter((x) => x.page.kind === 'custom' && x.page.component === 'closing-stok' && auth.can(x.path)).filter((l) => {
 			const c = lastClosing((l.page as { props?: Record<string, any> }).props?.scope);
 			return !c || c.period < lastMonth;
 		});
@@ -291,7 +291,7 @@
 
 	const shortcuts = $derived(LEAVES.filter((l) => l.page.kind === 'transaction' && auth.can(l.path, 'create')).map((l) => ({ label: l.label, icon: l.icon, href: `${l.path}?id=new`, section: l.module.label })));
 	const modules = $derived(visibleTree(MENU, (pth) => auth.can(pth)));
-	const analysis = $derived(leafOf('sales-analysis'));
+	const analysis = $derived(leafOf('analisa-penjualan'));
 	const filtered = $derived(!!channel || !!category);
 	const periodText = $derived(`${fdate(per.from)} – ${fdate(per.to)}`);
 </script>

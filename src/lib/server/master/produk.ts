@@ -2,8 +2,8 @@
  * Master produk dari tabel lama (PowerBuilder W_01_M01 & w_m_*): atribut produk, model (M_PRODUK_MODEL)
  * dan artikel/SKU (M_PRODUK = model × warna × size; dibuat lewat proses artikel, lihat artikel.ts).
  */
-import * as M from '#lib/erp/defs/masters.ts';
-import { hargaBarcode } from '#lib/erp/produk.ts';
+import * as M from '#lib/domain/defs/masters.ts';
+import { hargaBarcode } from '#lib/domain/produk.ts';
 import { AuthError } from '../auth/users.ts';
 import { request, sql } from '../db.ts';
 import { kodeUrut, letters3, likeEscape } from './codes.ts';
