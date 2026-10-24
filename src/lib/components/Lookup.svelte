@@ -41,9 +41,22 @@
 		// kode lama yang tidak ada lagi di tabel acuannya tetap ditampilkan apa adanya
 		return value && list.length && !lookups.get(source, value) ? [...list, { id: value, code: value, name: value, hint: 'tidak ditemukan', active: true }] : list;
 	});
+	/**
+	 * Kode lookup bisa sama di beberapa brand/site (mis. jenis COA `ZZ` per brand, akun per site):
+	 * pilihan = yang lolos filter, ditambah nilai terpilih hanya bila belum ada — diambil dari baris
+	 * yang cocok dengan filter (brand/site data ini) agar tidak ganda dan labelnya tidak milik brand lain.
+	 */
+	const picked = $derived.by<Row[]>(() => {
+		const fits = (r: Row) => !filter || filter(r);
+		const list = rows.filter((r) => r.active !== false && fits(r));
+		if (value && !list.some((r) => r.id === value)) {
+			const cur = rows.find((r) => r.id === value && fits(r)) ?? rows.find((r) => r.id === value);
+			if (cur) list.push(cur);
+		}
+		return list;
+	});
 	const options = $derived<SelectOption[]>(
-		rows
-			.filter((r) => (r.active !== false && (!filter || filter(r))) || r.id === value)
+		picked
 			.map((r) =>
 				source
 					? { value: r.id, label: r.name || r.code, hint: [r.code !== r.name ? r.code : '', r.hint].filter(Boolean).join(' · '), keywords: r.code }
@@ -55,8 +68,14 @@
 						}
 			)
 	);
-	const display = (o: SelectOption) => (source ? lookups.label(source, o.value) : db.label(table!, String(o.value)));
-	const find = (v: string) => (source ? lookups.get(source, v) : db.get(table!, v));
+	/** baris pilihan dengan kode ini (dari daftar terfilter, bukan baris pertama dengan kode sama di brand lain) */
+	const pickedRow = (v: unknown) => picked.find((r) => r.id === v);
+	const display = (o: SelectOption) => {
+		if (!source) return db.label(table!, String(o.value));
+		const r = pickedRow(o.value);
+		return r ? (r.code && r.code !== r.name ? `${r.code} — ${r.name}` : r.name) : lookups.label(source, o.value);
+	};
+	const find = (v: string) => (source ? (pickedRow(v) ?? lookups.get(source, v)) : db.get(table!, v));
 </script>
 
 <Select

@@ -6,6 +6,7 @@
 	import type { Placement } from '@floating-ui/dom';
 	import type { Snippet } from 'svelte';
 	import { tick } from 'svelte';
+	import { backClose } from '#lib/ui/backClose.svelte.ts';
 	import { float, isMobile, uidEl } from '#lib/ui/floating.ts';
 
 	let {
@@ -52,6 +53,7 @@
 	export function hide() {
 		pop?.hidePopover();
 	}
+	backClose(() => open, hide);
 
 	function onbeforetoggle(e: ToggleEvent) {
 		if (e.newState === 'open') {

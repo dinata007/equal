@@ -26,7 +26,8 @@
 	const options = $derived((field.options ?? []).map((o) => (typeof o === 'string' ? o : { value: o.value, label: o.label })));
 </script>
 
-<div class={field.span === 2 || type === 'textarea' ? 'sm:col-span-2' : ''}>
+<!-- min-w-0: isian tidak boleh melebarkan kolom grid form melebihi lebar layar -->
+<div class="min-w-0 {field.span === 2 || type === 'textarea' ? 'sm:col-span-2' : ''}">
 	{#if type === 'toggle'}
 		<label class="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-stone-200 px-3 py-2.5 dark:border-stone-700">
 			<span class="text-sm">{field.label}</span>

@@ -11,6 +11,9 @@
 	let error = $state('');
 	let loading = $state(false);
 	let passwordEl = $state<HTMLInputElement>();
+	// mulai 2026: tahun ini saja, tahun berikutnya jadi rentang (2026 - 2027)
+	const year = new Date().getFullYear();
+	const copyright = `© ${year > 2026 ? `2026 - ${year}` : 2026} IBS All rights reserved.`;
 
 	$effect(() => {
 		if (auth.user) goto(auth.user.mustChange ? '/ganti-password' : '/', { replace: true });
@@ -38,20 +41,20 @@
 				<Logo size="lg" />
 				<p class="mt-8 max-w-md text-lg leading-relaxed text-stone-600 dark:text-stone-300">Satu ruang untuk material, gudang, toko, keuangan & SDM — rapi, ringan, nyaman dipakai dari kantor maupun genggaman.</p>
 			</div>
-			<p class="text-xs text-stone-400">© {new Date().getFullYear()} ruangSenja</p>
+			<p class="text-xs text-stone-400">{copyright}</p>
 		</div>
 	</div>
 
-	<!-- form -->
+	<!-- form: logo (HP) + form di tengah layar, footer menempel di bawah -->
 	<div class="flex flex-col bg-canvas lg:bg-white dark:bg-stone-950 lg:dark:bg-stone-950">
-		<div class="pt-safe flex flex-col items-center px-6 pt-14 pb-4 lg:hidden">
-			<Logo size="lg" />
-			<span class="mt-3 text-[10px] font-semibold tracking-[.3em] text-stone-400 uppercase">ERP Suite</span>
-		</div>
-		<div class="flex flex-1 items-start justify-center px-5 pt-6 pb-10 lg:items-center">
+		<div class="flex flex-1 items-center justify-center px-5 pt-[max(2.5rem,env(safe-area-inset-top))] pb-10">
 			<div class="w-full max-w-sm">
+				<div class="mb-10 flex flex-col items-center lg:hidden">
+					<Logo size="lg" />
+					<span class="mt-3 text-[10px] font-semibold tracking-[.3em] text-stone-400 uppercase">ERP Suite</span>
+				</div>
 				<h2 class="text-2xl font-medium">Selamat datang 👋</h2>
-				<p class="mt-1 text-sm text-stone-500">Login untuk melanjutkan ke dashboard.</p>
+				<p class="mt-1 text-sm text-stone-500">Login dengan user terdaftar untuk masuk ke ERP.</p>
 
 				<form class="mt-8 space-y-4" onsubmit={submit}>
 					<div>
@@ -102,5 +105,6 @@
 				<div class="mt-8"><InstallAppButton variant="login" /></div>
 			</div>
 		</div>
+		<footer class="px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-center text-xs text-stone-400 lg:hidden">{copyright}</footer>
 	</div>
 </div>

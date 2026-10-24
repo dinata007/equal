@@ -1,6 +1,6 @@
 /**
  * Master raw material dari tabel lama (PowerBuilder W_10_M01–M08): article `m_bahan_art` dan atributnya.
- * Atribut dikelola dari satu menu bertab (seperti atribut produk); article = menu Raw Material.
+ * Article & atributnya dikelola dari satu menu bertab Raw Material (tab pertama = article).
  */
 import * as M from '#lib/erp/defs/masters.ts';
 import { AuthError } from '../auth/users.ts';
@@ -9,7 +9,7 @@ import { kodeUrut } from './codes.ts';
 import { WARNA_DIPAKAI } from './produk.ts';
 import type { Resource, Values } from './registry.ts';
 
-const ATRIBUT = '/material/master/atribut-material';
+const ATRIBUT = '/material/master/raw-material';
 const stamp = { user: 'usrupd', time: 'tglupd' };
 const dipakaiArt = (col: string): [string, string][] => [['Raw material', `dbo.m_bahan_art WHERE ${col} = @${col}`]];
 

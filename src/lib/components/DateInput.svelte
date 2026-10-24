@@ -9,6 +9,7 @@
 	import { tick } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { addDays, iso, today } from '#lib/erp/format.ts';
+	import { backClose } from '#lib/ui/backClose.svelte.ts';
 	import { float, uidEl } from '#lib/ui/floating.ts';
 	import { tooltip } from '#lib/ui/tooltip.ts';
 
@@ -55,6 +56,7 @@
 	let view = $state<'days' | 'months'>('days');
 	let stop: (() => void) | null = null;
 	let fromInput = false;
+	backClose(() => open, () => pop?.hidePopover());
 
 	const shown = $derived(valid(value) ? fmt.format(new Date(value + 'T00:00:00')) : '');
 	const [cy, cm] = $derived(parts(cursor));

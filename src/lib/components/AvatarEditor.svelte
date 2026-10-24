@@ -3,6 +3,7 @@
 	 * Crop foto profil: geser (drag / panah), zoom (scroll, cubit dua jari, slider, + −), putar 90°.
 	 * Bisa di-zoom out sampai seluruh gambar masuk (sisa latar putih). Hasil 512×512 WebP (JPEG bila browser tidak bisa WebP).
 	 */
+	import { backClose } from '#lib/ui/backClose.svelte.ts';
 	import { tooltip } from '#lib/ui/tooltip.ts';
 	import { LoaderCircle, RotateCcw, RotateCw, ZoomIn, ZoomOut } from '@lucide/svelte';
 
@@ -102,6 +103,7 @@
 	function close() {
 		dialog?.close();
 	}
+	backClose(() => !!file, close);
 	function onclose() {
 		bmp?.close();
 		bmp = null;

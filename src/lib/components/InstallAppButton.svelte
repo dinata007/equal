@@ -7,6 +7,7 @@
 	import { Download, LoaderCircle, Share, SquarePlus, X } from '@lucide/svelte';
 	import { pwa } from '#lib/erp/pwa.svelte.ts';
 	import { toast } from '#lib/erp/ui.svelte.ts';
+	import { backClose } from '#lib/ui/backClose.svelte.ts';
 	import { float, uidEl } from '#lib/ui/floating.ts';
 	import { tooltip } from '#lib/ui/tooltip.ts';
 
@@ -16,7 +17,9 @@
 	let btn = $state<HTMLButtonElement>();
 	let pop = $state<HTMLDivElement>();
 	let busy = $state(false);
+	let open = $state(false);
 	let stop: (() => void) | null = null;
+	backClose(() => open, () => pop?.hidePopover());
 
 	const visible = $derived(!pwa.standalone && !pwa.installedNow && (pwa.route === 'prompt' || pwa.route === 'ios' || pwa.route === 'mac-safari'));
 	const sheet = matchMedia('(max-width: 639px)').matches;
@@ -29,6 +32,7 @@
 		if (r === 'accepted') toast.success('ruangSenja ter-install. Buka dari layar utama atau taskbar.');
 	}
 	function ontoggle(e: ToggleEvent) {
+		open = e.newState === 'open';
 		stop?.();
 		stop = null;
 		if (e.newState === 'open' && !sheet) stop = float(btn!, pop!, { placement: variant === 'login' ? 'top' : 'bottom-end', gap: 8, maxHeight: 420 });
