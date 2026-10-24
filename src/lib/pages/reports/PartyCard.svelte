@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { db } from '#lib/erp/db.svelte.ts';
-	import { date as fdate, downloadCsv, money, monthStart, today, addDays } from '#lib/erp/format.ts';
+	import { date as fdate, money, monthStart, today, addDays } from '#lib/erp/format.ts';
+	import { tableOf } from '#lib/erp/export.ts';
 	import { partyMoves } from '#lib/erp/ledger.ts';
 	import type { Leaf } from '#lib/erp/menu.ts';
 	import Lookup from '#lib/components/Lookup.svelte';
@@ -27,15 +28,15 @@
 	});
 	const closing = $derived(rows.at(-1)?.bal ?? opening);
 
-	function exportCsv() {
-		downloadCsv(`Kartu ${noun} ${db.name(table, partyId)}`, ['Tanggal', 'No', 'Transaksi', 'Tambah', 'Kurang', 'Saldo'], [
+	function exportData() {
+		return tableOf(`Kartu ${noun} ${db.name(table, partyId)}`, ['Tanggal', 'No', 'Transaksi', 'Tambah', 'Kurang', 'Saldo'], [
 			[from, '', 'Saldo awal', '', '', opening],
 			...rows.map((r) => [r.date, r.no, r.label, r.inc, r.dec, r.bal])
 		]);
 	}
 </script>
 
-<ReportShell {leaf} subtitle="{db.name(table, partyId) || '-'} · {fdate(from)} – {fdate(to)}" onexport={exportCsv}>
+<ReportShell {leaf} subtitle="{db.name(table, partyId) || '-'} · {fdate(from)} – {fdate(to)}" exportTable={exportData}>
 	{#snippet filters()}
 		<div class="lg:w-72">
 			<span class="label">{kind === 'ar' ? 'Customer' : 'Supplier'}</span>

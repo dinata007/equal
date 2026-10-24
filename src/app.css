@@ -52,6 +52,15 @@
 @layer base {
 	html {
 		-webkit-tap-highlight-color: transparent;
+		color-scheme: light;
+	}
+	/* kontrol & warna sistem bawaan browser (scrollbar, Canvas/CanvasText) ikut tema */
+	html.dark {
+		color-scheme: dark;
+	}
+	/* popover bawaan browser memakai warna CanvasText (hitam) → ikuti warna teks aplikasi */
+	[popover] {
+		color: inherit;
 	}
 	body {
 		@apply bg-canvas text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100;
@@ -90,6 +99,16 @@
 	::selection {
 		@apply bg-brand-200 text-brand-950;
 	}
+}
+
+/* ---------- Ganti tema: lingkaran meluas dari titik klik (animasinya di appearance.svelte.ts) ---------- */
+html.theme-vt::view-transition-old(root),
+html.theme-vt::view-transition-new(root) {
+	animation: none;
+	mix-blend-mode: normal;
+}
+html.theme-vt::view-transition-new(root) {
+	z-index: 2;
 }
 
 /* ---------- Scrollbar tipis & membulat (ikut tema) ---------- */

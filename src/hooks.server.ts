@@ -51,6 +51,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	res.headers.set('X-Content-Type-Options', 'nosniff');
 	res.headers.set('X-Frame-Options', 'DENY');
 	res.headers.set('Referrer-Policy', 'same-origin');
-	if (isApi) res.headers.set('Cache-Control', 'no-store');
+	// data API tidak di-cache, kecuali endpoint yang menentukan sendiri (mis. foto profil berversi)
+	if (isApi && !res.headers.has('Cache-Control')) res.headers.set('Cache-Control', 'no-store');
 	return res;
 };

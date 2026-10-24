@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { db } from '#lib/erp/db.svelte.ts';
-	import { date as fdate, downloadCsv, money, monthStart, today } from '#lib/erp/format.ts';
+	import { date as fdate, money, monthStart, today } from '#lib/erp/format.ts';
+	import { tableOf } from '#lib/erp/export.ts';
 	import { partyMoves } from '#lib/erp/ledger.ts';
 	import type { Leaf } from '#lib/erp/menu.ts';
 	import DataTable from '#lib/components/DataTable.svelte';
@@ -55,8 +56,8 @@
 	const cardPath = $derived(leaf.path.replace(/mutasi-(piutang|hutang)$/, (_, x) => 'kartu-' + x));
 	const open = (r: R) => goto(`${cardPath}?party=${r.id}&from=${from}&to=${to}`);
 
-	function exportCsv() {
-		downloadCsv(`Mutasi ${noun} ${from} sd ${to}`, ['Kode', 'Nama', 'Saldo Awal', 'Tambah', 'Kurang', 'Saldo Akhir'], data.map((r) => [r.party.code, r.party.name, r.open, r.inc, r.dec, r.close]));
+	function exportData() {
+		return tableOf(`Mutasi ${noun} ${from} sd ${to}`, ['Kode', 'Nama', 'Saldo Awal', 'Tambah', 'Kurang', 'Saldo Akhir'], data.map((r) => [r.party.code, r.party.name, r.open, r.inc, r.dec, r.close]));
 	}
 </script>
 
@@ -71,7 +72,7 @@
 	</div>
 {/snippet}
 
-<ReportShell {leaf} subtitle="{fdate(from)} – {fdate(to)}" onexport={exportCsv}>
+<ReportShell {leaf} subtitle="{fdate(from)} – {fdate(to)}" exportTable={exportData}>
 	{#snippet filters()}
 		<PeriodFilter bind:from bind:to />
 		<label class="flex h-10 items-center gap-2 text-sm lg:h-9">

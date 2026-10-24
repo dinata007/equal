@@ -88,7 +88,7 @@
 		{#if it.section && it.section !== items[i - 1]?.section}
 			<p class="px-3 pt-2.5 pb-1 text-[10px] font-semibold tracking-wider text-stone-400 uppercase {i ? 'mt-1 border-t border-stone-100 dark:border-stone-800' : ''}">{it.section}</p>
 		{/if}
-		{@const cls = `flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm outline-none transition-colors focus:bg-stone-100 hover:bg-stone-100 dark:focus:bg-stone-800 dark:hover:bg-stone-800 ${it.danger ? 'text-rose-600 focus:bg-rose-50 hover:bg-rose-50 dark:focus:bg-rose-500/10 dark:hover:bg-rose-500/10' : ''}`}
+		{@const cls = `flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm outline-none transition-colors focus:bg-stone-100 hover:bg-stone-100 dark:focus:bg-stone-800 dark:hover:bg-stone-800 ${it.danger ? 'text-rose-600 focus:bg-rose-50 hover:bg-rose-50 dark:text-rose-400 dark:focus:bg-rose-500/10 dark:hover:bg-rose-500/10' : ''}`}
 		{#if it.href}
 			<a role="menuitem" tabindex="-1" href={it.href} class={cls} onclick={() => pop?.hidePopover()}>
 				{#if it.icon}<it.icon class="size-4 shrink-0 opacity-70" />{/if}

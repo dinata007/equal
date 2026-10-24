@@ -93,7 +93,7 @@
 			</div>
 			<div class="mt-4 flex justify-center">
 				{#if forced}
-					<button class="btn btn-ghost btn-sm" onclick={logout}><LogOut class="size-3.5" /> Keluar</button>
+					<button class="btn btn-ghost btn-sm" onclick={logout}><LogOut class="size-3.5" /> Logout</button>
 				{:else}
 					<a href="/profil" class="btn btn-ghost btn-sm"><ArrowLeft class="size-3.5" /> Kembali</a>
 				{/if}

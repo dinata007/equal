@@ -14,14 +14,17 @@
 		<link rel="icon" href="%sveltekit.assets%/icon.svg" type="image/svg+xml" />
 		<link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png" />
 		<script>
-			// Terapkan tema sebelum render agar tidak berkedip
+			// Terapkan tampilan (mode light/dark, ukuran teks) sebelum render agar tidak berkedip.
+			// Logika lengkapnya di src/lib/erp/appearance.svelte.ts.
 			try {
-				const t = localStorage.getItem('senja:theme');
-				if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches))
-					{
-						document.documentElement.classList.add('dark');
-						document.querySelector('meta[name=theme-color]').setAttribute('content', '#0c0a09');
-					}
+				const h = document.documentElement;
+				const p = JSON.parse(localStorage.getItem('senja:prefs') || 'null') || { theme: localStorage.getItem('senja:theme') || 'system' };
+				if (p.theme === 'dark' || (p.theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)) {
+					h.classList.add('dark');
+					document.querySelector('meta[name=theme-color]').setAttribute('content', '#0c0a09');
+				}
+				const fs = { sm: '93.75%', lg: '106.25%', xl: '112.5%' }[p.textSize];
+				if (fs) h.style.fontSize = fs;
 			} catch {}
 		</script>
 		%sveltekit.head%

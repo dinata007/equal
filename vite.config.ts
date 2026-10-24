@@ -1,7 +1,10 @@
 import adapter from '@sveltejs/adapter-node';
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
+
+const empty = fileURLToPath(new URL('./src/lib/stubs/empty.js', import.meta.url));
 
 export default defineConfig({
 	plugins: [
@@ -15,5 +18,9 @@ export default defineConfig({
 			// adapter-node: siap di-deploy ke server Windows/Linux berdampingan dengan MSSQL
 			adapter: adapter()
 		})
-	]
+	],
+	resolve: {
+		// fitur jsPDF yang tidak dipakai (doc.html / SVG) → modul kosong, lihat src/lib/stubs/empty.js
+		alias: { html2canvas: empty, canvg: empty, dompurify: empty }
+	}
 });

@@ -5,7 +5,7 @@
 	import { auth } from '#lib/erp/auth.svelte.ts';
 	import { MENU, visibleTree } from '#lib/erp/menu.ts';
 	import { shell } from '#lib/erp/ui.svelte.ts';
-	import { initials } from '#lib/erp/format.ts';
+	import Avatar from '../Avatar.svelte';
 	import Logo from '../Logo.svelte';
 	import MenuTree from './MenuTree.svelte';
 
@@ -72,7 +72,7 @@
 		</nav>
 		{#if auth.user}
 			<a href="/profil" onclick={onnavigate} class="m-3 flex items-center gap-3 rounded-xl border border-stone-200 p-2.5 transition hover:bg-stone-50 dark:border-stone-800 dark:hover:bg-stone-800/50">
-				<span class="grid size-9 place-items-center rounded-full bg-brand-500 text-xs font-semibold text-white">{initials(auth.user.name)}</span>
+				<Avatar id={auth.user.id} name={auth.user.name} ver={auth.user.avatar} />
 				<span class="min-w-0 flex-1 leading-tight">
 					<span class="block truncate text-sm font-medium">{auth.user.name}</span>
 					<span class="block truncate text-xs text-stone-500">{auth.accessLabel}</span>

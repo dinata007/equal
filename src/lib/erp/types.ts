@@ -1,4 +1,5 @@
 import type { Component } from 'svelte';
+import type { UiPrefs } from './prefs';
 
 /* ---------- Data ---------- */
 export type Row = { id: string; [k: string]: any };
@@ -38,6 +39,10 @@ export interface SessionUser {
 	menus: string[];
 	/** brand yang boleh dilihat; ['*'] = semua */
 	brands: string[];
+	/** versi foto profil (null = belum ada foto) → /api/avatar/{id}?v={avatar} */
+	avatar: number | null;
+	/** preferensi tampilan dari akun (null = belum pernah disimpan, pakai yang ada di perangkat) */
+	prefs: UiPrefs | null;
 }
 
 /** Data pengguna untuk menu Pengguna & Hak Akses (admin) */
@@ -55,6 +60,7 @@ export interface ManagedUser {
 	locked: boolean;
 	legacyId: string | null;
 	lastLoginAt: string | null;
+	avatar: number | null;
 }
 
 /* ---------- Definisi field ---------- */

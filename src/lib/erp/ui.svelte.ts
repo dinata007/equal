@@ -44,21 +44,12 @@ class Confirm {
 export const confirmDialog = new Confirm();
 export const ask = (o: ConfirmOpts) => confirmDialog.ask(o);
 
-/* ---------- Tema & shell ---------- */
+/* ---------- Shell (tema ada di appearance.svelte.ts) ---------- */
 class Shell {
-	dark = $state(browser && document.documentElement.classList.contains('dark'));
 	drawer = $state(false);
 	palette = $state(false);
 	collapsed = $state(browser && localStorage.getItem('senja:collapsed') === '1');
 
-	toggleTheme() {
-		this.dark = !this.dark;
-		document.documentElement.classList.toggle('dark', this.dark);
-		localStorage.setItem('senja:theme', this.dark ? 'dark' : 'light');
-		document
-			.querySelector('meta[name="theme-color"]')
-			?.setAttribute('content', this.dark ? '#0c0a09' : '#f2f1ef');
-	}
 	toggleCollapsed() {
 		this.collapsed = !this.collapsed;
 		localStorage.setItem('senja:collapsed', this.collapsed ? '1' : '0');

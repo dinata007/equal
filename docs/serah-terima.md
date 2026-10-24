@@ -16,7 +16,7 @@ Ringkasan keputusan & status agar pekerjaan bisa dilanjutkan tanpa riwayat perca
 - **Brand** diatur per pengguna (ada yang boleh beberapa brand) → `dbo.AppUserScope` scope `brand`, nilai `*` = semua.
 - **Urutan pengerjaan:** login & hak akses → per modul: **master dulu, lalu transaksi, terakhir laporan**.
 - Angka di dashboard tanpa "Rp" (format ringkas `short()`).
-- Alur kerja git: kerjakan di branch, buat PR per bagian; pemilik repo yang merge.
+- Alur kerja git (sejak 24/10/2026): **git lokal saja**, langsung commit di `main`; tanpa remote GitHub, tanpa branch/PR. Repo lama di github.com/DexyM/Senja hanya arsip (sampai PR #9).
 
 ## Status Fase 1 — login & hak akses: **selesai** (lihat PR "Fase 1")
 
@@ -63,7 +63,7 @@ Keputusan pemilik (23/10/2026): web **menulis langsung** ke tabel master lama de
 - Kerangka: halaman atribut bertab umum `pages/custom/Attributes.svelte` (daftar tab: `ATTRIBUTES` di `defs/masters.ts`); MasterPage memuat ulang baris dari database saat dibuka, mendukung `section` (judul kelompok isian), `decimals`, `copyable`, `derive` (isian turunan); `kodeUrut` pindah ke `server/master/codes.ts`.
 - Diuji: 45 skenario API raw material + cek ulang produk/master Fase 2a, alur UI (tambah dengan hitung harga, salin jadi baru, hapus) & halaman atribut tanpa error konsol; `npm run check` & build bersih.
 
-## Status Fase 2d — HR: **selesai** (branch `fase-2c-material`, belum di-commit)
+## Status Fase 2d — HR: **selesai** (sudah di `main`)
 
 - **HR › Master › Pegawai** (`M_PEGAWAI`, W_MS_08) = MasterPage + tab **Kontrak** (`pages/custom/Employees.svelte`, `hr/KontrakPanel.svelte`). NIK (cb_save) = `SJ` + yyMM tanggal masuk + 2 digit urut per bulan (`gs_sing` PB: site 01/semua = SJ, 11 = GG, lainnya EQ — web tanpa site, semua data SJ); `pt_id` = 1. NIK & tanggal masuk terkunci setelah simpan. Hapus pegawai hanya bila belum dipakai (absensi, izin, cuti, tunjangan, customer pegangan); riwayat kontraknya ikut terhapus.
 - **Kontrak** (`M_PEGAWAI_KONTRAK`, W_MS_08_ENTRY2, `server/master/kontrak.ts`, `/api/pegawai/[id]/kontrak`): JOIN / PERPANJANG / ROLLING / RESIGN, isian bawaan dari kontrak terakhir (perpanjang mulai dari akhir kontrak lama). Aturan PB: JOIN ditolak bila masih ada JOIN aktif, tipe lain ditolak bila belum pernah JOIN; PERPANJANG/ROLLING menutup kontrak lama (aktif 0, pegangan 1) & pegawai aktif; RESIGN menutup kontrak lama (aktif 0), kontrak resign pegangan 1, pegawai nonaktif. Tambahan web (PB tidak mengecek karena logika null): tanggal akhir wajib untuk PKWT & harus setelah tanggal awal, akhir perpanjangan harus melewati akhir kontrak lama; JOIN ulang mengaktifkan pegawai lagi. `user_entry` = nama pengguna (seperti `gs_user_name`).
@@ -72,11 +72,21 @@ Keputusan pemilik (23/10/2026): web **menulis langsung** ke tabel master lama de
 - Kerangka: kunci IDENTITY (`identity` di registry, INSERT … OUTPUT), kunci angka dari id baris dikonversi ke tipe kolom, kode lookup berkolom angka dibaca sebagai teks, `tabs` di MasterPage (panel data terkait di form ubah), `prefix` id di Field (dua form tampil bersamaan). Perbaikan `DateInput`: tahun yang belum selesai diketik ("202") tidak lagi membuat kalender error.
 - Diuji: 46 skenario API HR, alur UI (pegawai baru → kontrak JOIN → hapus, rumus UMR & tunjangan, atribut) di 1280/390 px tanpa error konsol; `npm run check` & build bersih. Data uji dihapus lagi.
 
+## Tabel App* & profil pengguna (24/10/2026)
+
+- Tabel aplikasi web pindah dari schema `web` ke `dbo` berawalan `App` (`AppUser`, `AppSession`, `AppUserMenu`, `AppUserScope`, `AppAuditLog`); migrasi `000` memindahkan data lama. Tabel baru `AppUserProfile` (`003`): foto (biner, maks 512 KB) & preferensi tampilan (JSON).
+- Waktu di tabel App* disimpan UTC, sedangkan koneksi `useUTC: false` (demi tabel lama) → baca lewat `utcIso()` di `server/db.ts` (memperbaiki "terakhir login" yang tadinya bergeser 7 jam).
+- **Profil** (`routes/(app)/profil`): foto profil dengan crop/zoom/rotate di browser (`AvatarEditor.svelte`, hasil 512 px WebP; bisa zoom out sampai seluruh gambar masuk lingkaran) lewat klik, drag & drop, atau paste; tampil di Topbar, Sidebar, daftar Pengguna (`Avatar.svelte`, `/api/avatar/{id}?v=`). **Tampilan**: Light/Dark/System (animasi lingkaran View Transitions) & 4 ukuran teks (pilihan warna aksen, font & kurangi animasi sempat dibuat lalu dihapus atas permintaan pemilik — font tetap Source Sans 3 + Alegreya Sans); disimpan ke akun (`appearance.svelte.ts`, `prefs.ts`) & disalin ke localStorage untuk skrip anti-kedip di `app.html`. **Keamanan**: perangkat aktif + logout per perangkat / semua lainnya, riwayat aktivitas dari audit log.
+- **Install App** (`pwa.svelte.ts`, `InstallAppButton.svelte`): event install ditangkap sejak halaman pertama; tombol di Topbar & Login, kartu Aplikasi di profil. iPhone/iPad & Safari Mac → panduan langkah; tersembunyi bila sudah ter-install / Firefox desktop / bukan HTTPS (install PWA wajib HTTPS di server live).
+- Istilah umum aplikasi tidak diterjemahkan (Login/Logout, Install App, Upload, Light/Dark, Zoom, Crop…).
+- **Export** (`erp/export.ts`, `components/ExportMenu.svelte`): menu Excel / CSV / PDF di semua laporan (`ReportShell` prop `exportTable`), MasterPage, daftar transaksi, dan bar baris terpilih DataTable (ikut baris total bila kolom ber-`sum`). Excel = .xlsx asli buatan sendiri + `fflate` (angka & tanggal tetap bernilai, header freeze + AutoFilter, lebar kolom otomatis, judul/periode/pengekspor); PDF = `jspdf` + `jspdf-autotable` (landscape bila > 6 kolom, header berulang, nomor halaman, font standar → karakter non-Latin-1 diganti). Library dimuat saat dipakai. Tipe kolom ditebak dari isi bila tidak disebut (`tableOf(nama, header, baris)`).
+
 ## Langkah berikutnya
 
 1. Di lokal: `npm run db:migrate` → `npm run db:admin` → atur pengguna (sekali saja per database); beri akses menu **Atribut Produk**, **Atribut Raw Material** & **Atribut Pegawai** ke pengguna yang mengelolanya.
 2. Fase 2 master selesai → Fase 3 transaksi.
 3. Fase 3 — transaksi (setelah membaca source PowerBuilder untuk penomoran & jurnal). Pola nomor bukti per `tipe_trans` ada di `docs/database/schema.md` (bagian "Pola nomor … per jenis").
 4. Fase 4 — laporan (VIEW / stored procedure). Rumus stok lama: saldo awal bulanan `S_AWAL_GUDANG`/`S_AWAL_TOKO` + mutasi bulan berjalan (lihat `sp_Dashboard_Stok` di `docs/database/objects.sql`).
+5. Sebelum deploy ke live: jalankan `npm audit`. Per 24/10/2026 ada 2 temuan high di `@azure/msal-node` < 7.1.0 (GHSA-xcx6-jx8p-x3h5, alur authorization code / `acquireTokenByCode`). Paket ini ikut terpasang lewat `mssql` → `tedious` → `@azure/identity`, tapi tidak terjangkau karena koneksi memakai login SQL/NTLM, bukan Azure AD. Belum bisa diperbaiki: semua versi `@azure/identity` (terakhir 4.14.0) masih meminta `msal-node ^6`, dan `npm audit fix` tidak mengubah apa pun. Begitu ada `@azure/identity` yang memakai `msal-node` ≥ 7.1, cukup `npm update` lalu tes koneksi database & login. Jangan dipaksa lewat `overrides` (kombinasi versi belum dirilis Microsoft).
 
 Catatan teknis: SvelteKit 3 — variabel env dideklarasikan di `src/env.ts` dan dibaca dari `$app/env/private`; tipe hook dari `@sveltejs/kit/hooks`. `mssql` 12 butuh Node.js ≥ 22. Password `.env` yang mengandung `#` harus diapit tanda kutip.

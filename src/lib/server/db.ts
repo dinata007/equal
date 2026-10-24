@@ -25,6 +25,13 @@ export function getPool(): Promise<sql.ConnectionPool> {
 export const request = async () => (await getPool()).request();
 
 export { sql, dbLabel };
+
+/**
+ * Kolom waktu tabel App* disimpan UTC (SYSUTCDATETIME), tapi koneksi membaca tanggal sebagai waktu lokal
+ * (useUTC: false, demi tabel lama) → angka jam/menitnya ditafsirkan ulang sebagai UTC. Hasil: ISO string.
+ */
+export const utcIso = (d: Date | null | undefined) =>
+	d ? new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds())).toISOString() : null;
 export const label = () => dbLabel(env);
 /** .env sudah berisi koneksi database (tanpanya aplikasi tidak bisa login) */
 export const dbConfigured = () => !!(env.DB_SERVER && env.DB_NAME && env.DB_USER);

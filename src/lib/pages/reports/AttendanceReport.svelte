@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { db } from '#lib/erp/db.svelte.ts';
-	import { addDays, date as fdate, downloadCsv, num, today } from '#lib/erp/format.ts';
+	import { addDays, date as fdate, num, today } from '#lib/erp/format.ts';
+	import { tableOf } from '#lib/erp/export.ts';
 	import type { Leaf } from '#lib/erp/menu.ts';
 	import type { Doc } from '#lib/erp/types.ts';
 	import Lookup from '#lib/components/Lookup.svelte';
@@ -40,12 +41,12 @@
 	const sum = $derived(Object.fromEntries(STATUS.map((s) => [s, rows.reduce((a, r) => a + r.c[s], 0)])));
 	const all = $derived(STATUS.reduce((a, s) => a + sum[s], 0));
 
-	function exportCsv() {
-		downloadCsv(`Rekap Absensi ${from} sd ${to}`, ['NIK', 'Nama', 'Jabatan', ...STATUS, '% Hadir'], rows.map((r) => [r.e.nik, r.e.name, r.e.position, ...STATUS.map((s) => r.c[s]), num(r.rate)]));
+	function exportData() {
+		return tableOf(`Rekap Absensi ${from} sd ${to}`, ['NIK', 'Nama', 'Jabatan', ...STATUS, '% Hadir'], rows.map((r) => [r.e.nik, r.e.name, r.e.position, ...STATUS.map((s) => r.c[s]), Math.round(r.rate * 10) / 10]));
 	}
 </script>
 
-<ReportShell {leaf} subtitle="{fdate(from)} – {fdate(to)} · {days} hari tercatat" onexport={exportCsv}>
+<ReportShell {leaf} subtitle="{fdate(from)} – {fdate(to)} · {days} hari tercatat" exportTable={exportData}>
 	{#snippet filters()}
 		<PeriodFilter bind:from bind:to />
 		<div class="lg:w-60"><span class="label">Site</span><Lookup table="sites" bind:value={siteId} placeholder="Semua site" clearable /></div>

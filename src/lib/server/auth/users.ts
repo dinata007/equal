@@ -3,8 +3,9 @@
  * Semua validasi dilakukan di server — data dari browser tidak dipercaya.
  */
 import { GRANTABLE, isGrantable } from '#lib/erp/menu.ts';
+import { cleanPrefs } from '#lib/erp/prefs.ts';
 import type { ManagedUser, SessionUser } from '#lib/erp/types.ts';
-import { getPool, request, sql } from '../db.ts';
+import { getPool, request, sql, utcIso } from '../db.ts';
 import { audit } from './audit.ts';
 import { generatePassword, hashPassword, passwordProblem, verifyDummy, verifyPassword } from './password.js';
 import { createSession, deleteUserSessions, purgeExpiredSessions, type SessionRow } from './session.ts';
@@ -45,6 +46,14 @@ async function loadAccess(userIds: number[]) {
 	return { menus, brands };
 }
 
+const parseJson = (s: string) => {
+	try {
+		return JSON.parse(s);
+	} catch {
+		return null;
+	}
+};
+
 export async function sessionUser(s: SessionRow): Promise<SessionUser> {
 	const { menus, brands } = await loadAccess([s.userId]);
 	return {
@@ -55,7 +64,9 @@ export async function sessionUser(s: SessionRow): Promise<SessionUser> {
 		storeId: s.tokoId,
 		mustChange: s.mustChange,
 		menus: s.isAdmin ? [] : (menus.get(s.userId) ?? []),
-		brands: s.isAdmin ? ['*'] : (brands.get(s.userId) ?? [])
+		brands: s.isAdmin ? ['*'] : (brands.get(s.userId) ?? []),
+		avatar: s.avatarVer,
+		prefs: s.prefs ? cleanPrefs(parseJson(s.prefs)) : null
 	};
 }
 
@@ -148,10 +159,11 @@ export async function changePassword(user: SessionUser, sessionId: string, curre
 /* ---------------- pengelolaan pengguna (admin) ---------------- */
 export async function listUsers(): Promise<ManagedUser[]> {
 	const rows = (
-		await (await request()).query(`SELECT id, username, name, is_admin, active, toko_id, legacy_user_id, must_change_password,
-			CASE WHEN password_hash IS NULL THEN 0 ELSE 1 END AS has_password,
-			CASE WHEN locked_until > SYSUTCDATETIME() THEN 1 ELSE 0 END AS locked, last_login_at
-			FROM dbo.AppUser ORDER BY name`)
+		await (await request()).query(`SELECT u.id, u.username, u.name, u.is_admin, u.active, u.toko_id, u.legacy_user_id, u.must_change_password,
+			CASE WHEN u.password_hash IS NULL THEN 0 ELSE 1 END AS has_password,
+			CASE WHEN u.locked_until > SYSUTCDATETIME() THEN 1 ELSE 0 END AS locked, u.last_login_at,
+			CASE WHEN p.avatar IS NULL THEN NULL ELSE p.avatar_ver END AS avatar_ver
+			FROM dbo.AppUser u LEFT JOIN dbo.AppUserProfile p ON p.user_id = u.id ORDER BY u.name`)
 	).recordset;
 	const { menus, brands } = await loadAccess(rows.map((r) => r.id));
 	return rows.map((r) => ({
@@ -167,7 +179,8 @@ export async function listUsers(): Promise<ManagedUser[]> {
 		mustChange: !!r.must_change_password,
 		locked: !!r.locked,
 		legacyId: r.legacy_user_id,
-		lastLoginAt: r.last_login_at ? new Date(r.last_login_at).toISOString() : null
+		lastLoginAt: utcIso(r.last_login_at),
+		avatar: r.avatar_ver
 	}));
 }
 

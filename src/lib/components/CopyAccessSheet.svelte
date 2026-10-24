@@ -7,7 +7,8 @@
 	import { ArrowDown, ArrowUp, Check, Search, ShieldCheck } from '@lucide/svelte';
 	import { tick } from 'svelte';
 	import { accessLabel, menusOf } from '#lib/erp/auth.svelte.ts';
-	import { initials, num } from '#lib/erp/format.ts';
+	import { num } from '#lib/erp/format.ts';
+	import Avatar from './Avatar.svelte';
 	import { GRANTABLE } from '#lib/erp/menu.ts';
 	import type { ManagedUser } from '#lib/erp/types.ts';
 	import Sheet from './Sheet.svelte';
@@ -158,7 +159,7 @@
 				class="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-2.5 transition-colors {sel ? 'bg-brand-50 ring-1 ring-brand-300 dark:bg-brand-500/10 dark:ring-brand-700' : 'hover:bg-stone-50 dark:hover:bg-stone-800/50'}"
 				onclick={() => ((pickedId = u.id), (active = i))}
 			>
-				<span class="grid size-9 shrink-0 place-items-center rounded-full text-xs font-semibold {u.admin ? 'bg-brand-500 text-white' : 'bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-300'} {u.active ? '' : 'opacity-40'}">{initials(u.name)}</span>
+				<Avatar id={u.id} name={u.name} ver={u.avatar} tone={u.admin ? 'brand' : 'muted'} class="size-9 text-xs {u.active ? '' : 'opacity-40'}" />
 				<span class="min-w-0 flex-1">
 					<span class="block truncate text-sm font-medium">{u.name} <span class="font-normal text-stone-400">@{u.username}</span></span>
 					<span class="block truncate text-xs text-stone-500">{[storeName(u), u.active ? '' : 'Nonaktif'].filter(Boolean).join(' · ') || 'Tidak terikat toko'}</span>

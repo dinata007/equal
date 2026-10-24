@@ -26,6 +26,22 @@ export function date(v?: string) {
 }
 export const monthLabel = (ym: string) => mlf.format(new Date(ym + '-01T00:00:00'));
 
+const rtf = new Intl.RelativeTimeFormat('id-ID', { numeric: 'auto' });
+const dtf = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+/** waktu relatif: "baru saja", "5 menit yang lalu", "kemarin"; lebih dari 30 hari → tanggal */
+export function ago(v: string | null | undefined, now = Date.now()) {
+	if (!v) return '';
+	const s = Math.round((new Date(v).getTime() - now) / 1000);
+	const a = Math.abs(s);
+	if (a < 45) return 'baru saja';
+	if (a < 3600) return rtf.format(Math.round(s / 60), 'minute');
+	if (a < 86400) return rtf.format(Math.round(s / 3600), 'hour');
+	if (a < 30 * 86400) return rtf.format(Math.round(s / 86400), 'day');
+	return dtf.format(new Date(v));
+}
+/** tanggal + jam lengkap (untuk tooltip) */
+export const dateTime = (v: string) => dtf.format(new Date(v));
+
 /** yyyy-mm-dd waktu lokal */
 export function iso(d = new Date()) {
 	const p = (n: number) => String(n).padStart(2, '0');
@@ -55,16 +71,3 @@ export function initials(name = '') {
 		.join('');
 }
 
-export function downloadCsv(filename: string, header: string[], rows: (string | number)[][]) {
-	const esc = (v: unknown) => {
-		const s = String(v ?? '');
-		return /[",;\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-	};
-	const csv = [header, ...rows].map((r) => r.map(esc).join(';')).join('\n');
-	const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
-	const a = document.createElement('a');
-	a.href = URL.createObjectURL(blob);
-	a.download = filename.endsWith('.csv') ? filename : filename + '.csv';
-	a.click();
-	setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-}

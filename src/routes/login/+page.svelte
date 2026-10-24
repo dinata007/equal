@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { Eye, EyeOff, LogIn, TriangleAlert } from '@lucide/svelte';
 	import { auth } from '#lib/erp/auth.svelte.ts';
+	import InstallAppButton from '#lib/components/InstallAppButton.svelte';
 	import Logo from '#lib/components/Logo.svelte';
 
 	let username = $state('');
@@ -9,6 +10,7 @@
 	let show = $state(false);
 	let error = $state('');
 	let loading = $state(false);
+	let passwordEl = $state<HTMLInputElement>();
 
 	$effect(() => {
 		if (auth.user) goto(auth.user.mustChange ? '/ganti-password' : '/', { replace: true });
@@ -24,7 +26,7 @@
 	}
 </script>
 
-<svelte:head><title>Masuk · ruangSenja ERP</title></svelte:head>
+<svelte:head><title>Login · ruangSenja ERP</title></svelte:head>
 
 <div class="grid min-h-dvh lg:grid-cols-[1.1fr_1fr]">
 	<!-- panel brand -->
@@ -49,18 +51,33 @@
 		<div class="flex flex-1 items-start justify-center px-5 pt-6 pb-10 lg:items-center">
 			<div class="w-full max-w-sm">
 				<h2 class="text-2xl font-medium">Selamat datang 👋</h2>
-				<p class="mt-1 text-sm text-stone-500">Masuk untuk melanjutkan ke dashboard.</p>
+				<p class="mt-1 text-sm text-stone-500">Login untuk melanjutkan ke dashboard.</p>
 
 				<form class="mt-8 space-y-4" onsubmit={submit}>
 					<div>
 						<label class="label" for="u">Username</label>
 						<!-- svelte-ignore a11y_autofocus -->
-						<input id="u" class="input" bind:value={username} autocomplete="username" autocapitalize="none" required autofocus />
+						<!-- Enter di username → pindah ke password (bukan langsung Login) -->
+						<input
+							id="u"
+							class="input"
+							bind:value={username}
+							autocomplete="username"
+							autocapitalize="none"
+							enterkeyhint="next"
+							required
+							autofocus
+							onkeydown={(e) => {
+								if (e.key !== 'Enter' || e.isComposing) return;
+								e.preventDefault();
+								if (username.trim()) passwordEl?.focus();
+							}}
+						/>
 					</div>
 					<div>
 						<label class="label" for="p">Password</label>
 						<div class="relative">
-							<input id="p" class="input pr-11" type={show ? 'text' : 'password'} bind:value={password} autocomplete="current-password" required />
+							<input bind:this={passwordEl} id="p" class="input pr-11" type={show ? 'text' : 'password'} bind:value={password} autocomplete="current-password" enterkeyhint="go" required />
 							<button type="button" class="absolute inset-y-0 right-0 grid w-11 place-items-center text-stone-400" onclick={() => (show = !show)} aria-label="Tampilkan password">
 								{#if show}<EyeOff class="size-4" />{:else}<Eye class="size-4" />{/if}
 							</button>
@@ -69,7 +86,7 @@
 					{#if error}<p class="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-600 dark:bg-rose-500/10">{error}</p>{/if}
 					<button class="btn btn-primary h-11 w-full" disabled={loading || !auth.dbReady}>
 						{#if loading}<span class="size-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>{:else}<LogIn class="size-4" />{/if}
-						Masuk
+						Login
 					</button>
 				</form>
 
@@ -82,6 +99,7 @@
 						</p>
 					</div>
 				{/if}
+				<div class="mt-8"><InstallAppButton variant="login" /></div>
 			</div>
 		</div>
 	</div>

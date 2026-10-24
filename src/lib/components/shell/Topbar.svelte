@@ -7,7 +7,9 @@
 	import { auth } from '#lib/erp/auth.svelte.ts';
 	import { chain } from '#lib/erp/menu.ts';
 	import { shell } from '#lib/erp/ui.svelte.ts';
-	import { initials } from '#lib/erp/format.ts';
+	import { appearance, clickPoint } from '#lib/erp/appearance.svelte.ts';
+	import Avatar from '../Avatar.svelte';
+	import InstallAppButton from '../InstallAppButton.svelte';
 
 	const crumbs = $derived(chain(page.url.pathname));
 	const title = $derived(crumbs.at(-1)?.label ?? (page.url.pathname === '/profil' ? 'Profil' : 'Dashboard'));
@@ -50,22 +52,23 @@
 		{#if !online}
 			<span class="badge bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400" {@attach tooltip('Tidak ada koneksi — data tetap tersimpan di perangkat')}><WifiOff class="size-3" /> Offline</span>
 		{/if}
+		<InstallAppButton />
 		<button class="btn btn-ghost btn-icon" onclick={() => (shell.palette = true)} aria-label="Cari menu" {@attach tooltip(undefined, { kbd: 'Ctrl K', placement: 'bottom' })}><Search class="size-5" /></button>
-		<button class="btn btn-ghost btn-icon" onclick={() => shell.toggleTheme()} aria-label={shell.dark ? 'Mode terang' : 'Mode gelap'} {@attach tooltip(undefined, { placement: 'bottom' })}>
-			{#if shell.dark}<Sun class="size-5" />{:else}<Moon class="size-5" />{/if}
+		<button class="btn btn-ghost btn-icon" onclick={(e) => appearance.toggleDark(clickPoint(e))} aria-label={appearance.dark ? 'Light mode' : 'Dark mode'} {@attach tooltip(undefined, { placement: 'bottom' })}>
+			{#if appearance.dark}<Sun class="size-5" />{:else}<Moon class="size-5" />{/if}
 		</button>
 
 		<div class="hidden lg:block">
 			<Menu
 				items={[
 					{ label: 'Profil & Pengaturan', icon: UserRound, href: '/profil' },
-					{ label: shell.dark ? 'Mode terang' : 'Mode gelap', icon: shell.dark ? Sun : Moon, onclick: () => shell.toggleTheme() },
-					{ label: 'Keluar', icon: LogOut, onclick: logout, danger: true }
+					{ label: appearance.dark ? 'Light mode' : 'Dark mode', icon: appearance.dark ? Sun : Moon, onclick: () => appearance.toggleDark() },
+					{ label: 'Logout', icon: LogOut, onclick: logout, danger: true }
 				]}
 			>
 				{#snippet trigger(props)}
 					<button {...props} class="flex items-center gap-2 rounded-full p-1 pr-3 transition hover:bg-stone-100 aria-expanded:bg-stone-100 dark:hover:bg-stone-800 dark:aria-expanded:bg-stone-800">
-						<span class="grid size-8 place-items-center rounded-full bg-brand-500 text-xs font-semibold text-white">{initials(auth.user?.name)}</span>
+						{#if auth.user}<Avatar id={auth.user.id} name={auth.user.name} ver={auth.user.avatar} class="size-8 text-xs" />{/if}
 						<span class="text-sm font-medium">{auth.user?.name.split(' ')[0]}</span>
 					</button>
 				{/snippet}

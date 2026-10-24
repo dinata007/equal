@@ -2,7 +2,8 @@
 	import Select from '#lib/components/Select.svelte';
 	import { daily, groupSum, saleLines } from '#lib/erp/analytics.ts';
 	import { db } from '#lib/erp/db.svelte.ts';
-	import { addDays, date as fdate, downloadCsv, money, num, today } from '#lib/erp/format.ts';
+	import { addDays, date as fdate, money, num, today } from '#lib/erp/format.ts';
+	import { tableOf } from '#lib/erp/export.ts';
 	import type { Leaf } from '#lib/erp/menu.ts';
 	import BarChart from '#lib/components/BarChart.svelte';
 	import BarList from '#lib/components/BarList.svelte';
@@ -45,12 +46,12 @@
 		})
 	);
 
-	function exportCsv() {
-		downloadCsv(`Analisa Penjualan ${from} sd ${to}`, ['Kode', 'Produk', 'Qty', 'Omzet', 'Margin Kotor'], productTable.map((r) => [r.p?.code, r.p?.name, r.qty, Math.round(r.amount), Math.round(r.margin)]));
+	function exportData() {
+		return tableOf(`Analisa Penjualan ${from} sd ${to}`, ['Kode', 'Produk', 'Qty', 'Omzet', 'Margin Kotor'], productTable.map((r) => [r.p?.code, r.p?.name, r.qty, Math.round(r.amount), Math.round(r.margin)]));
 	}
 </script>
 
-<ReportShell {leaf} subtitle="{fdate(from)} – {fdate(to)}{channel ? ' · ' + channel : ''}" onexport={exportCsv}>
+<ReportShell {leaf} subtitle="{fdate(from)} – {fdate(to)}{channel ? ' · ' + channel : ''}" exportTable={exportData}>
 	{#snippet filters()}
 		<PeriodFilter bind:from bind:to />
 		<div class="lg:w-60">

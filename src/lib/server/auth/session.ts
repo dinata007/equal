@@ -35,6 +35,10 @@ export interface SessionRow {
 	isAdmin: boolean;
 	mustChange: boolean;
 	tokoId: string | null;
+	/** versi foto profil (null = belum ada foto) */
+	avatarVer: number | null;
+	/** JSON preferensi tampilan (null = belum pernah disimpan) */
+	prefs: string | null;
 }
 
 /** Sesi yang masih berlaku & penggunanya aktif, atau null */
@@ -43,8 +47,10 @@ export async function readSession(token: string): Promise<SessionRow | null> {
 	const id = hashToken(token);
 	const r = await (await request()).input('id', sql.Char(64), id).query(`
 		SELECT s.id AS sessionId, u.id AS userId, u.username, u.name, u.is_admin AS isAdmin, u.must_change_password AS mustChange, u.toko_id AS tokoId,
+			CASE WHEN p.avatar IS NULL THEN NULL ELSE p.avatar_ver END AS avatarVer, p.prefs,
 			CASE WHEN s.last_seen_at < DATEADD(MINUTE, -${TOUCH_MINUTES}, SYSUTCDATETIME()) THEN 1 ELSE 0 END AS stale
 		FROM dbo.AppSession s JOIN dbo.AppUser u ON u.id = s.user_id
+			LEFT JOIN dbo.AppUserProfile p ON p.user_id = u.id
 		WHERE s.id = @id AND s.expires_at > SYSUTCDATETIME() AND s.absolute_expires_at > SYSUTCDATETIME() AND u.active = 1`);
 	const row = r.recordset[0];
 	if (!row) return null;

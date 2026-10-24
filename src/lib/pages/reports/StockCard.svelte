@@ -2,7 +2,8 @@
 	import { page } from '$app/state';
 	import { auth } from '#lib/erp/auth.svelte.ts';
 	import { db } from '#lib/erp/db.svelte.ts';
-	import { date as fdate, downloadCsv, monthStart, num, today } from '#lib/erp/format.ts';
+	import { date as fdate, monthStart, num, today } from '#lib/erp/format.ts';
+	import { tableOf } from '#lib/erp/export.ts';
 	import { locMatch, stockMoves } from '#lib/erp/ledger.ts';
 	import type { Leaf } from '#lib/erp/menu.ts';
 	import Lookup from '#lib/components/Lookup.svelte';
@@ -31,15 +32,15 @@
 	const closing = $derived(opening + totIn - totOut);
 	const location = $derived(scope === 'MAT' ? 'Gudang Material' : scope === 'INV' ? 'Gudang Inventory' : db.name('stores', storeId) || 'Semua Toko');
 
-	function exportCsv() {
-		downloadCsv(`Kartu Stok ${item?.code} ${from} sd ${to}`, ['Tanggal', 'No', 'Transaksi', 'Masuk', 'Keluar', 'Saldo'], [
+	function exportData() {
+		return tableOf(`Kartu Stok ${item?.code} ${from} sd ${to}`, ['Tanggal', 'No', 'Transaksi', 'Masuk', 'Keluar', 'Saldo'], [
 			[from, '', 'Saldo awal', '', '', opening],
 			...rows.map((r) => [r.date, r.no, r.label, Math.max(0, r.qty), Math.max(0, -r.qty), r.bal])
 		]);
 	}
 </script>
 
-<ReportShell {leaf} subtitle="{item?.name ?? '-'} · {location} · {fdate(from)} – {fdate(to)}" onexport={exportCsv}>
+<ReportShell {leaf} subtitle="{item?.name ?? '-'} · {location} · {fdate(from)} – {fdate(to)}" exportTable={exportData}>
 	{#snippet filters()}
 		<div class="lg:w-72">
 			<span class="label">{itemTable === 'products' ? 'Produk' : 'Material'}</span>

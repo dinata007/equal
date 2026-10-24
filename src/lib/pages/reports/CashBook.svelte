@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { db } from '#lib/erp/db.svelte.ts';
-	import { date as fdate, downloadCsv, money, monthStart, today } from '#lib/erp/format.ts';
+	import { date as fdate, money, monthStart, today } from '#lib/erp/format.ts';
+	import { tableOf } from '#lib/erp/export.ts';
 	import { cashMoves } from '#lib/erp/ledger.ts';
 	import type { Leaf } from '#lib/erp/menu.ts';
 	import Lookup from '#lib/components/Lookup.svelte';
@@ -32,15 +33,15 @@
 			.map((k) => ({ k, bal: (Number(k.opening) || 0) + cashMoves().filter((m) => m.kasbankId === k.id && m.date <= to).reduce((s, m) => s + m.in - m.out, 0) }))
 	);
 
-	function exportCsv() {
-		downloadCsv(`Buku ${type} ${kb?.name} ${from} sd ${to}`, ['Tanggal', 'No', 'Keterangan', 'Masuk', 'Keluar', 'Saldo'], [
+	function exportData() {
+		return tableOf(`Buku ${type} ${kb?.name} ${from} sd ${to}`, ['Tanggal', 'No', 'Keterangan', 'Masuk', 'Keluar', 'Saldo'], [
 			[from, '', 'Saldo awal', '', '', opening],
 			...rows.map((r) => [r.date, r.no, r.memo, r.in, r.out, r.bal])
 		]);
 	}
 </script>
 
-<ReportShell {leaf} subtitle="{kb?.name ?? '-'} · {fdate(from)} – {fdate(to)}" onexport={exportCsv}>
+<ReportShell {leaf} subtitle="{kb?.name ?? '-'} · {fdate(from)} – {fdate(to)}" exportTable={exportData}>
 	{#snippet filters()}
 		<div class="lg:w-64">
 			<span class="label">Akun {type}</span>

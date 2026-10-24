@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { db } from '#lib/erp/db.svelte.ts';
-	import { date as fdate, downloadCsv, money, monthStart, num, today } from '#lib/erp/format.ts';
+	import { date as fdate, money, monthStart, num, today } from '#lib/erp/format.ts';
+	import { tableOf } from '#lib/erp/export.ts';
 	import { locMatch, stockMutation } from '#lib/erp/ledger.ts';
 	import type { Leaf } from '#lib/erp/menu.ts';
 	import { auth } from '#lib/erp/auth.svelte.ts';
@@ -53,8 +54,8 @@
 	const cardPath = $derived(leaf.path.replace(/mutasi-stok$/, 'kartu-stok'));
 	const openCard = (r: R) => goto(`${cardPath}?item=${r.item.id}&from=${from}&to=${to}${storeId ? '&store=' + storeId : ''}`);
 
-	function exportCsv() {
-		downloadCsv(`Mutasi Stok ${location} ${from} sd ${to}`, ['Kode', 'Nama', 'Satuan', 'Awal', 'Masuk', 'Keluar', 'Akhir', 'Nilai'], data.map((r) => [r.item.code, r.item.name, r.item.unit, r.open, r.in, r.out, r.close, r.close * (r.item[priceKey] ?? 0)]));
+	function exportData() {
+		return tableOf(`Mutasi Stok ${location} ${from} sd ${to}`, ['Kode', 'Nama', 'Satuan', 'Awal', 'Masuk', 'Keluar', 'Akhir', 'Nilai'], data.map((r) => [r.item.code, r.item.name, r.item.unit, r.open, r.in, r.out, r.close, r.close * (r.item[priceKey] ?? 0)]));
 	}
 </script>
 
@@ -78,7 +79,7 @@
 	</div>
 {/snippet}
 
-<ReportShell {leaf} subtitle="{location} · {fdate(from)} – {fdate(to)}" onexport={exportCsv}>
+<ReportShell {leaf} subtitle="{location} · {fdate(from)} – {fdate(to)}" exportTable={exportData}>
 	{#snippet filters()}
 		<PeriodFilter bind:from bind:to />
 		{#if scope === 'TOKO'}

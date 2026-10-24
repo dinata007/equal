@@ -3,10 +3,12 @@
 	import PeriodPresets from '#lib/components/PeriodPresets.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { Download, Plus, Trash } from '@lucide/svelte';
+	import { Plus, Trash } from '@lucide/svelte';
 	import { auth } from '#lib/erp/auth.svelte.ts';
 	import { db } from '#lib/erp/db.svelte.ts';
-	import { addDays, date as fdate, downloadCsv, money, today } from '#lib/erp/format.ts';
+	import { addDays, date as fdate, money, today } from '#lib/erp/format.ts';
+	import { tableOf } from '#lib/erp/export.ts';
+	import ExportMenu from '#lib/components/ExportMenu.svelte';
 	import type { Leaf } from '#lib/erp/menu.ts';
 	import type { Doc, DocStatus, TxDef } from '#lib/erp/types.ts';
 	import DataTable from '#lib/components/DataTable.svelte';
@@ -74,8 +76,14 @@
 
 	const open = (d: Doc) => goto(`${leaf.path}?id=${d.id}`);
 
-	function exportCsv() {
-		downloadCsv(`${leaf.label} ${from} sd ${to}`, ['No', 'Tanggal', def.party?.label ?? 'Uraian', 'Item', 'Total', 'Status'], rows.map((d) => [d.no, d.date, party(d), d.lines.length, d.total ?? 0, d.status]));
+	const STATUS_LABEL: Record<string, string> = { draft: 'Draft', posted: 'Posted', void: 'Void' };
+	function exportData() {
+		return {
+			...tableOf(`${leaf.label} ${from} sd ${to}`, ['No', 'Tanggal', def.party?.label ?? 'Uraian', 'Item', 'Total', 'Status'], rows.map((d) => [d.no, d.date, party(d), d.lines.length, d.total ?? 0, STATUS_LABEL[d.status] ?? d.status])),
+			title: leaf.label,
+			subtitle: `${fdate(from)} – ${fdate(to)} · ${rows.length} dokumen`,
+			totals: ['Total', '', '', rows.reduce((s, d) => s + d.lines.length, 0), rows.reduce((s, d) => s + (d.total ?? 0), 0), '']
+		};
 	}
 </script>
 
@@ -106,7 +114,7 @@
 {:else}
 	<PageHeader title={leaf.label} subtitle={leaf.trail.slice(0, -1).join(' › ')} icon={leaf.icon}>
 		{#snippet actions()}
-			<button class="btn btn-secondary hidden sm:inline-flex" onclick={exportCsv}><Download class="size-4" /> Export</button>
+			<ExportMenu table={exportData} class="hidden sm:inline-flex" />
 			{#if canCreate}<a href="{leaf.path}?id=new" class="btn btn-primary hidden sm:inline-flex"><Plus class="size-4" /> Buat Baru</a>{/if}
 		{/snippet}
 	</PageHeader>

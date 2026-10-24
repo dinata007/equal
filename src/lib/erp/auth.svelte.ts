@@ -7,6 +7,7 @@
  */
 import { invalidateAll } from '$app/navigation';
 import { api, ApiError, setUnauthorizedHandler } from './api';
+import { appearance } from './appearance.svelte';
 import { GRANTABLE, LEAVES, isAdminOnly } from './menu';
 import type { Action, SessionUser } from './types';
 
@@ -39,6 +40,12 @@ class Auth {
 		this.user = data.user;
 		this.dbReady = data.dbReady;
 		this.dbError = data.dbError;
+		appearance.syncAccount(data.user);
+	}
+
+	/** foto profil baru (versi) tanpa memuat ulang sesi */
+	setAvatar(ver: number | null) {
+		if (this.user) this.user.avatar = ver;
 	}
 
 	/** null bila berhasil, atau pesan error */

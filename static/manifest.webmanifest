@@ -11,6 +11,7 @@
 	"theme_color": "#f2f1ef",
 	"lang": "id",
 	"categories": ["business", "productivity"],
+	"launch_handler": { "client_mode": ["focus-existing", "auto"] },
 	"icons": [
 		{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" },
 		{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },

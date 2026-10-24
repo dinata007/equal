@@ -2,7 +2,8 @@
 	import Select from '#lib/components/Select.svelte';
 	import { Search } from '@lucide/svelte';
 	import { db } from '#lib/erp/db.svelte.ts';
-	import { date as fdate, downloadCsv, money, monthStart, today } from '#lib/erp/format.ts';
+	import { date as fdate, money, monthStart, today } from '#lib/erp/format.ts';
+	import { tableOf } from '#lib/erp/export.ts';
 	import { journalEntries } from '#lib/erp/ledger.ts';
 	import type { Leaf } from '#lib/erp/menu.ts';
 	import PeriodFilter from './PeriodFilter.svelte';
@@ -28,12 +29,12 @@
 	);
 	const tot = $derived(entries.reduce((a, e) => { for (const l of e.lines) ((a.d += l.debit), (a.c += l.credit)); return a; }, { d: 0, c: 0 }));
 
-	function exportCsv() {
-		downloadCsv(`Jurnal ${from} sd ${to}`, ['Tanggal', 'No', 'Sumber', 'Akun', 'Nama Akun', 'Keterangan', 'Debit', 'Kredit'], entries.flatMap((e) => e.lines.map((l) => [e.date, e.no, e.label, l.coa, coaName(l.coa), l.memo ?? '', l.debit, l.credit])));
+	function exportData() {
+		return tableOf(`Jurnal ${from} sd ${to}`, ['Tanggal', 'No', 'Sumber', 'Akun', 'Nama Akun', 'Keterangan', 'Debit', 'Kredit'], entries.flatMap((e) => e.lines.map((l) => [e.date, e.no, e.label, l.coa, coaName(l.coa), l.memo ?? '', l.debit, l.credit])));
 	}
 </script>
 
-<ReportShell {leaf} subtitle="{fdate(from)} – {fdate(to)} · {entries.length} jurnal" onexport={exportCsv}>
+<ReportShell {leaf} subtitle="{fdate(from)} – {fdate(to)} · {entries.length} jurnal" exportTable={exportData}>
 	{#snippet filters()}
 		<PeriodFilter bind:from bind:to />
 		<div class="lg:w-56">

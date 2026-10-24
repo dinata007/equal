@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { untrack, type Snippet } from 'svelte';
-	import { Ban, CircleCheck, Copy, Download, Plus, RotateCw, Trash, TriangleAlert } from '@lucide/svelte';
+	import { Ban, CircleCheck, Copy, Plus, RotateCw, Trash, TriangleAlert } from '@lucide/svelte';
 	import { ApiError, api } from '#lib/erp/api.ts';
 	import { auth } from '#lib/erp/auth.svelte.ts';
 	import { db } from '#lib/erp/db.svelte.ts';
-	import { downloadCsv, num, rp, today } from '#lib/erp/format.ts';
+	import { num, rp, today } from '#lib/erp/format.ts';
+	import type { ExportTable } from '#lib/erp/export.ts';
+	import ExportMenu from '#lib/components/ExportMenu.svelte';
 	import { lookups } from '#lib/erp/lookups.svelte.ts';
 	import type { Leaf } from '#lib/erp/menu.ts';
 	import type { FieldDef, MasterDef, Row } from '#lib/erp/types.ts';
@@ -339,9 +341,22 @@
 		return done ? undefined : false;
 	}
 
-	function exportCsv() {
+	function exportData(): ExportTable {
 		const fs = def.fields.filter((f) => f.type !== 'password');
-		downloadCsv(label, fs.map((f) => f.label), rows.map((r) => fs.map((f) => (f.type === 'money' || f.type === 'number' ? (r[f.key] ?? '') : display(f, r)))));
+		const numeric = (f: FieldDef) => f.type === 'money' || f.type === 'number';
+		return {
+			title: label,
+			subtitle: `${rows.length.toLocaleString('id-ID')} data`,
+			columns: fs.map((f) => ({ label: f.label, type: numeric(f) ? 'number' : f.type === 'date' ? 'date' : 'text' })),
+			rows: rows.map((r) =>
+				fs.map((f) => {
+					const v = r[f.key];
+					if (numeric(f)) return v === null || v === undefined || v === '' ? '' : Number(v);
+					if (f.type === 'date') return typeof v === 'string' ? v.slice(0, 10) : '';
+					return display(f, r);
+				})
+			)
+		};
 	}
 </script>
 
@@ -372,7 +387,7 @@
 				<RotateCw class="size-4 {loading ? 'animate-spin' : ''}" />
 			</button>
 		{/if}
-		<button class="btn btn-secondary" onclick={exportCsv}><Download class="size-4" /><span class="hidden sm:inline">Export</span></button>
+		<ExportMenu table={exportData} />
 		{#if can.create}<button class="btn btn-primary hidden sm:inline-flex" onclick={openNew}><Plus class="size-4" /> Tambah</button>{/if}
 	{/snippet}
 </PageHeader>

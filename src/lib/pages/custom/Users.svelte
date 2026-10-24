@@ -7,7 +7,7 @@
 	import { ArrowLeft, Ban, Check, CircleCheck, Copy, KeyRound, Lock, Plus, RefreshCw, Save, ShieldCheck, Tags, Undo2 } from '@lucide/svelte';
 	import { api, ApiError } from '#lib/erp/api.ts';
 	import { accessLabel, auth, menusOf } from '#lib/erp/auth.svelte.ts';
-	import { initials } from '#lib/erp/format.ts';
+	import Avatar from '#lib/components/Avatar.svelte';
 	import { GRANTABLE, type Leaf } from '#lib/erp/menu.ts';
 	import type { ManagedUser } from '#lib/erp/types.ts';
 	import { toast } from '#lib/erp/ui.svelte.ts';
@@ -198,7 +198,7 @@
 {/snippet}
 {#snippet card(u: ManagedUser)}
 	<div class="flex items-center gap-3">
-		<span class="grid size-10 shrink-0 place-items-center rounded-full bg-brand-500 text-xs font-semibold text-white {u.active ? '' : 'opacity-40'}">{initials(u.name)}</span>
+		<Avatar id={u.id} name={u.name} ver={u.avatar} class="size-10 text-xs {u.active ? '' : 'opacity-40'}" />
 		<div class="min-w-0 flex-1">
 			<p class="truncate text-sm font-medium">{u.name} <span class="font-normal text-stone-400">@{u.username}</span></p>
 			<p class="truncate text-xs text-stone-500">{accessLabel(u)}{u.storeId ? ' · ' + storeName(u) : ''}</p>

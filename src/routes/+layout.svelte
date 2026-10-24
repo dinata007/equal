@@ -2,6 +2,8 @@
 	import '../app.css';
 	import { db } from '#lib/erp/db.svelte.ts';
 	import { auth } from '#lib/erp/auth.svelte.ts';
+	// tangkap event "pasang aplikasi" sejak halaman pertama dimuat
+	import '#lib/erp/pwa.svelte.ts';
 	import Toaster from '#lib/components/Toaster.svelte';
 	import ConfirmDialog from '#lib/components/ConfirmDialog.svelte';
 	import type { LayoutProps } from './$types';

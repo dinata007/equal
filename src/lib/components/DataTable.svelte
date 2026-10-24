@@ -7,7 +7,7 @@
 	 * - centang banyak baris + aksi massal, navigasi keyboard penuh
 	 * HP: daftar kartu dengan muat otomatis saat menggulir.
 	 */
-	import { ArrowDown, ArrowUp, Check, ChevronDown, Columns3, Download, Funnel, Inbox, ListFilter, Minus, Pin, RotateCcw, Rows3, Rows4, Search, X } from '@lucide/svelte';
+	import { ArrowDown, ArrowUp, Check, ChevronDown, Columns3, Funnel, Inbox, ListFilter, Minus, Pin, RotateCcw, Rows3, Rows4, Search, X } from '@lucide/svelte';
 	import type { Snippet } from 'svelte';
 	import { flushSync, onDestroy, tick, untrack } from 'svelte';
 	import type { Attachment } from 'svelte/attachments';
@@ -15,7 +15,9 @@
 	import { fly } from 'svelte/transition';
 	import { page } from '$app/state';
 	import { auth } from '#lib/erp/auth.svelte.ts';
-	import { downloadCsv, num } from '#lib/erp/format.ts';
+	import { num } from '#lib/erp/format.ts';
+	import type { ExportTable } from '#lib/erp/export.ts';
+	import ExportMenu from './ExportMenu.svelte';
 	import { toast } from '#lib/erp/ui.svelte.ts';
 	import { tooltip } from '#lib/ui/tooltip.ts';
 	import Menu, { type MenuItem } from './Menu.svelte';
@@ -216,13 +218,17 @@
 		const res = await a.run(target);
 		if (res !== false) selected.clear();
 	}
-	function exportRows(list: T[]) {
+	function exportRows(list: T[]): ExportTable {
 		const name = exportName ?? document.title.split(' · ')[0] ?? 'data';
-		downloadCsv(
-			name,
-			visible.map((c) => c.label),
-			list.map((r) => visible.map((c) => (typeof val(c, r) === 'number' ? val(c, r) : text(c, r))))
-		);
+		const hasSum = visible.some((c) => c.sum);
+		return {
+			title: name,
+			subtitle: `${list.length.toLocaleString('id-ID')} baris terpilih`,
+			columns: visible.map((c) => c.label),
+			rows: list.map((r) => visible.map((c) => (typeof val(c, r) === 'number' ? val(c, r) : text(c, r)))),
+			// kolom bertotal di grid ikut dijumlah di file
+			totals: hasSum ? visible.map((c, i) => (c.sum ? list.reduce((s, r) => s + (Number(val(c, r)) || 0), 0) : i === 0 ? 'Total' : '')) : undefined
+		};
 	}
 
 	/* ---------------- total ---------------- */
@@ -894,7 +900,7 @@
 							</button>
 						{/if}
 						<span class="mx-1 h-5 w-px shrink-0 bg-white/15 dark:bg-stone-900/15"></span>
-						<button type="button" class="btn btn-sm text-white hover:bg-white/10 dark:text-stone-900 dark:hover:bg-stone-900/10" onclick={() => exportRows(selectedRows)}><Download class="size-3.5" /> Export</button>
+						<ExportMenu variant="bar" table={() => exportRows(selectedRows)} />
 						{#each bulkShown as { a, n } (a.label)}
 							<button
 								type="button"
