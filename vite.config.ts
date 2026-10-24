@@ -22,5 +22,15 @@ export default defineConfig({
 	resolve: {
 		// fitur jsPDF yang tidak dipakai (doc.html / SVG) → modul kosong, lihat src/lib/stubs/empty.js
 		alias: { html2canvas: empty, canvg: empty, dompurify: empty }
+	},
+	server: {
+		// dev: compile shell & halaman di background saat server menyala, agar pembukaan pertama tidak menunggu
+		warmup: {
+			clientFiles: ['./src/routes/**/+layout.svelte', './src/routes/**/+page.svelte', './src/lib/pages/**/*.svelte']
+		}
+	},
+	optimizeDeps: {
+		// dev: library yang terlambat ditemukan Vite (import() untuk export, popover) → tanpa ini halaman di-reload saat pertama dipakai
+		include: ['@floating-ui/dom', 'fflate', 'jspdf', 'jspdf-autotable']
 	}
 });
