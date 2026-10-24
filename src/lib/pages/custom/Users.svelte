@@ -18,6 +18,7 @@
 	import Sheet from '#lib/components/Sheet.svelte';
 	import Switch from '#lib/components/Switch.svelte';
 	import type { BulkAction, Col } from '#lib/components/types.ts';
+	import { copyText } from '#lib/ui/clipboard.ts';
 
 	let { leaf }: { leaf: Leaf } = $props();
 
@@ -99,12 +100,8 @@
 		}
 	}
 	async function copy(text: string, what = 'Disalin') {
-		try {
-			await navigator.clipboard.writeText(text);
-			toast.success(what);
-		} catch {
-			toast.error('Tidak bisa menyalin otomatis — salin manual');
-		}
+		if (await copyText(text)) toast.success(what);
+		else toast.error('Tidak bisa menyalin otomatis — salin manual');
 	}
 
 	/* ---------------- form ---------------- */

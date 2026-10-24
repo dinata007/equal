@@ -28,8 +28,27 @@ let settling = false;
 let timer: ReturnType<typeof setTimeout> | undefined;
 let fallback: ReturnType<typeof setTimeout> | undefined;
 let installed = false;
+/** batas waktu (performance.now) anggapan "sedang pindah halaman" sejak klik link / leaving() */
+let leavingUntil = 0;
 
 const depth = () => page.state.layers ?? 0;
+
+/**
+ * Tandai bahwa pindah halaman akan terjadi — panggil sebelum menutup lapisan lalu goto(), mis. command palette.
+ * Klik link biasa ditandai otomatis. Tanpa ini, history.go penarik entri lapisan bisa jalan sebelum
+ * beforeNavigate SvelteKit (yang menunggu proses async dulu) dan membatalkan navigasinya.
+ */
+export function leaving() {
+	leavingUntil = performance.now() + 2000;
+}
+
+/** klik kiri biasa pada link ke halaman aplikasi ini sendiri */
+function onLinkClick(e: MouseEvent) {
+	if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+	const a = (e.target as Element | null)?.closest?.('a[href]');
+	if (!(a instanceof HTMLAnchorElement) || a.hasAttribute('download') || (a.target && a.target !== '_self')) return;
+	if (a.origin === location.origin) leaving();
+}
 
 /** samakan jumlah entri riwayat dengan jumlah lapisan terbuka */
 function sync() {
@@ -39,6 +58,14 @@ function sync() {
 		for (let n = expected + 1; n <= want; n++) void goto(page.url.href, { shallow: true, state: { ...page.state, layers: n } });
 		expected = want;
 	} else if (want < expected) {
+		// sedang pindah halaman (lapisan tertutup karena klik link / goto): history.go akan membatalkan navigasinya.
+		// Entri dibiarkan — beforeNavigate mereset hitungan; bila ternyata tidak jadi pindah, coba lagi setelah jeda.
+		const wait = leavingUntil - performance.now();
+		if (wait > 0) {
+			clearTimeout(timer);
+			timer = setTimeout(sync, wait + 50);
+			return;
+		}
 		settling = true;
 		history.go(want - expected);
 		expected = want;
@@ -47,10 +74,7 @@ function sync() {
 	}
 }
 
-/**
- * setTimeout, bukan microtask: klik link yang sekaligus menutup lapisan (menu di drawer, command palette)
- * sempat memicu beforeNavigate dulu, sehingga lapisan dilepas tanpa history.go yang membatalkan navigasi.
- */
+/** digabung per tick: beberapa lapisan yang tertutup bersamaan = satu history.go */
 function schedule() {
 	clearTimeout(timer);
 	timer = setTimeout(sync);
@@ -76,6 +100,11 @@ export function installBackClose() {
 	if (installed) return;
 	installed = true;
 	expected = depth();
+	// fase capture: tercatat sebelum handler onclick link menutup drawer/lapisan
+	$effect(() => {
+		addEventListener('click', onLinkClick, true);
+		return () => removeEventListener('click', onLinkClick, true);
+	});
 	$effect(() => {
 		const d = depth();
 		untrack(() => onDepth(d));
@@ -90,8 +119,25 @@ export function installBackClose() {
 		clearTimeout(fallback);
 	});
 	afterNavigate((nav) => {
+		if (nav.type === 'enter') return;
+		// dicek sebelum `shallow`: SvelteKit menandai back ke halaman sebelumnya sebagai shallow juga
+		if (nav.type === 'popstate') {
+			// back ke halaman sebelumnya mendarat di entri lapisan yang ditinggal saat pindah halaman
+			// (mis. drawer menu terbuka waktu itu) → lewati sampai entri tanpa lapisan, agar back tidak "kosong"
+			if ((nav.delta ?? 0) < 0)
+				setTimeout(() => {
+					const d = depth();
+					if (stack.length || settling || d <= 0) return;
+					settling = true;
+					expected = base = 0;
+					history.go(-d);
+					fallback = setTimeout(() => ((settling = false), (expected = depth())), 1000);
+				});
+			return;
+		}
 		// shallow = entri lapisan milik modul ini sendiri
-		if (nav.shallow || nav.type === 'enter' || nav.type === 'popstate') return;
+		if (nav.shallow) return;
+		leavingUntil = 0;
 		// lapisan yang tetap terbuka melewati perpindahan (mis. sheet password sementara setelah simpan) didaftarkan lagi
 		setTimeout(() => {
 			if (stack.length || settling) return;

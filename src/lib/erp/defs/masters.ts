@@ -568,12 +568,12 @@ export const ATTRIBUTES: Record<string, { key: string; label: string; def: Maste
 	material: [
 		{ key: 'raw-material', label: 'Raw Material', def: rawMaterial },
 		{ key: 'induk', label: 'Induk', def: materialInduk },
+		{ key: 'dept', label: 'Dept', def: materialDept },
 		{ key: 'jenis', label: 'Jenis', def: materialJenis },
 		{ key: 'tipe', label: 'Tipe', def: materialTipe },
 		{ key: 'warna', label: 'Warna', def: materialColor },
 		{ key: 'coa', label: 'Jenis COA', def: materialCoa },
-		{ key: 'satuan', label: 'Satuan', def: materialUnit },
-		{ key: 'dept', label: 'Dept', def: materialDept }
+		{ key: 'satuan', label: 'Satuan', def: materialUnit }
 	],
 	pegawai: [
 		{ key: 'jabatan', label: 'Jabatan', def: employeePosition },
