@@ -2,10 +2,10 @@
 	import { goto } from '$app/navigation';
 	import { CornerDownLeft, Search } from '@lucide/svelte';
 	import { fade, fly } from 'svelte/transition';
-	import { auth } from '#lib/erp/auth.svelte.ts';
-	import { LEAVES } from '#lib/erp/menu.ts';
-	import { shell } from '#lib/erp/ui.svelte.ts';
-	import { backClose, leaving } from '#lib/ui/backClose.svelte.ts';
+	import { auth } from '#lib/state/auth.svelte.ts';
+	import { LEAVES } from '#lib/domain/menu.ts';
+	import { shell } from '#lib/state/ui.svelte.ts';
+	import { backClose, leaving } from '#lib/dom/backClose.svelte.ts';
 
 	backClose(() => shell.palette, () => (shell.palette = false));
 

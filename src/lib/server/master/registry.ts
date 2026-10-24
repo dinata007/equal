@@ -3,8 +3,8 @@
  * (nama program di komentar, lihat dbo.SYS_PROGRAM); field form diambil dari defs/masters.ts
  * dengan key = nama kolom.
  */
-import * as M from '#lib/erp/defs/masters.ts';
-import type { MasterDef } from '#lib/erp/types.ts';
+import * as M from '#lib/domain/defs/masters.ts';
+import type { MasterDef } from '#lib/domain/types.ts';
 import type { sql } from '../db.ts';
 import { seq, yy } from './codes.ts';
 import { HR } from './hr.ts';

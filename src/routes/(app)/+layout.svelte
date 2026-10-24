@@ -2,14 +2,14 @@
 	import { goto, onNavigate } from '$app/navigation';
 	import { page } from '$app/state';
 	import { fade, fly } from 'svelte/transition';
-	import { auth } from '#lib/erp/auth.svelte.ts';
-	import { shell } from '#lib/erp/ui.svelte.ts';
+	import { auth } from '#lib/state/auth.svelte.ts';
+	import { shell } from '#lib/state/ui.svelte.ts';
 	import Sidebar from '#lib/components/shell/Sidebar.svelte';
 	import Topbar from '#lib/components/shell/Topbar.svelte';
 	import BottomNav from '#lib/components/shell/BottomNav.svelte';
 	import CommandPalette from '#lib/components/shell/CommandPalette.svelte';
-	import { backClose } from '#lib/ui/backClose.svelte.ts';
-	import { negativeRed } from '#lib/ui/negative.ts';
+	import { backClose } from '#lib/dom/backClose.svelte.ts';
+	import { negativeRed } from '#lib/dom/negative.ts';
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();

@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { ChevronRight } from '@lucide/svelte';
 	import { slide } from 'svelte/transition';
-	import type { MenuNode } from '#lib/erp/types.ts';
+	import type { MenuNode } from '#lib/domain/types.ts';
 	import Self from './MenuTree.svelte';
 
 	let { nodes, depth = 0, onnavigate }: { nodes: MenuNode[]; depth?: number; onnavigate?: () => void } = $props();

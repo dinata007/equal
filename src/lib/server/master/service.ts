@@ -6,7 +6,7 @@
  * Ubah data hanya menulis kolom yang benar-benar berubah, agar tidak menimpa isian kolom lain
  * yang sedang diubah aplikasi PowerBuilder.
  */
-import type { FieldDef, LookupOption, SessionUser } from '#lib/erp/types.ts';
+import type { FieldDef, LookupOption, SessionUser } from '#lib/domain/types.ts';
 import { audit } from '../auth/audit.ts';
 import { AuthError } from '../auth/users.ts';
 import { getPool, request, sql } from '../db.ts';

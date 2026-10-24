@@ -20,17 +20,19 @@ Material · Inventory · Sales · Toko · Akunting (AR, AP, Kas & Bank, GL) · H
 
 ## Arsitektur (config-driven)
 
+Peta lengkap folder & aturan penamaan: [docs/struktur-folder.md](docs/struktur-folder.md).
+
 | Lokasi | Isi |
 |---|---|
-| `src/lib/erp/menu.ts` | **Sumber tunggal** struktur menu → routing, breadcrumb, command palette, kunci hak akses (path) |
-| `src/lib/erp/defs/masters.ts` | Definisi field master (form, list, kartu mobile, validasi) |
-| `src/lib/erp/defs/transactions.ts` | Definisi transaksi: header, detail, total/PPN, dokumen sumber, efek stok/AR/AP/kas, jurnal otomatis, scope closing |
-| `src/lib/erp/ledger.ts` | Mesin perhitungan stok, piutang/hutang, kas-bank, jurnal, closing (dari dokumen *posted*) |
-| `src/lib/erp/db.svelte.ts` | Lapisan data (satu-satunya titik akses data) |
-| `src/lib/erp/auth.svelte.ts` | Sesi di browser & `can(path)` — admin = akses penuh, lainnya menu on/off |
+| `src/lib/domain/menu.ts` | **Sumber tunggal** struktur menu → routing, breadcrumb, command palette, kunci hak akses (path) |
+| `src/lib/domain/defs/masters.ts` | Definisi field master (form, list, kartu mobile, validasi) |
+| `src/lib/domain/defs/transactions.ts` | Definisi transaksi: header, detail, total/PPN, dokumen sumber, efek stok/AR/AP/kas, jurnal otomatis, scope closing |
+| `src/lib/domain/ledger.ts` | Mesin perhitungan stok, piutang/hutang, kas-bank, jurnal, closing (dari dokumen *posted*) |
+| `src/lib/dev-data/db.svelte.ts` | Data prototipe di browser untuk modul yang belum memakai database (satu-satunya titik akses data contoh) |
+| `src/lib/state/auth.svelte.ts` | Sesi di browser & `can(path)` — admin = akses penuh, lainnya menu on/off |
 | `src/lib/server/master/` | Master dari tabel lama: `registry.ts` (tabel, kunci, brand, penomoran & cek pemakaian meniru PowerBuilder), `lookups.ts` (pilihan dropdown), `service.ts` (baca/tulis + validasi). API: `/api/master/[resource]`, `/api/lookup/[name]` |
 | `src/lib/server/auth/` | Login, sesi cookie httpOnly, hash password (scrypt), pengelolaan pengguna; dicek ulang di server untuk setiap `/api` |
-| `src/lib/pages/*` | Halaman generik: `MasterPage`, `TransactionPage`, report & utilitas |
+| `src/lib/pages/*` | Halaman per kelompok menu: `master/` (MasterPage, Atribut), `transaksi/`, `laporan/`, `produk/`, `pegawai/`, `pengguna/`, … |
 | `src/routes/(app)/[...path]` | Satu route dinamis me-render halaman sesuai menu |
 
 Menambah menu baru cukup menambah node di `menu.ts` + definisinya — tanpa membuat route/halaman baru.
@@ -57,7 +59,7 @@ Struktur baru milik aplikasi web hanya ditambahkan lewat **script migrasi idempo
 
 ### Tahap berikutnya
 
-1. Petakan tabel lama (dari `docs/database/schema.md`) ke definisi master/transaksi di `src/lib/erp/defs`.
+1. Petakan tabel lama (dari `docs/database/schema.md`) ke definisi master/transaksi di `src/lib/domain/defs`.
 2. Ganti isi `db.svelte.ts` dengan pemanggilan server (remote functions / `+server.ts`) memakai pool di `src/lib/server/db.ts`.
 3. Penomoran dokumen & posting di server dalam transaksi DB, mengikuti pola penomoran aplikasi lama.
 4. Perhitungan di `ledger.ts` dipindah ke VIEW / stored procedure.

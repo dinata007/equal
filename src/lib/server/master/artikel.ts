@@ -4,7 +4,7 @@
  * kombinasi warna × size yang belum ada. Seperti aplikasi lama, artikel yang sudah ada tidak diubah
  * dan tidak dihapus walau warna/size-nya tidak dipilih lagi.
  */
-import type { SessionUser } from '#lib/erp/types.ts';
+import type { SessionUser } from '#lib/domain/types.ts';
 import { audit } from '../auth/audit.ts';
 import { AuthError } from '../auth/users.ts';
 import { getPool, request, sql } from '../db.ts';

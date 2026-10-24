@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { tooltip } from '#lib/ui/tooltip.ts';
+	import { tooltip } from '#lib/dom/tooltip.ts';
 	import { page } from '$app/state';
 	import { ChevronsLeft, ChevronsRight, LayoutDashboard, Search } from '@lucide/svelte';
-	import { auth } from '#lib/erp/auth.svelte.ts';
-	import { MENU, visibleTree } from '#lib/erp/menu.ts';
-	import { shell } from '#lib/erp/ui.svelte.ts';
-	import Avatar from '../Avatar.svelte';
-	import Logo from '../Logo.svelte';
+	import { auth } from '#lib/state/auth.svelte.ts';
+	import { MENU, visibleTree } from '#lib/domain/menu.ts';
+	import { shell } from '#lib/state/ui.svelte.ts';
+	import Avatar from '../ui/Avatar.svelte';
+	import Logo from '../ui/Logo.svelte';
 	import MenuTree from './MenuTree.svelte';
 
 	let { collapsed = false, onnavigate }: { collapsed?: boolean; onnavigate?: () => void } = $props();

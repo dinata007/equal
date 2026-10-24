@@ -2,7 +2,7 @@
  * Profil milik pengguna sendiri: preferensi tampilan, foto, sesi aktif & riwayat keamanan.
  * Semua fungsi hanya menyentuh data pengguna yang login (userId dari sesi, bukan dari browser).
  */
-import { cleanPrefs } from '#lib/erp/prefs.ts';
+import { cleanPrefs } from '#lib/domain/prefs.ts';
 import { request, sql, utcIso } from '../db.ts';
 import { audit } from './audit.ts';
 import { AuthError } from './users.ts';

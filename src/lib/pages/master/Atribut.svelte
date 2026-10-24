@@ -1,0 +1,43 @@
+<script lang="ts">
+	/**
+	 * Atribut master (tabel lama) dalam satu menu bertab, seperti tombol Brand/Gender/… di window produk
+	 * PowerBuilder. Daftar tab per menu: ATTRIBUTES di defs/masters.ts (material: tab pertama = article).
+	 */
+	import { ATTRIBUTES } from '#lib/domain/defs/masters.ts';
+	import type { Leaf } from '#lib/domain/menu.ts';
+	import { loadSession, saveSession } from '#lib/components/data/grid/core.ts';
+	import { auth } from '#lib/state/auth.svelte.ts';
+	import MasterPage from '#lib/pages/master/MasterPage.svelte';
+	import { scrollTabs } from '#lib/dom/scrollTabs.ts';
+
+	let { leaf, set }: { leaf: Leaf; set: keyof typeof ATTRIBUTES } = $props();
+
+	const TABS = $derived(ATTRIBUTES[set]);
+
+	// tab terakhir diingat selama aplikasi terbuka
+	// svelte-ignore state_referenced_locally
+	const sKey = `senja:page:${auth.user?.id ?? 'anon'}:${leaf.path}`;
+	let tab = $state(loadSession(sKey, { tab: '' }).tab);
+	$effect(() => saveSession(sKey, { tab }));
+	const cur = $derived(TABS.find((t) => t.key === tab) ?? TABS[0]);
+</script>
+
+{#snippet nav()}
+	<!-- latar di luar: yang memudar di tepi hanya tab, bukan latarnya; -m-1 p-1 = ruang bayangan tab aktif -->
+	<div class="mb-3 rounded-xl bg-stone-100 p-1 dark:bg-stone-800/60">
+		<div class="scroll-tabs -m-1 flex gap-1 p-1" role="tablist" aria-label="Jenis data" {@attach scrollTabs()}>
+			{#each TABS as t (t.key)}
+				<button
+					role="tab"
+					aria-selected={t.key === cur.key}
+					class="shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition {t.key === cur.key ? 'bg-white shadow-sm dark:bg-stone-700' : 'text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'}"
+					onclick={() => (tab = t.key)}>{t.label}</button
+				>
+			{/each}
+		</div>
+	</div>
+{/snippet}
+
+{#key cur.key}
+	<MasterPage {leaf} page={cur.def} label={cur.label} {nav} />
+{/key}

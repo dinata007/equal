@@ -2,15 +2,15 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { LogOut, Menu as MenuIcon, Moon, Search, Sun, UserRound, WifiOff } from '@lucide/svelte';
-	import Menu from '../Menu.svelte';
+	import Menu from '../ui/Menu.svelte';
 	import PageTabs from './PageTabs.svelte';
-	import { tooltip } from '#lib/ui/tooltip.ts';
-	import { auth } from '#lib/erp/auth.svelte.ts';
-	import { chain } from '#lib/erp/menu.ts';
-	import { shell } from '#lib/erp/ui.svelte.ts';
-	import { appearance, clickPoint } from '#lib/erp/appearance.svelte.ts';
-	import Avatar from '../Avatar.svelte';
-	import InstallAppButton from '../InstallAppButton.svelte';
+	import { tooltip } from '#lib/dom/tooltip.ts';
+	import { auth } from '#lib/state/auth.svelte.ts';
+	import { chain } from '#lib/domain/menu.ts';
+	import { shell } from '#lib/state/ui.svelte.ts';
+	import { appearance, clickPoint } from '#lib/state/appearance.svelte.ts';
+	import Avatar from '../ui/Avatar.svelte';
+	import InstallAppButton from './InstallAppButton.svelte';
 
 	const crumbs = $derived(chain(page.url.pathname));
 	const title = $derived(crumbs.at(-1)?.label ?? (page.url.pathname === '/profil' ? 'Profil' : 'Dashboard'));

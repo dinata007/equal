@@ -2,7 +2,7 @@
  * Master raw material dari tabel lama (PowerBuilder W_10_M01–M08): article `m_bahan_art` dan atributnya.
  * Article & atributnya dikelola dari satu menu bertab Raw Material (tab pertama = article).
  */
-import * as M from '#lib/erp/defs/masters.ts';
+import * as M from '#lib/domain/defs/masters.ts';
 import { AuthError } from '../auth/users.ts';
 import { sql } from '../db.ts';
 import { kodeUrut } from './codes.ts';

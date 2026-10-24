@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { House, LayoutGrid, Search, UserRound } from '@lucide/svelte';
-	import { shell } from '#lib/erp/ui.svelte.ts';
+	import { shell } from '#lib/state/ui.svelte.ts';
 
 	const path = $derived(page.url.pathname);
 	const item = 'flex flex-1 flex-col items-center justify-center gap-0.5 pt-2 pb-1.5 text-[10px] font-medium transition';

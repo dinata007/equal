@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { Eye, EyeOff, LogIn, TriangleAlert } from '@lucide/svelte';
-	import { auth } from '#lib/erp/auth.svelte.ts';
-	import InstallAppButton from '#lib/components/InstallAppButton.svelte';
-	import Logo from '#lib/components/Logo.svelte';
+	import { auth } from '#lib/state/auth.svelte.ts';
+	import InstallAppButton from '#lib/components/shell/InstallAppButton.svelte';
+	import Logo from '#lib/components/ui/Logo.svelte';
 
 	let username = $state('');
 	let password = $state('');

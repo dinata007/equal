@@ -195,7 +195,7 @@ html.theme-vt::view-transition-new(root) {
 	--seq-6: #9ec5f4;
 }
 
-/* angka negatif → merah (ditandai otomatis oleh lib/ui/negative.ts); di luar layer agar mengalahkan warna utilitas */
+/* angka negatif → merah (ditandai otomatis oleh lib/dom/negative.ts); di luar layer agar mengalahkan warna utilitas */
 [data-neg] {
 	color: var(--color-rose-600);
 }
@@ -274,7 +274,7 @@ html.theme-vt::view-transition-new(root) {
 	}
 }
 
-/* deret tab geser (lihat ui/scrollTabs.ts): tanpa scrollbar, tepi memudar bila masih ada tab di sisi itu */
+/* deret tab geser (lihat dom/scrollTabs.ts): tanpa scrollbar, tepi memudar bila masih ada tab di sisi itu */
 @utility scroll-tabs {
 	overflow-x: auto;
 	overscroll-behavior-x: contain;
