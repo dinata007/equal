@@ -7,6 +7,8 @@ Isi paket
   caddy.exe                Caddy 2.11.7 - HTTPS otomatis (sertifikat Let's Encrypt)
   db\, scripts\, src\      migrasi database (tabel App*, aman diulang)
   pasang.ps1               script pemasangan / update
+  update.bat               update ke versi baru (klik dua kali, atau seret zip baru ke file ini)
+  berhenti.bat             hentikan aplikasi & Caddy
 
 Syarat di server
   1. Node.js 22 LTS atau lebih baru (https://nodejs.org) - sekali saja
@@ -29,12 +31,22 @@ Pasang pertama kali
   Setelah itu aplikasi jalan sendiri saat server menyala (Scheduled Task, tidak perlu ada yang login).
 
 Update ke versi baru
-  1. Hentikan dulu (caddy.exe terkunci selama jalan, file tidak bisa ditimpa):
-       cd D:\ruangSenja
-       powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -Berhenti
-  2. Ekstrak zip versi baru ke folder yang sama (timpa semua)
-  3. powershell -ExecutionPolicy Bypass -File .\pasang.ps1
+  1. Di PC dev: npm run deploy:pack  ->  deploy\senja-deploy-<tanggal>.zip
+  2. Salin zip ke server (ke folder aplikasi, folder di atasnya, Downloads, atau Desktop)
+  3. Klik dua kali update.bat di folder aplikasi (izin Administrator diminta otomatis),
+     atau seret file zip ke update.bat bila zip ada di tempat lain.
+     update.bat = hentikan -> ekstrak zip terbaru ke folder aplikasi (timpa) -> pasang.ps1 versi baru.
+  4. Tunggu sampai muncul "SELESAI: buka https://senja.co.id", lalu tekan tombol apa saja.
   Catatan: .env ikut tertimpa dari zip; pengaturan server di .env diisi ulang otomatis oleh pasang.ps1.
+
+  Bila update.bat belum ada di server (paket lama), sekali ini update manual:
+    1. cd D:\ruangSenja
+       powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -Berhenti
+    2. Ekstrak zip versi baru ke folder yang sama (timpa semua)
+    3. powershell -ExecutionPolicy Bypass -File .\pasang.ps1
+
+Hentikan aplikasi: klik dua kali berhenti.bat.
+Menyalakan lagi tanpa versi baru: powershell -ExecutionPolicy Bypass -File .\pasang.ps1  (Administrator)
 
 Perintah berguna (PowerShell Administrator)
   Lihat log          Get-Content D:\ruangSenja\logs\app.log -Tail 50
@@ -47,4 +59,5 @@ Pilihan script
   -Domain erp.senja.co.id   pakai domain/subdomain lain (DNS-nya harus sudah mengarah ke server)
   -Port 3002                port internal aplikasi (bawaan 3001; 3000 di server ini dipakai aplikasi lain)
   -TanpaMigrasi             lewati migrasi database
-  -Berhenti                 hanya hentikan aplikasi & Caddy (sebelum update)
+  -Berhenti                 hanya hentikan aplikasi & Caddy (= berhenti.bat)
+  -Update [-Zip <zip>]      hentikan, ekstrak zip baru, pasang ulang (= update.bat)
