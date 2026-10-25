@@ -435,6 +435,13 @@ html.theme-vt::view-transition-new(root) {
 .dg tbody tr.is-sel:hover td {
 	background: var(--dg-sel-hover);
 }
+/* baris master yang sedang dipilih (master-detail) */
+.dg tbody tr.is-picked td {
+	background: var(--dg-sel);
+}
+.dg tbody tr.is-picked td:first-child {
+	box-shadow: inset 3px 0 0 var(--color-brand-500);
+}
 /* baris aktif keyboard: tampak hanya saat grid difokus */
 .dg-scroll:focus-visible .dg tbody tr.is-active td {
 	background: var(--dg-hover);

@@ -129,7 +129,12 @@ export interface MasterDef {
 	nameField?: string;
 	/** field status aktif (default `active`) */
 	activeField?: string;
+	/** urutan isian form = urutan entry window PowerBuilder */
 	fields: FieldDef[];
+	/** kolom tabel & urutannya = grid PowerBuilder, menggantikan flag `list` (default: field `list` sesuai urutan form) */
+	columns?: string[];
+	/** sort awal tabel = sort grid PowerBuilder, boleh beberapa kolom (default: field pertama) */
+	sortField?: string | string[];
 	/** tombol "Salin jadi baru": isian data terbuka disalin ke form tambah (kode otomatis dikosongkan) */
 	copyable?: boolean;
 	/** isian turunan: dipanggil setelah pengguna mengubah `key` (mis. hitung harga per satuan) */
@@ -232,7 +237,7 @@ export interface TxDef {
  * pemetaannya di routes/(app)/[...path]/+page.svelte — bertipe, jadi salah ketik ketahuan saat `npm run check`.
  */
 export type ReportPage = 'mutasi-stok' | 'kartu-stok' | 'analisa-penjualan' | 'mutasi-hutang-piutang' | 'kartu-hutang-piutang' | 'buku-kas-bank' | 'jurnal' | 'absensi';
-export type CustomPage = 'atribut' | 'produk' | 'pegawai' | 'pengguna' | 'closing-stok';
+export type CustomPage = 'atribut' | 'pegawai' | 'pengguna' | 'closing-stok';
 
 export interface ReportDef {
 	kind: 'report';

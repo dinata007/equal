@@ -1,14 +1,20 @@
 <script lang="ts">
 	/**
-	 * Atribut master (tabel lama) dalam satu menu bertab, seperti tombol Brand/Gender/… di window produk
-	 * PowerBuilder. Daftar tab per menu: ATTRIBUTES di defs/masters.ts (material: tab pertama = article).
+	 * Data utama menu + atributnya (tabel lama) dalam satu menu bertab, seperti tombol Brand/Gender/… di window
+	 * PowerBuilder. Daftar tab per menu: ATTRIBUTES di defs/masters.ts (tab pertama = data utama: produk, article).
 	 */
-	import { ATTRIBUTES } from '#lib/domain/defs/masters.ts';
+	import type { Component } from 'svelte';
+	import { ATTRIBUTES, type AttributeTab } from '#lib/domain/defs/masters.ts';
 	import type { Leaf } from '#lib/domain/menu.ts';
 	import { loadSession, saveSession } from '#lib/components/data/grid/core.ts';
 	import { auth } from '#lib/state/auth.svelte.ts';
 	import MasterPage from '#lib/pages/master/MasterPage.svelte';
+	import Produk from '#lib/pages/produk/Produk.svelte';
+	import Department from '#lib/pages/produk/Department.svelte';
 	import { scrollTabs } from '#lib/dom/scrollTabs.ts';
+
+	/** halaman khusus per tab `custom` */
+	const CUSTOM: Record<Extract<AttributeTab, { custom: string }>['custom'], Component<any>> = { produk: Produk, dept: Department };
 
 	let { leaf, set }: { leaf: Leaf; set: keyof typeof ATTRIBUTES } = $props();
 
@@ -39,5 +45,10 @@
 {/snippet}
 
 {#key cur.key}
-	<MasterPage {leaf} page={cur.def} label={cur.label} {nav} />
+	{#if 'custom' in cur}
+		{@const Page = CUSTOM[cur.custom]}
+		<Page {leaf} {nav} />
+	{:else}
+		<MasterPage {leaf} page={cur.def} label={cur.label} {nav} />
+	{/if}
 {/key}

@@ -165,11 +165,11 @@ const same = (a: unknown, b: unknown) => JSON.stringify(a instanceof Date ? a.to
 
 /* ---------------- baca ---------------- */
 
-/** kolom yang dibaca; `slim` = hanya kunci, field daftar, kode/nama/status (daftar tabel besar) */
+/** kolom yang dibaca; `slim` = hanya kunci, kolom tabel, kode/nama/status (daftar tabel besar) */
 async function selectList(res: Resource, slim = false) {
 	const meta = await columns(res.table);
 	const { def } = res;
-	const fields = slim ? def.fields.filter((f) => f.list || [def.codeField, def.nameField, def.activeField].includes(f.key)) : def.fields;
+	const fields = slim ? def.fields.filter((f) => (def.columns ? def.columns.includes(f.key) : f.list) || [def.codeField, def.nameField, def.activeField].includes(f.key)) : def.fields;
 	const cols = new Set([...res.keys, ...fields.map((f) => f.key), ...(res.brand ? [res.brand.column] : [])]);
 	for (const c of cols) if (!meta.has(c.toLowerCase())) throw new Error(`Kolom ${c} tidak ada di ${res.table}`);
 	return { meta, cols: [...cols] };

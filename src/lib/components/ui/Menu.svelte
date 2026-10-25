@@ -86,7 +86,8 @@
 		{@render header()}
 		<div class="my-1 h-px bg-stone-100 dark:bg-stone-800"></div>
 	{/if}
-	{#each items as it, i (it.label + (it.href ?? ''))}
+	<!-- urutan ikut kunci: label boleh kembar (mis. dua kolom tabel berjudul sama) -->
+	{#each items as it, i (`${i}:${it.label}${it.href ?? ''}`)}
 		{#if it.section && it.section !== items[i - 1]?.section}
 			<p class="px-3 pt-2.5 pb-1 text-[10px] font-semibold tracking-wider text-stone-400 uppercase {i ? 'mt-1 border-t border-stone-100 dark:border-stone-800' : ''}">{it.section}</p>
 		{/if}

@@ -289,13 +289,13 @@ export interface GridPrefs {
 	density: Density;
 	/** null = belum pernah diatur → pakai urutan awal halaman */
 	sort: SortKey[] | null;
-	/** jumlah kolom (dari kiri) yang di-freeze; default 1 */
-	freeze: number;
+	/** jumlah kolom (dari kiri) yang di-freeze; null = belum pernah diatur → bawaan halaman */
+	freeze: number | null;
 }
 /** keadaan lengkap grid yang diingat: pengaturan + filter + kata cari */
 export type GridSaved = GridPrefs & { filters: Record<string, FilterValue>; query: string };
 
-export const blankPrefs = (): GridPrefs => ({ order: [], hidden: [], widths: {}, density: 'cozy', sort: null, freeze: 1 });
+export const blankPrefs = (): GridPrefs => ({ order: [], hidden: [], widths: {}, density: 'cozy', sort: null, freeze: null });
 
 /*
  * Disimpan di sessionStorage: bertahan saat pindah menu & reload,
