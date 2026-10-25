@@ -237,7 +237,7 @@ export interface TxDef {
  * pemetaannya di routes/(app)/[...path]/+page.svelte — bertipe, jadi salah ketik ketahuan saat `npm run check`.
  */
 export type ReportPage = 'mutasi-stok' | 'kartu-stok' | 'analisa-penjualan' | 'mutasi-hutang-piutang' | 'kartu-hutang-piutang' | 'buku-kas-bank' | 'jurnal' | 'absensi';
-export type CustomPage = 'atribut' | 'pegawai' | 'pengguna' | 'closing-stok';
+export type CustomPage = 'atribut' | 'pegawai' | 'pengguna' | 'closing-stok' | 'dashboard';
 
 export interface ReportDef {
 	kind: 'report';
@@ -261,6 +261,8 @@ export interface MenuNode {
 	page?: PageDef;
 	/** hanya untuk user dengan flag admin; tidak diatur lewat sakelar menu */
 	adminOnly?: boolean;
+	/** modul tampil sebagai satu link di sidebar (ke anak pertama yang boleh dibuka); anak dipilih di dalam halaman */
+	flat?: boolean;
 	/** diisi saat build: path lengkap */
 	path?: string;
 	/** jalur label (breadcrumb) */

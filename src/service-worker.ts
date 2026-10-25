@@ -40,8 +40,11 @@ self.addEventListener('fetch', (event) => {
 		event.respondWith(
 			fetch(req)
 				.then((res) => {
-					const copy = res.clone();
-					caches.open(CACHE).then((c) => c.put(SHELL, copy));
+					// hanya halaman sukses yang jadi shell offline (halaman error 500 jangan sampai tersimpan & disajikan terus)
+					if (res.ok) {
+						const copy = res.clone();
+						caches.open(CACHE).then((c) => c.put(SHELL, copy));
+					}
 					return res;
 				})
 				.catch(async () => (await caches.match(SHELL)) ?? Response.error())

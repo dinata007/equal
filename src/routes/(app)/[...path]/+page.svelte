@@ -3,7 +3,8 @@
 	import { ShieldAlert } from '@lucide/svelte';
 	import type { Component } from 'svelte';
 	import { auth } from '#lib/state/auth.svelte.ts';
-	import { findNode, isLeaf } from '#lib/domain/menu.ts';
+	import { goto } from '$app/navigation';
+	import { findNode, firstLeaf, isLeaf, visibleTree } from '#lib/domain/menu.ts';
 	import MasterPage from '#lib/pages/master/MasterPage.svelte';
 	import TransactionPage from '#lib/pages/transaksi/TransactionPage.svelte';
 	import ModuleOverview from '#lib/pages/ModuleOverview.svelte';
@@ -19,6 +20,7 @@
 	import Pengguna from '#lib/pages/pengguna/Pengguna.svelte';
 	import Pegawai from '#lib/pages/pegawai/Pegawai.svelte';
 	import Atribut from '#lib/pages/master/Atribut.svelte';
+	import Dashboard from '#lib/pages/dashboard/Dashboard.svelte';
 	import type { CustomPage, ReportPage } from '#lib/domain/types.ts';
 
 	// kunci = R('…') / C('…') di domain/menu.ts; bertipe → kunci kurang / salah ketik jadi error saat check
@@ -34,10 +36,16 @@
 		'closing-stok': ClosingStok,
 		pengguna: Pengguna,
 		pegawai: Pegawai,
-		atribut: Atribut
+		atribut: Atribut,
+		dashboard: Dashboard
 	};
 
 	const node = $derived(findNode('/' + page.params.path));
+	// modul `flat` (mis. Dashboard 2) tidak punya halaman ringkasan → langsung ke anak pertama yang boleh dibuka
+	const flatTo = $derived(node?.flat && !isLeaf(node) ? firstLeaf(visibleTree([node], (p) => auth.can(p))[0] ?? node) : undefined);
+	$effect(() => {
+		if (flatTo?.path && flatTo.path !== node?.path) goto(flatTo.path, { replaceState: true });
+	});
 </script>
 
 <svelte:head><title>{node?.label ?? 'Tidak ditemukan'} · ruangSenja</title></svelte:head>
@@ -68,6 +76,6 @@
 			{/if}
 		{/key}
 	{/if}
-{:else}
+{:else if !node.flat}
 	{#key node.path}<ModuleOverview {node} />{/key}
 {/if}
