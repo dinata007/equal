@@ -14,6 +14,7 @@ export type InstallRoute =
 	| 'installed' // sedang dibuka sebagai aplikasi
 	| 'prompt' // Chrome / Edge / Samsung: tombol Pasang
 	| 'ios' // iPhone / iPad: Bagikan › Tambahkan ke Layar Utama
+	| 'android' // Android tanpa event install (Chrome menunggu interaksi, atau sudah ter-install): menu ⋮ › Instal aplikasi
 	| 'mac-safari' // Safari macOS: File › Add to Dock
 	| 'firefox' // Firefox desktop belum bisa memasang PWA
 	| 'insecure' // bukan HTTPS → browser menolak memasang
@@ -34,7 +35,8 @@ class Pwa {
 		const ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
 		if (ios) return 'ios';
 		if (!isSecureContext) return 'insecure';
-		if (/Firefox\//.test(ua) && !/Android/.test(ua)) return 'firefox';
+		if (/Android/.test(ua)) return 'android';
+		if (/Firefox\//.test(ua)) return 'firefox';
 		if (/Macintosh/.test(ua) && /Safari\//.test(ua) && !/Chrome|Chromium|Edg\//.test(ua)) return 'mac-safari';
 		return 'menu';
 	});

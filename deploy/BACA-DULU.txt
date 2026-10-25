@@ -1,0 +1,50 @@
+ruangSenja ERP - paket deploy server Windows
+============================================
+
+Isi paket
+  build\, node_modules\    aplikasi siap jalan (tidak perlu npm install)
+  .env                     koneksi database SENJA_DEMO  (BERISI PASSWORD DATABASE - jangan dibagikan)
+  caddy.exe                Caddy 2.11.7 - HTTPS otomatis (sertifikat Let's Encrypt)
+  db\, scripts\, src\      migrasi database (tabel App*, aman diulang)
+  pasang.ps1               script pemasangan / update
+
+Syarat di server
+  1. Node.js 22 LTS atau lebih baru (https://nodejs.org) - sekali saja
+  2. Domain senja.co.id mengarah ke IP server ini (sudah: 103.164.173.118)
+  3. Port 80 & 443 bisa diakses dari internet. Firewall Windows dibuka oleh script;
+     kalau server di belakang router / firewall penyedia, port 80 & 443 juga harus dibuka di sana.
+  4. Port 80 & 443 di server belum dipakai program lain (mis. IIS). Script akan mengecek.
+
+Aplikasi jalan dari folder tempat zip diekstrak (drive & nama folder bebas, mis. D:\ruangSenja).
+Contoh di bawah memakai D:\ruangSenja - ganti dengan folder Anda.
+
+Pasang pertama kali
+  0. Di PC dev (folder project): npm run deploy:pack  ->  deploy\senja-deploy-<tanggal>.zip
+  1. Salin zip ke server, ekstrak ke folder aplikasi, mis. D:\ruangSenja
+  2. Buka PowerShell dengan "Run as Administrator", lalu:
+       cd D:\ruangSenja
+       powershell -ExecutionPolicy Bypass -File .\pasang.ps1
+  3. Tunggu sampai muncul "SELESAI: buka https://senja.co.id"
+
+  Setelah itu aplikasi jalan sendiri saat server menyala (Scheduled Task, tidak perlu ada yang login).
+
+Update ke versi baru
+  1. Hentikan dulu (caddy.exe terkunci selama jalan, file tidak bisa ditimpa):
+       cd D:\ruangSenja
+       powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -Berhenti
+  2. Ekstrak zip versi baru ke folder yang sama (timpa semua)
+  3. powershell -ExecutionPolicy Bypass -File .\pasang.ps1
+  Catatan: .env ikut tertimpa dari zip; pengaturan server di .env diisi ulang otomatis oleh pasang.ps1.
+
+Perintah berguna (PowerShell Administrator)
+  Lihat log          Get-Content D:\ruangSenja\logs\app.log -Tail 50
+                     Get-Content D:\ruangSenja\logs\caddy.log -Tail 50
+  Restart aplikasi   Stop-ScheduledTask ruangSenja-app;  Start-ScheduledTask ruangSenja-app
+  Matikan            Stop-ScheduledTask ruangSenja-app;  Stop-ScheduledTask ruangSenja-https
+  Cek database       Invoke-RestMethod http://127.0.0.1:3001/api/health
+
+Pilihan script
+  -Domain erp.senja.co.id   pakai domain/subdomain lain (DNS-nya harus sudah mengarah ke server)
+  -Port 3002                port internal aplikasi (bawaan 3001; 3000 di server ini dipakai aplikasi lain)
+  -TanpaMigrasi             lewati migrasi database
+  -Berhenti                 hanya hentikan aplikasi & Caddy (sebelum update)

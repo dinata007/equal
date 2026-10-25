@@ -1,10 +1,10 @@
 <script lang="ts">
 	/**
 	 * Tombol "Install App" (Topbar & Login). Chrome/Edge/Android → dialog install bawaan browser;
-	 * iPhone/iPad & Safari Mac (tanpa dialog) → popover panduan langkah. Tersembunyi bila sudah ter-install
-	 * atau browser memang tidak bisa install (Firefox desktop, koneksi bukan HTTPS).
+	 * iPhone/iPad, Safari Mac & Android yang belum mengirim event install → popover panduan langkah.
+	 * Tersembunyi bila sudah dibuka sebagai aplikasi atau browser memang tidak bisa install (Firefox desktop, bukan HTTPS).
 	 */
-	import { Download, LoaderCircle, Share, SquarePlus, X } from '@lucide/svelte';
+	import { Download, EllipsisVertical, LoaderCircle, Share, SquarePlus, X } from '@lucide/svelte';
 	import { pwa } from '#lib/state/pwa.svelte.ts';
 	import { toast } from '#lib/state/ui.svelte.ts';
 	import { backClose } from '#lib/dom/backClose.svelte.ts';
@@ -21,7 +21,7 @@
 	let stop: (() => void) | null = null;
 	backClose(() => open, () => pop?.hidePopover());
 
-	const visible = $derived(!pwa.standalone && !pwa.installedNow && (pwa.route === 'prompt' || pwa.route === 'ios' || pwa.route === 'mac-safari'));
+	const visible = $derived(!pwa.standalone && !pwa.installedNow && (pwa.route === 'prompt' || pwa.route === 'ios' || pwa.route === 'android' || pwa.route === 'mac-safari'));
 	const sheet = matchMedia('(max-width: 639px)').matches;
 
 	async function click() {
@@ -86,7 +86,7 @@
 				<img src="/icon-192.png" alt="" class="size-10 rounded-xl ring-1 ring-stone-900/5" />
 				<div class="min-w-0 flex-1">
 					<p class="text-sm font-medium">Install ruangSenja</p>
-					<p class="text-xs text-stone-500">{pwa.route === 'ios' ? 'iPhone / iPad' : 'Safari di Mac'}</p>
+					<p class="text-xs text-stone-500">{pwa.route === 'ios' ? 'iPhone / iPad' : pwa.route === 'android' ? 'Android' : 'Safari di Mac'}</p>
 				</div>
 				<button class="btn btn-ghost btn-icon btn-sm -mr-1" onclick={() => pop?.hidePopover()} aria-label="Tutup"><X class="size-4" /></button>
 			</div>
@@ -96,6 +96,12 @@
 					<li class="flex items-start gap-3"><span class="step">2</span><span class="pt-0.5">Ketuk <Share class="inline size-4 -translate-y-px text-sky-600" /> <b class="font-medium">Share</b> (Bagikan) di bawah layar</span></li>
 					<li class="flex items-start gap-3"><span class="step">3</span><span class="pt-0.5">Pilih <SquarePlus class="inline size-4 -translate-y-px" /> <b class="font-medium">Add to Home Screen</b> (Tambahkan ke Layar Utama), lalu <b class="font-medium">Add</b></span></li>
 				</ol>
+			{:else if pwa.route === 'android'}
+				<ol class="space-y-2.5 text-sm text-stone-600 dark:text-stone-300">
+					<li class="flex items-start gap-3"><span class="step">1</span><span class="pt-0.5">Ketuk <EllipsisVertical class="inline size-4 -translate-y-px" /> <b class="font-medium">menu</b> di kanan atas browser</span></li>
+					<li class="flex items-start gap-3"><span class="step">2</span><span class="pt-0.5">Pilih <b class="font-medium">Instal aplikasi</b> (atau <b class="font-medium">Tambahkan ke layar utama</b>), lalu <b class="font-medium">Instal</b></span></li>
+				</ol>
+				<p class="mt-3 text-xs text-stone-400">Kalau di menu tertulis <b class="font-medium">Buka aplikasi</b>, ruangSenja sudah ter-install. Buka dari layar utama.</p>
 			{:else}
 				<ol class="space-y-2.5 text-sm text-stone-600 dark:text-stone-300">
 					<li class="flex items-start gap-3"><span class="step">1</span><span class="pt-0.5">Buka menu <b class="font-medium">File</b> di Safari</span></li>
