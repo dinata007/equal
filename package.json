@@ -17,7 +17,8 @@
 		"db:schema": "node scripts/db-schema.mjs",
 		"db:migrate": "node scripts/db-migrate.mjs",
 		"db:admin": "node scripts/db-admin.mjs",
-		"legacy:extract": "node scripts/pbl-extract.mjs"
+		"legacy:extract": "node scripts/pbl-extract.mjs",
+		"deploy:pack": "node scripts/deploy-pack.mjs"
 	},
 	"devDependencies": {
 		"@floating-ui/dom": "^1.8.0",

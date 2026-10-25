@@ -433,7 +433,6 @@
 								<button class="btn btn-primary h-10 px-4" onclick={install} disabled={installing}>
 									{#if installing}<LoaderCircle class="size-4 animate-spin" />{:else}<Download class="size-4" />{/if} Install App
 								</button>
-								<span class="text-xs text-stone-500">Tanpa toko aplikasi · bisa dihapus kapan saja</span>
 							</div>
 						{:else if pwa.route === 'ios'}
 							<p class="mb-3 text-sm font-medium">Install di iPhone / iPad</p>

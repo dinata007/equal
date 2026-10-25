@@ -4,7 +4,7 @@ Ringkasan keputusan & status agar pekerjaan bisa dilanjutkan tanpa riwayat perca
 
 ## Konteks
 
-- Aplikasi web ini menggantikan **aplikasi desktop PowerBuilder** secara bertahap. Keduanya memakai database SQL Server 2019 yang sama; aplikasi lama **masih dipakai** selama transisi.
+- Aplikasi web ini tampil sebagai satu link di sidebar (modul `flat`: Senja | JP dipilih di halaman, berbagi satu tab halaman) dan menggantikan **aplikasi desktop PowerBuilder** secara bertahap. Keduanya memakai database SQL Server 2019 yang sama; aplikasi lama **masih dipakai** selama transisi.
 - Pengembangan memakai salinan restore bernama **`SENJA_DEMO`**. Struktur database ada di `docs/database/` (dibuat `npm run db:schema`; 222 tabel, multi-brand `brand_id` A/B/C/H, multi-site).
 - Logika posting/penomoran aplikasi lama ada di **kode PowerBuilder** (tidak ada trigger; hampir tidak ada stored procedure transaksi). Source PowerBuilder akan ditaruh di `legacy/powerbuilder/` (repo private) — baca sebelum memetakan transaksi.
 
@@ -80,6 +80,13 @@ Keputusan pemilik (23/10/2026): web **menulis langsung** ke tabel master lama de
 - **Install App** (`pwa.svelte.ts`, `InstallAppButton.svelte`): event install ditangkap sejak halaman pertama; tombol di Topbar & Login, kartu Aplikasi di profil. iPhone/iPad & Safari Mac → panduan langkah; tersembunyi bila sudah ter-install / Firefox desktop / bukan HTTPS (install PWA wajib HTTPS di server live).
 - Istilah umum aplikasi tidak diterjemahkan (Login/Logout, Install App, Upload, Light/Dark, Zoom, Crop…).
 - **Export** (`util/export.ts`, `components/data/ExportMenu.svelte`): menu Excel / CSV / PDF di semua laporan (`ReportShell` prop `exportTable`), MasterPage, daftar transaksi, dan bar baris terpilih DataTable (ikut baris total bila kolom ber-`sum`). Excel = .xlsx asli buatan sendiri + `fflate` (angka & tanggal tetap bernilai, header freeze + AutoFilter, lebar kolom otomatis, judul/periode/pengekspor); PDF = `jspdf` + `jspdf-autotable` (landscape bila > 6 kolom, header berulang, nomor halaman, font standar → karakter non-Latin-1 diganti). Library dimuat saat dipakai. Tipe kolom ditebak dari isi bila tidak disebut (`tableOf(nama, header, baris)`).
+
+## Dashboard 2 — pengganti dashboard Stimulsoft (25/10/2026)
+
+- Menu **Dashboard 2** (`/dashboard-2/senja`, `/dashboard-2/jp`) menggantikan `https://senja.co.id:90/dashboard-senja/` & `/dashboard-jp/` (file `legacy/Dashboard_*.mrt`). Beranda berganti nama jadi **Dashboard 1**. Hak akses per perusahaan = dua menu terpisah di Pengguna & Hak Akses; server mengecek ulang (`server/dashboard.ts`).
+- Data = SP lama apa adanya (`sp_Dashboard_Sales`, `sp_Dashboard_Stok`, JP: + `sp_Dashboard_Beli`), dipanggil dengan nama tiga bagian `[DB].[dbo].[sp]` lewat koneksi yang sama. Database dari `.env` `DASHBOARD_SENJA_DB` (kosong = `DB_NAME`) & `DASHBOARD_JP_DB` (kosong = `JP`). Hanya SP di daftar yang bisa dipanggil; hasil di-cache 5 menit di server, tombol Refresh paling cepat tiap 15 detik. Kolom `Periode` SP = tanggal 1 tiap bulan (data sejak 1 Januari tahun lalu s.d. bulan berjalan).
+- Semua penjumlahan & filter di browser (`pages/dashboard/`, isi tab di `config.ts`). Tab Qty & Nilai lama digabung (pilihan Qty | Nilai); tab tabel pivot lama (Tabel, Tabel Stok) tidak dipakai atas permintaan pemilik → Senja: Penjualan, Stok; JP: Penjualan, Pembelian, Stok. Periode bawaan = bulan terbaru yang ada datanya s.d. bulan ini; KPI dibanding bulan sebelumnya (bulan berjalan: s.d. tanggal yang sama). Klik peringkat/donut/batang = filter silang.
+- Cakupan brand pengguna **tidak** diterapkan di Dashboard 2 (sama seperti dashboard lama); batasnya hak menu.
 
 ## Langkah berikutnya
 

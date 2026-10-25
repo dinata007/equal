@@ -24,3 +24,7 @@ vite.config.ts.timestamp-*
 
 #legacy
 /legacy
+# Paket deploy (berisi .env) — dibuat npm run deploy:pack
+/deploy/paket
+/deploy/*.zip
+/deploy/caddy.exe

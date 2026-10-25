@@ -3,6 +3,7 @@
 	import { ChevronRight } from '@lucide/svelte';
 	import { slide } from 'svelte/transition';
 	import type { MenuNode } from '#lib/domain/types.ts';
+	import { firstLeaf } from '#lib/domain/menu.ts';
 	import Self from './MenuTree.svelte';
 
 	let { nodes, depth = 0, onnavigate }: { nodes: MenuNode[]; depth?: number; onnavigate?: () => void } = $props();
@@ -17,7 +18,26 @@
 <ul class={depth === 0 ? 'space-y-0.5' : depth === 1 ? 'mt-1 mb-2 ml-[18px] border-l border-stone-200 pl-3 dark:border-stone-800' : 'pl-1'}>
 	{#each nodes as n (n.path)}
 		<li>
-			{#if n.children}
+			{#if n.flat && depth === 0}
+				{@const to = firstLeaf(n)}
+				<a
+					href={to?.path ?? n.path}
+					onclick={onnavigate}
+					aria-current={within(n) ? 'page' : undefined}
+					class="group flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition {within(n)
+						? 'text-stone-900 dark:text-white'
+						: 'text-stone-600 hover:bg-stone-100 dark:text-stone-400 dark:hover:bg-stone-800/60'}"
+				>
+					<span
+						class="grid size-7 place-items-center rounded-lg transition {within(n)
+							? 'bg-brand-500 text-white shadow-sm shadow-stone-900/20'
+							: 'bg-stone-100 text-stone-500 group-hover:bg-white dark:bg-stone-800 dark:text-stone-400'}"
+					>
+						<n.icon class="size-4" />
+					</span>
+					<span class="flex-1 text-left">{n.label}</span>
+				</a>
+			{:else if n.children}
 				{#if depth === 0}
 					<button
 						class="group flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition {within(n)

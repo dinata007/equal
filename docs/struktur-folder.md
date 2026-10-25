@@ -7,8 +7,9 @@ Import dari `src/lib` memakai alias `#lib/…`, misalnya `import { auth } from '
 
 ```
 db/migrations/     script SQL tabel aplikasi web (dbo.App*), dijalankan `npm run db:migrate`
+deploy/            pasang.ps1 + BACA-DULU.txt untuk server Windows; paket & zip hasil `npm run deploy:pack` (tidak masuk git)
 docs/              dokumen: serah terima, skema database, struktur folder (file ini)
-scripts/           script Node: db:migrate, db:admin, db:schema, ikon PWA, ekstrak PBL
+scripts/           script Node: db:migrate, db:admin, db:schema, deploy:pack, ikon PWA, ekstrak PBL
 legacy/            sumber aplikasi PowerBuilder (rujukan saja, tidak masuk git)
 static/            file publik: ikon, logo, manifest PWA, robots.txt
 src/               kode aplikasi (lihat di bawah)
@@ -23,11 +24,12 @@ routes/
   +layout.server.ts     data sesi pengguna & status database untuk setiap halaman
   login/, ganti-password/
   (app)/                semua halaman setelah login (sidebar, topbar, tab halaman)
-    +page.svelte        Dashboard
+    +page.svelte        Dashboard 1 (beranda)
     profil/             Profil & pengaturan akun
     [...path]/          SEMUA halaman menu — isinya ditentukan domain/menu.ts
   api/                  endpoint server (wajib login; dicek di hooks.server.ts)
     auth/  master/[resource]  lookup/[name]  users/  pegawai/  artikel/  profil/  avatar/  health/
+    dashboard/[sumber]  data Dashboard 2 (SP lama, hanya baca)
 ```
 
 Halaman menu tidak punya folder sendiri di `routes/`. Path menu (mis. `/material/master/raw-material`)
@@ -41,11 +43,14 @@ lib/
     ui/                komponen dasar: Select, DateInput, NumberInput, Field, Lookup, Switch,
                        Sheet, Popover, Menu, ConfirmDialog, Toaster, Avatar, Logo, StatusBadge, PeriodPresets
     data/              DataTable (+ grid/: filter & kolom), ExportMenu, PageHeader, types.ts (tipe kolom tabel)
-    chart/             grafik: BarChart, BarList, TrendChart, Donut, Heatmap, Sparkline, StackBar, Delta
+    chart/             grafik: BarChart, BarList, TrendChart, MultiLine, Donut, Heatmap, Sparkline, StackBar,
+                       StackRows, RankList, Delta
     shell/             kerangka aplikasi: Sidebar, MenuTree, Topbar, PageTabs, BottomNav, CommandPalette, InstallAppButton
 
   pages/               halaman, dikelompokkan seperti menu
     ModuleOverview     ringkasan modul (mis. /material)
+    dashboard/         Dashboard 2: Dashboard (kerangka), config.ts (isi tab per perusahaan), data.ts (muat & agregasi),
+                       FlowTab (penjualan/pembelian), StockTab, PeriodPicker, Seg
     master/            MasterPage (halaman master generik), Atribut (menu bertab: Produk, Raw Material, atribut pegawai)
     transaksi/         TransactionPage (daftar), TxForm (form dokumen), LinesEditor (baris detail)
     laporan/           ReportShell + PeriodFilter (kerangka), MutasiStok, KartuStok, AnalisaPenjualan,
@@ -84,7 +89,7 @@ lib/
     db.svelte.ts, seed.ts   → dihapus setelah semua modul pindah ke database
 
   server/              kode yang hanya jalan di server (tidak boleh diimpor halaman)
-    db.ts, db-config.js, http.ts
+    db.ts, db-config.js, http.ts, dashboard.ts (SP Dashboard 2)
     auth/              login, sesi, password, pengguna, audit, profil
     master/            resource tabel lama: registry, service, lookups, material, produk, artikel, hr, kontrak, codes
 

@@ -296,7 +296,7 @@
 	const periodText = $derived(`${fdate(per.from)} – ${fdate(per.to)}`);
 </script>
 
-<svelte:head><title>Dashboard · ruangSenja</title></svelte:head>
+<svelte:head><title>Dashboard 1 · ruangSenja</title></svelte:head>
 
 {#snippet seg<K extends string>(opts: { key: K; label: string }[], value: K, set: (k: K) => void, label: string)}
 	<div class="inline-flex rounded-xl bg-stone-100 p-0.5 dark:bg-stone-800" role="group" aria-label={label}>

@@ -3,7 +3,7 @@
 	import { page } from '$app/state';
 	import { ChevronsLeft, ChevronsRight, LayoutDashboard, Search } from '@lucide/svelte';
 	import { auth } from '#lib/state/auth.svelte.ts';
-	import { MENU, visibleTree } from '#lib/domain/menu.ts';
+	import { MENU, firstLeaf, visibleTree } from '#lib/domain/menu.ts';
 	import { shell } from '#lib/state/ui.svelte.ts';
 	import Avatar from '../ui/Avatar.svelte';
 	import Logo from '../ui/Logo.svelte';
@@ -30,7 +30,7 @@
 			<button aria-label="Lebarkan sidebar" {@attach tooltip('Lebarkan sidebar', { placement: 'right' })} class="grid size-10 place-items-center rounded-xl text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800" onclick={() => shell.toggleCollapsed()}>
 				<ChevronsRight class="size-5" />
 			</button>
-			<a href="/" aria-label="Dashboard" {@attach tooltip("Dashboard", { placement: 'right' })} class="grid size-10 place-items-center rounded-xl {path === '/' ? 'bg-brand-500 text-white' : 'text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800'}">
+			<a href="/" aria-label="Dashboard 1" {@attach tooltip("Dashboard 1", { placement: 'right' })} class="grid size-10 place-items-center rounded-xl {path === '/' ? 'bg-brand-500 text-white' : 'text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800'}">
 				<LayoutDashboard class="size-5" />
 			</a>
 			<button aria-label="Cari menu" {@attach tooltip('Cari menu', { placement: 'right', kbd: 'Ctrl K' })} class="grid size-10 place-items-center rounded-xl text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800" onclick={() => (shell.palette = true)}>
@@ -39,7 +39,7 @@
 			<div class="my-2 h-px w-8 bg-stone-200 dark:bg-stone-800"></div>
 			{#each tree as m (m.path)}
 				{@const active = path.startsWith(m.path + '/') || path === m.path}
-				<a href={m.path} aria-label={m.label} {@attach tooltip(m.label, { placement: 'right' })} class="grid size-10 place-items-center rounded-xl transition {active ? 'bg-brand-500 text-white shadow-sm shadow-stone-900/20' : 'text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800'}">
+				<a href={m.flat ? (firstLeaf(m)?.path ?? m.path) : m.path} aria-label={m.label} {@attach tooltip(m.label, { placement: 'right' })} class="grid size-10 place-items-center rounded-xl transition {active ? 'bg-brand-500 text-white shadow-sm shadow-stone-900/20' : 'text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800'}">
 					{#if m.icon}<m.icon class="size-5" />{/if}
 				</a>
 			{/each}
@@ -66,7 +66,7 @@
 				<span class="grid size-7 place-items-center rounded-lg {path === '/' ? 'bg-brand-500 text-white shadow-sm shadow-stone-900/20' : 'bg-stone-100 text-stone-500 dark:bg-stone-800'}">
 					<LayoutDashboard class="size-4" />
 				</span>
-				Dashboard
+				Dashboard 1
 			</a>
 			<MenuTree nodes={tree} {onnavigate} />
 		</nav>

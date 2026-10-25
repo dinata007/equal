@@ -13,6 +13,7 @@ import {
 	Calculator,
 	CalendarCheck,
 	ChartColumn,
+	ChartPie,
 	ClipboardCheck,
 	ClipboardList,
 	Coins,
@@ -36,6 +37,7 @@ import {
 	Settings,
 	ShoppingCart,
 	Store,
+	Sunset,
 	Tags,
 	TrendingUp,
 	Truck,
@@ -63,6 +65,18 @@ const stockReports = (itemTable: string, scope: string): MenuNode => ({
 const closing = (scope: string): MenuNode => ({ slug: 'closing-stok', label: 'Closing Stok', icon: Lock, page: C('closing-stok', { scope }) });
 
 export const MENU: MenuNode[] = [
+	{
+		slug: 'dashboard-2',
+		label: 'Dashboard 2',
+		icon: ChartPie,
+		description: 'Penjualan, pembelian & stok per perusahaan (pengganti dashboard Stimulsoft)',
+		// satu link di sidebar; Senja | JP dipilih di halaman (hak akses tetap per perusahaan)
+		flat: true,
+		children: [
+			{ slug: 'senja', label: 'Dashboard Senja', icon: Sunset, page: C('dashboard', { sumber: 'senja' }) },
+			{ slug: 'jp', label: 'Dashboard JP', icon: Factory, page: C('dashboard', { sumber: 'jp' }) }
+		]
+	},
 	{
 		slug: 'material',
 		label: 'Material',

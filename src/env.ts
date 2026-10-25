@@ -16,5 +16,7 @@ export const variables = defineEnvVars({
 	DB_PASSWORD: optional('Password login SQL Server'),
 	DB_DOMAIN: optional('Domain untuk login Windows (autentikasi NTLM)'),
 	DB_ENCRYPT: optional('true bila koneksi wajib terenkripsi'),
-	DB_TRUST_CERT: optional('true untuk menerima sertifikat self-signed')
+	DB_TRUST_CERT: optional('true untuk menerima sertifikat self-signed'),
+	DASHBOARD_SENJA_DB: optional('Database sumber Dashboard Senja (bawaan: DB_NAME)'),
+	DASHBOARD_JP_DB: optional('Database sumber Dashboard JP (bawaan: JP)')
 });
