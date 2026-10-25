@@ -5,10 +5,11 @@
   Jalankan di PowerShell "Run as Administrator", dari folder itu:
       powershell -ExecutionPolicy Bypass -File .\pasang.ps1
 
-  Aman dijalankan ulang. Untuk update:
-      1. powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -Berhenti   (caddy.exe terkunci selama jalan)
-      2. ekstrak zip versi baru ke folder yang sama (timpa)
-      3. powershell -ExecutionPolicy Bypass -File .\pasang.ps1
+  Aman dijalankan ulang. Untuk update, klik dua kali update.bat (atau seret zip baru ke update.bat), atau:
+      powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -Update [-Zip <path zip>]
+        = hentikan -> ekstrak zip baru ke folder ini -> jalankan pasang.ps1 versi baru.
+        Tanpa -Zip: dipakai senja-deploy-*.zip terbaru di folder ini, folder di atasnya, Downloads, atau Desktop.
+  Hentikan saja (berhenti.bat): powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -Berhenti
 
   Yang dilakukan:
     1. hentikan versi yang sedang jalan (bila ada)
@@ -26,8 +27,12 @@ param(
 	# port internal aplikasi; 3000 di server senja.co.id sudah dipakai aplikasi lain
 	[int]$Port = 3001,
 	[switch]$TanpaMigrasi,
-	# hanya hentikan aplikasi & Caddy (sebelum menimpa file saat update)
-	[switch]$Berhenti
+	# hanya hentikan aplikasi & Caddy
+	[switch]$Berhenti,
+	# hentikan, ekstrak zip versi baru ke folder ini, lalu jalankan pasang.ps1 versi baru
+	[switch]$Update,
+	# zip untuk -Update (kosong = cari senja-deploy-*.zip terbaru)
+	[string]$Zip
 )
 $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -52,15 +57,40 @@ Get-CimInstance Win32_Process -Filter "Name = 'caddy.exe'" | Where-Object { $_.E
 foreach ($c in @(Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue)) {
 	$p = Get-CimInstance Win32_Process -Filter "ProcessId = $($c.OwningProcess)"
 	if ($p.Name -eq 'node.exe' -and $p.CommandLine -like '*--env-file=.env build*') { Stop-Process -Id $p.ProcessId -Force }
-	elseif (-not $Berhenti) { Gagal "Port $Port sudah dipakai program lain ($($p.Name), PID $($p.ProcessId)):`n  $($p.CommandLine)`nBila itu aplikasi lain, jalankan lagi dengan -Port <port lain>, mis. -Port 3002. Bila itu ruangSenja yang dijalankan manual (npm start), tutup dulu jendelanya." }
+	elseif (-not ($Berhenti -or $Update)) { Gagal "Port $Port sudah dipakai program lain ($($p.Name), PID $($p.ProcessId)):`n  $($p.CommandLine)`nBila itu aplikasi lain, jalankan lagi dengan -Port <port lain>, mis. -Port 3002. Bila itu ruangSenja yang dijalankan manual (npm start), tutup dulu jendelanya." }
 }
 Start-Sleep -Seconds 1
-if ($Berhenti) {
+if ($Berhenti -and -not $Update) {
 	Write-Host ''
-	Write-Host 'Aplikasi & Caddy sudah berhenti. Sekarang ekstrak zip versi baru ke folder ini, lalu jalankan pasang.ps1 lagi.' -ForegroundColor Green
+	Write-Host 'Aplikasi & Caddy sudah berhenti. Untuk update: klik dua kali update.bat (atau seret zip baru ke update.bat).' -ForegroundColor Green
 	exit 0
 }
 Write-Host 'OK'
+
+# ---------- update: ekstrak zip baru, lalu serahkan ke pasang.ps1 versi baru ----------
+if ($Update) {
+	Langkah 'Ekstrak versi baru'
+	if (-not $Zip) {
+		$cari = @($Folder, (Split-Path $Folder -Parent), (Join-Path $env:USERPROFILE 'Downloads'), (Join-Path $env:USERPROFILE 'Desktop')) | Where-Object { $_ -and (Test-Path $_) }
+		$Zip = Get-ChildItem -Path $cari -Filter 'senja-deploy-*.zip' -File -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1 -ExpandProperty FullName
+		if (-not $Zip) { Gagal "File senja-deploy-*.zip tidak ditemukan di $Folder, folder di atasnya, Downloads, atau Desktop. Taruh zip di salah satunya, atau seret zip ke update.bat." }
+	}
+	if (-not (Test-Path -LiteralPath $Zip -PathType Leaf)) { Gagal "File zip tidak ditemukan: $Zip" }
+	$Zip = (Resolve-Path -LiteralPath $Zip).Path
+	Write-Host "Zip: $Zip  (dibuat $((Get-Item -LiteralPath $Zip).LastWriteTime.ToString('dd-MM-yyyy HH:mm')))"
+	# tar bawaan Windows bisa membaca zip; lewat cmd agar pesan stderr tidak dianggap error oleh PowerShell 5.1
+	$tar = Join-Path $env:SystemRoot 'System32\tar.exe'
+	$isi = cmd /s /c "`"$tar`" -tf `"$Zip`" 2>nul"
+	if ($isi -notcontains 'pasang.ps1') { Gagal "$Zip bukan paket ruangSenja (tidak berisi pasang.ps1)." }
+	$out = cmd /s /c "`"$tar`" -xf `"$Zip`" -C `"$Folder`" 2>&1"
+	if ($LASTEXITCODE -ne 0) { Gagal "Ekstrak gagal (kode $LASTEXITCODE): $out`nFile mungkin masih dipakai program lain; tutup lalu jalankan update lagi." }
+	Write-Host 'OK'
+	# script yang sedang berjalan masih versi lama (sudah dimuat ke memori) -> lanjutkan dengan versi baru
+	$lanjut = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $Folder 'pasang.ps1'), '-Domain', $Domain, '-Port', $Port)
+	if ($TanpaMigrasi) { $lanjut += '-TanpaMigrasi' }
+	& powershell.exe @lanjut
+	exit $LASTEXITCODE
+}
 
 # ---------- 2. Node.js & port ----------
 Langkah 'Cek Node.js & port'

@@ -1,5 +1,5 @@
 // Membuat paket deploy server Windows: deploy/paket/ + deploy/senja-deploy-<tanggal>.zip (lihat deploy/BACA-DULU.txt).
-// Isi: build produksi, node_modules runtime (tanpa npm install di server), .env, Caddy (HTTPS), migrasi, pasang.ps1.
+// Isi: build produksi, node_modules runtime (tanpa npm install di server), .env, Caddy (HTTPS), migrasi, pasang.ps1 (+ berhenti.bat, update.bat).
 // Paket berisi .env (password database) → deploy/paket, zip & caddy.exe tidak ikut git.
 //   npm run deploy:pack
 import { execFileSync, execSync } from 'node:child_process';
@@ -20,7 +20,7 @@ run('npm run build');
 console.log('2/5 salin file');
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
-for (const p of ['build', 'db/migrations', 'scripts/db-migrate.mjs', 'src/lib/server/db-config.js', 'package.json', 'package-lock.json', '.npmrc', '.env', 'deploy/pasang.ps1', 'deploy/BACA-DULU.txt'])
+for (const p of ['build', 'db/migrations', 'scripts/db-migrate.mjs', 'src/lib/server/db-config.js', 'package.json', 'package-lock.json', '.npmrc', '.env', 'deploy/pasang.ps1', 'deploy/berhenti.bat', 'deploy/update.bat', 'deploy/BACA-DULU.txt'])
 	cpSync(p, `${OUT}/${p.replace(/^deploy\//, '')}`, { recursive: true });
 
 console.log('3/5 node_modules runtime (dependencies saja)');
