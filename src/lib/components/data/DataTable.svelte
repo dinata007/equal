@@ -39,6 +39,7 @@
 		toolbar,
 		empty = 'Belum ada data',
 		initialSort,
+		freeze = 1,
 		rowClass,
 		rowKey,
 		bulk = [],
@@ -59,7 +60,10 @@
 		/** kontrol tambahan di toolbar (filter periode, tab status, …) */
 		toolbar?: Snippet;
 		empty?: string;
-		initialSort?: SortKey;
+		/** sort awal; beberapa kunci = multi-sort */
+		initialSort?: SortKey | SortKey[];
+		/** jumlah kolom freeze bawaan (dari kiri) */
+		freeze?: number;
 		rowClass?: (row: T) => string;
 		rowKey?: (row: T) => string;
 		/** aksi untuk baris yang dicentang (Export selalu tersedia) */
@@ -106,7 +110,7 @@
 	});
 
 	/* ---------------- cari, filter, urut ---------------- */
-	const sorts = $derived<SortKey[]>(prefs.sort ?? (initialSort ? [initialSort] : []));
+	const sorts = $derived<SortKey[]>(prefs.sort ?? (initialSort ? [initialSort].flat() : []));
 	const terms = $derived(query.toLowerCase().split(/\s+/).filter(Boolean));
 	const activeFilters = $derived(Object.entries(filters).filter(([k, f]) => colMap.has(k) && kinds[k] && isActive(f)));
 	const preds = $derived(activeFilters.map(([k, f]) => [k, compile(f, kinds[k]!, colMap.get(k)!, rows)] as const));
@@ -265,7 +269,7 @@
 	const tableW = $derived(selW + visible.reduce((s, c) => s + widths[c.key], 0));
 
 	/* ---------------- freeze kolom (freeze panes) ---------------- */
-	const frozenN = $derived(Math.max(0, Math.min(prefs.freeze ?? 1, visible.length)));
+	const frozenN = $derived(Math.max(0, Math.min(prefs.freeze ?? freeze, visible.length)));
 	// posisi kiri tiap kolom freeze = lebar checkbox + lebar kolom freeze sebelumnya
 	const lefts = $derived.by(() => {
 		const o: number[] = [];
@@ -579,13 +583,13 @@
 		prefs.order = [];
 		prefs.hidden = [];
 		prefs.widths = {};
-		prefs.freeze = 1;
+		prefs.freeze = null;
 		wCache.clear();
 	}
 
 	/** ada yang berbeda dari tampilan bawaan? → tampilkan tombol "kembalikan" */
 	const customized = $derived(
-		!!query || activeFilters.length > 0 || prefs.sort !== null || prefs.order.length > 0 || prefs.hidden.length > 0 || Object.keys(prefs.widths).length > 0 || prefs.density !== 'cozy' || prefs.freeze !== 1
+		!!query || activeFilters.length > 0 || prefs.sort !== null || prefs.order.length > 0 || prefs.hidden.length > 0 || Object.keys(prefs.widths).length > 0 || prefs.density !== 'cozy' || (prefs.freeze ?? freeze) !== freeze
 	);
 	function resetAll() {
 		Object.assign(prefs, blankPrefs());
@@ -783,7 +787,7 @@
 										class="flex min-w-0 flex-1 items-center gap-1 uppercase transition-colors hover:text-stone-800 dark:hover:text-stone-200 {c.align === 'right' ? 'justify-end' : c.align === 'center' ? 'justify-center' : ''} {s ? 'text-stone-800 dark:text-stone-200' : ''}"
 										onclick={(e) => toggleSort(c, e.shiftKey)}
 									>
-										{#if ci === frozenN - 1 && prefs.freeze !== 1}<Pin class="size-3 shrink-0 text-brand-500" />{/if}
+										{#if ci === frozenN - 1 && (prefs.freeze ?? freeze) !== freeze}<Pin class="size-3 shrink-0 text-brand-500" />{/if}
 										<span class="truncate">{c.label}</span>
 										{#if s}
 											{#if s.dir === 1}<ArrowUp class="size-3 shrink-0 text-brand-600" />{:else}<ArrowDown class="size-3 shrink-0 text-brand-600" />{/if}
@@ -920,11 +924,12 @@
 		{/if}
 
 		<!-- status -->
-		<div class="no-print flex items-center justify-between gap-3 border-t border-stone-100 px-4 py-2 text-xs text-stone-500 dark:border-stone-800">
-			<span class="tabular-nums">
+		<div class="no-print @container flex items-center justify-between gap-3 border-t border-stone-100 px-4 py-2 text-xs text-stone-500 dark:border-stone-800">
+			<span class="shrink-0 tabular-nums">
 				Baris {num(firstVis)}–{num(lastVis)} dari {num(filtered.length)}{#if filtered.length < rows.length}<span class="text-stone-400"> · disaring dari {num(rows.length)}</span>{/if}
 			</span>
-			<span class="hidden items-center gap-3 text-stone-400 xl:flex">
+			<!-- petunjuk keyboard hanya bila tabelnya cukup lebar (bukan lebar layar: tabel bisa di kartu sempit) -->
+			<span class="hidden items-center gap-3 text-stone-400 @3xl:flex">
 				<span><kbd class="dg-kbd">/</kbd> cari</span>
 				<span><kbd class="dg-kbd">↑</kbd><kbd class="dg-kbd">↓</kbd> pindah</span>
 				<span><kbd class="dg-kbd">Enter</kbd> buka</span>

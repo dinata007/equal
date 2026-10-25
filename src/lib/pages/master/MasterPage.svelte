@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { untrack, type Snippet } from 'svelte';
-	import { Ban, CircleCheck, Copy, Plus, RotateCw, Trash, TriangleAlert } from '@lucide/svelte';
+	import { Ban, Check, CircleCheck, Copy, Pencil, Plus, RotateCw, Trash, TriangleAlert } from '@lucide/svelte';
 	import { ApiError, api } from '#lib/util/api.ts';
 	import { auth } from '#lib/state/auth.svelte.ts';
 	import { db } from '#lib/dev-data/db.svelte.ts';
@@ -24,7 +24,12 @@
 		page: pageDef,
 		label: pageLabel,
 		nav,
-		tabs = []
+		tabs = [],
+		embed,
+		filter,
+		preset,
+		selected,
+		onselect
 	}: {
 		leaf: Leaf;
 		/** definisi master lain di bawah menu yang sama (halaman bertab); default = halaman menu */
@@ -35,6 +40,15 @@
 		nav?: Snippet;
 		/** tab tambahan di form ubah (data terkait baris ini, mis. kontrak pegawai); `reload` memuat ulang baris */
 		tabs?: { key: string; label: string; panel: Snippet<[Row, () => Promise<void>]> }[];
+		/** bagian dari halaman lain (master-detail): judul di dalam kartu, tanpa judul halaman & tombol Tambah melayang */
+		embed?: { title: string; note?: string; empty?: string };
+		/** hanya baris yang memenuhi (detail dari baris master terpilih) */
+		filter?: (r: Row) => boolean;
+		/** isian tetap untuk data baru (mis. grup dari baris master); kosong = belum bisa tambah */
+		preset?: Record<string, unknown>;
+		/** kode baris master terpilih: klik baris = pilih, klik baris terpilih = ubah */
+		selected?: string;
+		onselect?: (r: Row) => void;
 	} = $props();
 
 	const def = $derived(pageDef ?? (leaf.page as MasterDef));
@@ -53,8 +67,23 @@
 	let remoteRows = $state<Row[]>([]);
 	let loading = $state(false);
 	let loadError = $state('');
-	const rows = $derived(remote ? remoteRows : db.all(def.table!));
+	const allRows = $derived(remote ? remoteRows : db.all(def.table!));
+	const rows = $derived(filter ? allRows.filter(filter) : allRows);
 	const url = $derived(`/api/master/${def.resource}`);
+	const presetReady = $derived(!preset || Object.values(preset).every((v) => v != null && v !== ''));
+	const canCreate = $derived(can.create && presetReady);
+
+	/* ---------------- master-detail: baris terpilih ---------------- */
+	const isPicked = (r: Row) => !!onselect && r[codeKey] === selected;
+	const pickedRow = $derived(onselect ? rows.find(isPicked) : undefined);
+	// belum ada / sudah tidak ada (dihapus) → pilih baris pertama menurut urutan awal tabel
+	$effect(() => {
+		if (!onselect || !rows.length || pickedRow) return;
+		const k = [def.sortField ?? def.fields[0].key].flat()[0];
+		const first = rows.reduce((a, b) => (String(b[k] ?? '').localeCompare(String(a[k] ?? '')) < 0 ? b : a));
+		untrack(() => onselect(first));
+	});
+	const rowClick = (r: Row) => (onselect && !isPicked(r) ? onselect(r) : openEdit(r));
 
 	async function load() {
 		loading = true;
@@ -106,8 +135,7 @@
 	}
 
 	const columns = $derived<Col<Row>[]>(
-		def.fields
-			.filter((f) => f.list)
+		(def.columns ? def.columns.flatMap((k) => def.fields.filter((f) => f.key === k)) : def.fields.filter((f) => f.list))
 			.map((f) => ({
 				key: f.key,
 				label: f.label,
@@ -125,7 +153,7 @@
 	const rowLabel = (r: Row) => (remote ? [r[codeKey], r[def.nameField ?? 'name']].filter(Boolean).join(' — ') : db.label(def.table!, r.id));
 
 	/** isian form: kode otomatis & kunci tabel lama tidak bisa diubah setelah tersimpan */
-	const locked = (f: FieldDef) => (editing ? !!f.lockOnEdit : !!f.auto);
+	const locked = (f: FieldDef) => (editing ? !!f.lockOnEdit : !!f.auto || (!!preset && f.key in preset));
 	/** petunjuk isian hanya untuk kolom yang masih bisa diisi (kolom terkunci saat ubah tanpa petunjuk) */
 	const formField = (f: FieldDef): FieldDef =>
 		f.auto && !editing ? { ...f, placeholder: 'Otomatis saat disimpan', required: false } : editing && f.lockOnEdit ? { ...f, hint: undefined } : f;
@@ -148,6 +176,7 @@
 		const f: Record<string, any> = {};
 		for (const fd of def.fields) f[fd.key] = typeof fd.default === 'function' ? fd.default(ctx) : (fd.default ?? (fd.type === 'toggle' ? false : ''));
 		if (!remote && def.fields.some((x) => x.key === codeKey && x.required)) f[codeKey] = db.nextCode(def.table!, codeKey);
+		Object.assign(f, preset);
 		form = f;
 		remember();
 		editing = null;
@@ -369,9 +398,13 @@
 
 {#snippet card(r: Row)}
 	<div class="flex items-center gap-3">
-		<div class="grid size-10 shrink-0 place-items-center rounded-xl bg-stone-100 text-xs font-semibold text-stone-500 dark:bg-stone-800">
-			{String(fTitle ? r[fTitle.key] : '').slice(0, 2).toUpperCase()}
-		</div>
+		{#if isPicked(r)}
+			<div class="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-500 text-white" aria-label="Terpilih"><Check class="size-4" /></div>
+		{:else}
+			<div class="grid size-10 shrink-0 place-items-center rounded-xl bg-stone-100 text-xs font-semibold text-stone-500 dark:bg-stone-800">
+				{String(fTitle ? r[fTitle.key] : '').slice(0, 2).toUpperCase()}
+			</div>
+		{/if}
 		<div class="min-w-0 flex-1">
 			<p class="truncate text-sm font-medium">{fTitle ? display(fTitle, r) : r.id}</p>
 			<p class="truncate text-xs text-stone-500">{[fMeta ? display(fMeta, r) : '', fSub ? display(fSub, r) : ''].filter(Boolean).join(' · ')}</p>
@@ -380,19 +413,25 @@
 	</div>
 {/snippet}
 
-<PageHeader title={leaf.label} subtitle="{loading ? 'Memuat…' : `${num(rows.length)} data`} · {leaf.trail.slice(0, -1).join(' › ')}" icon={leaf.icon}>
-	{#snippet actions()}
-		{#if remote}
-			<button class="btn btn-secondary" onclick={load} disabled={loading} aria-label="Muat ulang" {@attach tooltip('Muat ulang dari database')}>
-				<RotateCw class="size-4 {loading ? 'animate-spin' : ''}" />
-			</button>
-		{/if}
-		<ExportMenu table={exportData} />
-		{#if can.create}<button class="btn btn-primary hidden sm:inline-flex" onclick={openNew}><Plus class="size-4" /> Tambah</button>{/if}
-	{/snippet}
-</PageHeader>
+{#snippet actions()}
+	{#if remote}
+		<button class="btn btn-secondary" onclick={load} disabled={loading} aria-label="Muat ulang" {@attach tooltip('Muat ulang dari database')}>
+			<RotateCw class="size-4 {loading ? 'animate-spin' : ''}" />
+		</button>
+	{/if}
+	<ExportMenu table={exportData} />
+	{#if pickedRow}
+		<button class="btn btn-secondary" onclick={() => openEdit(pickedRow)} aria-label="Ubah {label} terpilih" {@attach tooltip(`Ubah ${label} terpilih`)}><Pencil class="size-4" /></button>
+	{/if}
+	{#if can.create}
+		<button class="btn btn-primary {embed ? '' : 'hidden sm:inline-flex'}" onclick={openNew} disabled={!canCreate}><Plus class="size-4" /> Tambah</button>
+	{/if}
+{/snippet}
 
-{#if nav}{@render nav()}{/if}
+{#if !embed}
+	<PageHeader title={leaf.label} subtitle="{loading ? 'Memuat…' : `${num(rows.length)} data`} · {leaf.trail.slice(0, -1).join(' › ')}" icon={leaf.icon} {actions} />
+	{#if nav}{@render nav()}{/if}
+{/if}
 
 {#if loadError}
 	<div class="card mb-3 flex items-center gap-3 border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
@@ -403,21 +442,32 @@
 {/if}
 
 <div class="card overflow-clip">
+	{#if embed}
+		<div class="flex flex-wrap items-center gap-2 border-b border-stone-100 px-4 py-3 dark:border-stone-800">
+			<div class="min-w-0 flex-1">
+				<h2 class="truncate font-semibold">{embed.title}</h2>
+				<p class="truncate text-xs text-stone-500">{[embed.note, loading ? 'Memuat…' : `${num(rows.length)} data`].filter(Boolean).join(' · ')}</p>
+			</div>
+			<div class="flex items-center gap-2">{@render actions()}</div>
+		</div>
+	{/if}
 	<DataTable
 		{rows}
 		{columns}
 		bind:query
 		{card}
 		{bulk}
-		onrow={openEdit}
-		initialSort={{ key: def.fields[0].key, dir: 1 }}
+		onrow={rowClick}
+		rowClass={onselect ? (r) => (isPicked(r) ? 'is-picked' : '') : undefined}
+		selectable={!onselect}
+		initialSort={[def.sortField ?? def.fields[0].key].flat().map((key) => ({ key, dir: 1 as const }))}
 		id={pageDef?.resource ? `${leaf.path}:${pageDef.resource}` : undefined}
 		exportName={label}
-		empty={loading ? 'Memuat data dari database…' : 'Belum ada data'}
+		empty={loading ? 'Memuat data dari database…' : !presetReady && embed?.empty ? embed.empty : 'Belum ada data'}
 	/>
 </div>
 
-{#if can.create}
+{#if can.create && !embed}
 	<button class="btn btn-primary fixed right-4 bottom-24 z-20 size-11 rounded-xl p-0 shadow-lg shadow-stone-900/20 sm:hidden" onclick={openNew} aria-label="Tambah">
 		<Plus class="size-5" />
 	</button>

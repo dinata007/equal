@@ -4,12 +4,12 @@
 	 * lama, form model (kode model & model produk dibuat server saat simpan), warna & size → proses artikel,
 	 * dan ubah artikel (SKU).
 	 */
-	import { untrack } from 'svelte';
+	import { untrack, type Snippet } from 'svelte';
 	import { Ban, CircleCheck, Plus, RotateCw, Trash, TriangleAlert } from '@lucide/svelte';
 	import { ApiError, api } from '#lib/util/api.ts';
 	import { auth } from '#lib/state/auth.svelte.ts';
 	import * as M from '#lib/domain/defs/masters.ts';
-	import { date, money, num, today } from '#lib/util/format.ts';
+	import { money, num, today } from '#lib/util/format.ts';
 	import { lookups } from '#lib/state/lookups.svelte.ts';
 	import type { Leaf } from '#lib/domain/menu.ts';
 	import { hargaBarcode, tahunBulan } from '#lib/domain/produk.ts';
@@ -27,7 +27,8 @@
 	import ArtikelPanel from './ArtikelPanel.svelte';
 	import SkuPanel from './SkuPanel.svelte';
 
-	let { leaf }: { leaf: Leaf } = $props();
+	/** `nav` = tab menu Produk (pages/master/Atribut.svelte) */
+	let { leaf, nav }: { leaf: Leaf; nav?: Snippet } = $props();
 
 	const def = M.productModel;
 	const url = '/api/master/produk';
@@ -80,21 +81,32 @@
 
 	const name = (src: string) => (r: Row, k: string) => lookups.name(src, r[k]);
 	const lk = (key: string, label: string, src: string): Col<Row> => ({ key, label, value: (r) => name(src)(r, key) });
+	/** kode supplier & tipe hanya unik per brand */
+	const perBrand = $derived(Object.fromEntries(['supplier', 'produk-tipe'].map((s) => [s, new Map(lookups.options(s).map((o) => [`${o.brand}|${o.id}`, o.name]))])));
+	const lkBrand = (key: string, label: string, src: string): Col<Row> => ({ key, label, value: (r) => perBrand[src].get(`${r.brand_id}|${r[key]}`) ?? r[key] ?? '' });
+	const harga = (key: string, label: string): Col<Row> => ({ key, label, align: 'right', value: (r) => Number(r[key]) || 0, format: money });
+	// urutan kolom = grid W_01_M01 (PowerBuilder); kolom yang dimuat server: productModel.columns
 	const columns: Col<Row>[] = [
+		{ key: 'flag_aktif', label: 'Status', align: 'center', value: (r) => (r.flag_aktif ? 'Aktif' : 'Nonaktif'), cell: activeCell },
 		{ key: 'model_id', label: 'Kode Model', cell: codeCell },
-		{ key: 'model_produk', label: 'Model Produk' },
-		{ key: 'nama', label: 'Nama' },
-		{ key: 'nama_pendek2', label: 'Nama Retail' },
 		{ key: 'model_id_lama', label: 'Kode Designer' },
-		lk('dept_id', 'Department', 'produk-dept'),
-		lk('bahan_id', 'Bahan', 'produk-bahan'),
-		lk('jenis_id', 'Jenis', 'produk-jenis'),
-		lk('aps_id', 'Aplikasi', 'produk-aplikasi'),
+		{ key: 'nama', label: 'Nama' },
+		{ key: 'nama_pendek', label: 'Nama Pendek' },
+		{ key: 'model_produk', label: 'Model Produk' },
+		{ key: 'nama_pendek2', label: 'Nama Retail' },
+		lkBrand('supp_id', 'Supplier', 'supplier'),
+		harga('hbeli', 'Harga Beli'),
+		harga('hjual', 'Harga Jual'),
+		harga('hgrosir', 'Harga Grosir'),
+		harga('hjual_barcode', 'Harga Barcode'),
+		harga('mall_barcode', 'Harga Mall'),
+		lk('brand_id', 'Brand', 'brand'),
 		lk('gender_id', 'Gender', 'produk-gender'),
-		{ key: 'period', label: 'Periode', format: (v: string) => date(v) },
-		{ key: 'hjual', label: 'Harga Jual', align: 'right', value: (r) => Number(r.hjual) || 0, format: money },
-		{ key: 'hjual_barcode', label: 'Harga Barcode', align: 'right', value: (r) => Number(r.hjual_barcode) || 0, format: money },
-		{ key: 'flag_aktif', label: 'Status', align: 'center', value: (r) => (r.flag_aktif ? 'Aktif' : 'Nonaktif'), cell: activeCell }
+		lk('dept_id', 'Department', 'produk-dept'),
+		lkBrand('tipe_id', 'Tipe', 'produk-tipe'),
+		lk('jenis_id', 'Jenis', 'produk-jenis'),
+		lk('bahan_id', 'Bahan', 'produk-bahan'),
+		lk('aps_id', 'Aplikasi', 'produk-aplikasi')
 	];
 	const rowLabel = (r: Row) => [r.model_id, r.model_produk || r.nama].filter(Boolean).join(' — ');
 
@@ -318,11 +330,10 @@
 		return parts.every(Boolean) ? parts.join('-').slice(0, 21) : '';
 	});
 
+	// urutan isian = urutan entry W_01_M01_ENTRY (PowerBuilder)
 	const GROUPS: { title: string; keys: string[] }[] = [
-		{ title: 'Pembentuk kode', keys: ['brand_id', 'gender_id', 'dept_id', 'bahan_id', 'period', 'nomor'] },
-		{ title: 'Klasifikasi', keys: ['jenis_id', 'aps_id', 'tipe_id', 'supp_id', 'prioritas', 'sls_tipe'] },
-		{ title: 'Nama', keys: ['model_produk', 'nama', 'nama_pendek', 'nama_pendek2', 'model_id_lama'] },
-		{ title: 'Harga', keys: ['hbeli', 'hjual', 'hgrosir', 'pembilang', 'penyebut', 'hjual_barcode', 'mall_barcode'] }
+		{ title: 'Model', keys: ['brand_id', 'nama', 'nama_pendek', 'nama_pendek2', 'model_produk', 'prioritas', 'gender_id', 'supp_id', 'dept_id', 'bahan_id', 'tipe_id', 'aps_id', 'jenis_id', 'nomor', 'period'] },
+		{ title: 'Harga & lainnya', keys: ['hbeli', 'hjual', 'hgrosir', 'pembilang', 'penyebut', 'model_id_lama', 'hjual_barcode', 'mall_barcode', 'sls_tipe'] }
 	];
 	const shown = (k: string) => !(k === 'model_produk' && !editing);
 </script>
@@ -354,6 +365,8 @@
 	{/snippet}
 </PageHeader>
 
+{#if nav}{@render nav()}{/if}
+
 {#if loadError}
 	<div class="card mb-3 flex items-center gap-3 border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
 		<TriangleAlert class="size-5 shrink-0" />
@@ -370,7 +383,8 @@
 		{card}
 		{bulk}
 		onrow={openRow}
-		initialSort={{ key: 'period', dir: -1 }}
+		initialSort={{ key: 'model_id', dir: 1 }}
+		freeze={2}
 		searchPlaceholder="Cari kode / model / nama…"
 		exportName="{leaf.label} {brand}"
 		empty={loading ? 'Memuat data dari database…' : brands.length ? 'Belum ada model' : 'Anda belum diberi akses brand'}

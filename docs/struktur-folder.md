@@ -46,11 +46,11 @@ lib/
 
   pages/               halaman, dikelompokkan seperti menu
     ModuleOverview     ringkasan modul (mis. /material)
-    master/            MasterPage (halaman master generik), Atribut (master bertab: Raw Material, atribut produk/pegawai)
+    master/            MasterPage (halaman master generik), Atribut (menu bertab: Produk, Raw Material, atribut pegawai)
     transaksi/         TransactionPage (daftar), TxForm (form dokumen), LinesEditor (baris detail)
     laporan/           ReportShell + PeriodFilter (kerangka), MutasiStok, KartuStok, AnalisaPenjualan,
                        MutasiHutangPiutang, KartuHutangPiutang, BukuKasBank, Jurnal, Absensi
-    produk/            Produk + ArtikelPanel, SkuPanel
+    produk/            Produk + ArtikelPanel, SkuPanel, Department (master-detail grup → dept)
     pegawai/           Pegawai + KontrakPanel
     pengguna/          Pengguna & Hak Akses + AccessMatrix, CopyAccessSheet
     profil/            AvatarEditor (dipakai routes/(app)/profil)

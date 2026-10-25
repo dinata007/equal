@@ -98,8 +98,7 @@ export const MENU: MenuNode[] = [
 				slug: 'master',
 				label: 'Master',
 				children: [
-					{ slug: 'produk', label: 'Produk', icon: Package, page: C('produk') },
-					{ slug: 'atribut-produk', label: 'Atribut Produk', icon: Tags, page: C('atribut', { set: 'produk' }) },
+					{ slug: 'produk', label: 'Produk', icon: Package, page: C('atribut', { set: 'produk' }) },
 					{ slug: 'supplier', label: 'Supplier', icon: Building, page: M.supplier },
 					{ slug: 'ekspedisi', label: 'Ekspedisi', icon: Truck, page: M.expedition }
 				]

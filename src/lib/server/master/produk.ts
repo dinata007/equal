@@ -9,7 +9,7 @@ import { request, sql } from '../db.ts';
 import { kodeUrut, letters3, likeEscape } from './codes.ts';
 import type { Resource, Values } from './registry.ts';
 
-const ATRIBUT = '/inventory/master/atribut-produk';
+/** model & atributnya dikelola dari satu menu bertab Produk (tab pertama = model) */
 const PRODUK_MENU = '/inventory/master/produk';
 const stamp = { user: 'usrupd', time: 'usrtgl' };
 
@@ -151,7 +151,7 @@ export const PRODUK: Record<string, Resource> = {
 	/* ---- atribut produk: satu menu, seperti tombol Brand/Gender/… di window produk PB ---- */
 	'produk-brand': {
 		def: M.productBrand,
-		menu: ATRIBUT,
+		menu: PRODUK_MENU,
 		table: 'dbo.M_PRODUK_BRAND',
 		keys: ['brand_id'],
 		brand: { column: 'brand_id' },
@@ -167,7 +167,7 @@ export const PRODUK: Record<string, Resource> = {
 	},
 	'produk-gender': {
 		def: M.productGender,
-		menu: ATRIBUT,
+		menu: PRODUK_MENU,
 		table: 'dbo.M_PRODUK_GENDER',
 		keys: ['gender_id'],
 		order: 'gender_id',
@@ -176,7 +176,7 @@ export const PRODUK: Record<string, Resource> = {
 	},
 	'produk-grup-dept': {
 		def: M.productDeptGroup,
-		menu: ATRIBUT,
+		menu: PRODUK_MENU,
 		table: 'dbo.M_PRODUK_DEPT',
 		keys: ['grup_dept'],
 		order: 'grup_dept',
@@ -185,7 +185,7 @@ export const PRODUK: Record<string, Resource> = {
 	},
 	'produk-dept': {
 		def: M.productDept,
-		menu: ATRIBUT,
+		menu: PRODUK_MENU,
 		table: 'dbo.M_PRODUK_DEPT2',
 		keys: ['grup_dept', 'dept_id'],
 		order: 'grup_dept, dept_id',
@@ -195,7 +195,7 @@ export const PRODUK: Record<string, Resource> = {
 	},
 	'produk-bahan': {
 		def: M.productMaterial,
-		menu: ATRIBUT,
+		menu: PRODUK_MENU,
 		table: 'dbo.M_PRODUK_BAHAN',
 		keys: ['bahan_id'],
 		order: 'bahan_id',
@@ -205,7 +205,7 @@ export const PRODUK: Record<string, Resource> = {
 	},
 	'produk-warna': {
 		def: M.productColor,
-		menu: ATRIBUT,
+		menu: PRODUK_MENU,
 		table: 'dbo.M_PRODUK_WARNA',
 		keys: ['warna_id'],
 		order: 'warna_id',
@@ -214,7 +214,7 @@ export const PRODUK: Record<string, Resource> = {
 	},
 	'produk-size': {
 		def: M.productSize,
-		menu: ATRIBUT,
+		menu: PRODUK_MENU,
 		table: 'dbo.M_PRODUK_SIZE',
 		keys: ['size_id'],
 		order: 'urut, size_id',
@@ -227,7 +227,7 @@ export const PRODUK: Record<string, Resource> = {
 	},
 	'produk-aplikasi': {
 		def: M.productApplication,
-		menu: ATRIBUT,
+		menu: PRODUK_MENU,
 		table: 'dbo.M_APLIKASI',
 		keys: ['aps_id'],
 		order: 'aps_id',
@@ -236,7 +236,7 @@ export const PRODUK: Record<string, Resource> = {
 	},
 	'produk-jenis': {
 		def: M.productKind,
-		menu: ATRIBUT,
+		menu: PRODUK_MENU,
 		table: 'dbo.M_PRODUK_JENIS',
 		keys: ['jenis_id'],
 		order: 'jenis_id',
@@ -246,7 +246,7 @@ export const PRODUK: Record<string, Resource> = {
 	},
 	'produk-tipe': {
 		def: M.productType,
-		menu: ATRIBUT,
+		menu: PRODUK_MENU,
 		table: 'dbo.M_PRODUK_TIPE',
 		keys: ['tipe_id'],
 		brand: { column: 'brand_id' },

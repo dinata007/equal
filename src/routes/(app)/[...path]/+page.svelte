@@ -17,7 +17,6 @@
 	import Absensi from '#lib/pages/laporan/Absensi.svelte';
 	import ClosingStok from '#lib/pages/utilitas/ClosingStok.svelte';
 	import Pengguna from '#lib/pages/pengguna/Pengguna.svelte';
-	import Produk from '#lib/pages/produk/Produk.svelte';
 	import Pegawai from '#lib/pages/pegawai/Pegawai.svelte';
 	import Atribut from '#lib/pages/master/Atribut.svelte';
 	import type { CustomPage, ReportPage } from '#lib/domain/types.ts';
@@ -34,7 +33,6 @@
 		absensi: Absensi,
 		'closing-stok': ClosingStok,
 		pengguna: Pengguna,
-		produk: Produk,
 		pegawai: Pegawai,
 		atribut: Atribut
 	};
