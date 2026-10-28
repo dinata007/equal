@@ -13,7 +13,7 @@
 	import InstallAppButton from './InstallAppButton.svelte';
 
 	const crumbs = $derived(chain(page.url.pathname));
-	const title = $derived(crumbs.at(-1)?.label ?? (page.url.pathname === '/profil' ? 'Profil' : 'Dashboard 1'));
+	const title = $derived(crumbs.at(-1)?.label ?? (page.url.pathname === '/profil' ? 'Profil' : 'Dashboard'));
 	let online = $state(navigator.onLine);
 
 	async function logout() {

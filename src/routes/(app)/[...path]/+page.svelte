@@ -20,7 +20,6 @@
 	import Pengguna from '#lib/pages/pengguna/Pengguna.svelte';
 	import Pegawai from '#lib/pages/pegawai/Pegawai.svelte';
 	import Atribut from '#lib/pages/master/Atribut.svelte';
-	import Dashboard from '#lib/pages/dashboard/Dashboard.svelte';
 	import type { CustomPage, ReportPage } from '#lib/domain/types.ts';
 
 	// kunci = R('…') / C('…') di domain/menu.ts; bertipe → kunci kurang / salah ketik jadi error saat check
@@ -36,19 +35,18 @@
 		'closing-stok': ClosingStok,
 		pengguna: Pengguna,
 		pegawai: Pegawai,
-		atribut: Atribut,
-		dashboard: Dashboard
+		atribut: Atribut
 	};
 
 	const node = $derived(findNode('/' + page.params.path));
-	// modul `flat` (mis. Dashboard 2) tidak punya halaman ringkasan → langsung ke anak pertama yang boleh dibuka
+	// modul `flat` (grup tanpa halaman ringkasan) tidak punya halaman ringkasan → langsung ke anak pertama yang boleh dibuka
 	const flatTo = $derived(node?.flat && !isLeaf(node) ? firstLeaf(visibleTree([node], (p) => auth.can(p))[0] ?? node) : undefined);
 	$effect(() => {
 		if (flatTo?.path && flatTo.path !== node?.path) goto(flatTo.path, { replaceState: true });
 	});
 </script>
 
-<svelte:head><title>{node?.label ?? 'Tidak ditemukan'} · ruangSenja</title></svelte:head>
+<svelte:head><title>{node?.label ?? 'Tidak ditemukan'} · Senja</title></svelte:head>
 
 {#if !node}
 	<div class="grid place-items-center py-24 text-center">

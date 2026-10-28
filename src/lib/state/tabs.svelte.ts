@@ -80,7 +80,7 @@ class Tabs {
 		const path = url.pathname;
 		if (path === HOME || !allowed(path)) return;
 		const href = path + url.search;
-		// anak modul `flat` (Dashboard 2: Senja | JP) berbagi satu tab
+		// anak modul `flat` (grup tanpa halaman ringkasan) berbagi satu tab
 		const n = findNode(path);
 		const flat = n && isLeaf(n) && n.module.flat ? n.module.path + '/' : null;
 		const t = this.list.find((x) => x.path === path || (flat && x.path.startsWith(flat)));
