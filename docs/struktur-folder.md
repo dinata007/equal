@@ -1,6 +1,6 @@
 # Struktur folder
 
-Peta folder aplikasi ruangSenja, isi setiap folder, dan aturan meletakkan kode baru.
+Peta folder aplikasi Senja, isi setiap folder, dan aturan meletakkan kode baru.
 Import dari `src/lib` memakai alias `#lib/…`, misalnya `import { auth } from '#lib/state/auth.svelte.ts'`.
 
 ## Akar repo

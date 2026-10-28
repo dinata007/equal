@@ -33,19 +33,19 @@
 @theme {
 	--font-sans: 'Source Sans 3', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 	--font-display: 'Alegreya Sans', 'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
-	/* ruangSenja — taupe dari logo (#8A7C6C = brand-500) */
-	--color-brand-50: oklch(0.975 0.005 75);
-	--color-brand-100: oklch(0.945 0.01 75);
-	--color-brand-200: oklch(0.89 0.016 72);
-	--color-brand-300: oklch(0.81 0.022 70);
-	--color-brand-400: oklch(0.71 0.027 70);
-	--color-brand-500: #8a7c6c;
-	--color-brand-600: oklch(0.5 0.027 68);
-	--color-brand-700: oklch(0.43 0.024 66);
-	--color-brand-800: oklch(0.36 0.019 64);
-	--color-brand-900: oklch(0.29 0.014 62);
-	--color-brand-950: oklch(0.2 0.01 60);
-	/* latar kertas logo */
+	/* Senja — jingga-koral dari ikon aplikasi; brand-500 ≈ #E0683A, tombol utama = brand-600 */
+	--color-brand-50: oklch(0.975 0.016 55);
+	--color-brand-100: oklch(0.95 0.035 52);
+	--color-brand-200: oklch(0.91 0.065 50);
+	--color-brand-300: oklch(0.85 0.09 48);
+	--color-brand-400: oklch(0.76 0.13 44);
+	--color-brand-500: oklch(0.66 0.16 41);
+	--color-brand-600: oklch(0.58 0.16 39);
+	--color-brand-700: oklch(0.49 0.14 37);
+	--color-brand-800: oklch(0.41 0.11 36);
+	--color-brand-900: oklch(0.33 0.08 34);
+	--color-brand-950: oklch(0.24 0.055 32);
+	/* latar kertas netral hangat */
 	--color-canvas: #f2f1ef;
 }
 
@@ -332,7 +332,7 @@ html.theme-vt::view-transition-new(root) {
 		}
 	}
 	.btn-primary {
-		@apply bg-stone-900 text-white shadow-sm shadow-stone-900/15 hover:bg-black dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-white;
+		@apply bg-brand-600 text-white shadow-sm shadow-brand-700/20 hover:bg-brand-700 dark:bg-brand-500 dark:shadow-none dark:hover:bg-brand-400;
 	}
 	.btn-secondary {
 		@apply border border-stone-200 bg-white text-stone-700 hover:bg-stone-50 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-200 dark:hover:bg-stone-800;

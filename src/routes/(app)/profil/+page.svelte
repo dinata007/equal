@@ -163,7 +163,7 @@
 		installing = true;
 		const r = await pwa.install();
 		installing = false;
-		if (r === 'accepted') toast.success('ruangSenja ter-install. Buka dari layar utama atau taskbar.');
+		if (r === 'accepted') toast.success('Senja ter-install. Buka dari layar utama atau taskbar.');
 	}
 	const APP_PERKS = [
 		{ icon: Rocket, text: 'Dibuka langsung dari layar utama, taskbar, atau Start' },
@@ -183,7 +183,7 @@
 </script>
 
 <svelte:window {onpaste} />
-<svelte:head><title>Profil · ruangSenja</title></svelte:head>
+<svelte:head><title>Profil · Senja</title></svelte:head>
 
 <input bind:this={fileInput} type="file" accept="image/*" class="hidden" onchange={(e) => (pick(e.currentTarget.files), (e.currentTarget.value = ''))} />
 <AvatarEditor bind:file={editing} onsave={uploadAvatar} />
@@ -402,7 +402,7 @@
 			<div class="flex items-start gap-4 sm:w-60 sm:shrink-0 sm:flex-col">
 				<img src="/icon-192.png" alt="" class="size-16 rounded-2xl shadow-md ring-1 ring-stone-900/5 sm:size-20" />
 				<div class="min-w-0">
-					<h2 id="app-title" class="text-base font-medium">Aplikasi ruangSenja</h2>
+					<h2 id="app-title" class="text-base font-medium">Aplikasi Senja</h2>
 					{#if pwa.route === 'installed'}
 						<p class="mt-1 flex items-center gap-1.5 text-sm text-emerald-700 dark:text-emerald-400"><CircleCheck class="size-4" /> Sedang dipakai sebagai aplikasi</p>
 					{:else if pwa.installedNow}
@@ -444,7 +444,7 @@
 						{:else if pwa.route === 'mac-safari'}
 							<p class="text-sm text-stone-600 dark:text-stone-300">Di Safari: menu <b class="font-medium">File › Add to Dock</b> (macOS Sonoma ke atas).</p>
 						{:else if pwa.route === 'firefox'}
-							<p class="text-sm text-stone-600 dark:text-stone-300">Firefox di komputer belum bisa install aplikasi web. Buka ruangSenja di <b class="font-medium">Chrome</b> atau <b class="font-medium">Edge</b>, lalu install dari sini.</p>
+							<p class="text-sm text-stone-600 dark:text-stone-300">Firefox di komputer belum bisa install aplikasi web. Buka Senja di <b class="font-medium">Chrome</b> atau <b class="font-medium">Edge</b>, lalu install dari sini.</p>
 						{:else if pwa.route === 'insecure'}
 							<p class="flex items-start gap-2 text-sm text-amber-800 dark:text-amber-300">
 								<Lock class="mt-0.5 size-4 shrink-0" />
@@ -453,7 +453,7 @@
 						{:else}
 							<p class="flex items-start gap-2 text-sm text-stone-600 dark:text-stone-300">
 								<EllipsisVertical class="mt-0.5 size-4 shrink-0" />
-								<span>Buka menu browser, lalu pilih <b class="font-medium">Install ruangSenja</b> / <b class="font-medium">Install app</b>. Bila tidak ada, aplikasi mungkin sudah ter-install. Cari "ruangSenja" di perangkat ini.</span>
+								<span>Buka menu browser, lalu pilih <b class="font-medium">Install Senja</b> / <b class="font-medium">Install app</b>. Bila tidak ada, aplikasi mungkin sudah ter-install. Cari "Senja" di perangkat ini.</span>
 							</p>
 						{/if}
 					</div>
@@ -470,7 +470,7 @@
 		</button>
 	</section>
 
-	<p class="text-center text-xs text-stone-400">ruangSenja ERP</p>
+	<p class="text-center text-xs text-stone-400">Senja ERP</p>
 </div>
 
 <!-- miniatur aplikasi untuk pilihan mode (warna tetap, tidak ikut tema yang aktif) -->

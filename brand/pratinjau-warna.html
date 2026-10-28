@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pratinjau warna aksen Senja</title>
+<style>
+	:root { font-family: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif; }
+	* { box-sizing: border-box; }
+	body { margin: 0; background: #e9e7e4; color: #1c1917; padding: 24px; }
+	h1 { font-size: 22px; margin: 0 0 4px; font-weight: 600; }
+	.sub { color: #78716c; margin: 0 0 20px; font-size: 14px; }
+	.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+	@media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
+	.variant h2 { font-size: 16px; margin: 0 0 2px; font-weight: 600; }
+	.variant .desc { margin: 0 0 10px; font-size: 13px; color: #78716c; }
+	.chips { display: flex; gap: 4px; margin-bottom: 10px; }
+	.chips i { display: block; flex: 1; height: 22px; border-radius: 6px; }
+
+	/* tiga varian: hanya skala brand yang berbeda */
+	.v-netral { --b50: oklch(0.975 0.006 55); --b100: oklch(0.95 0.012 53); --b300: oklch(0.83 0.035 52); --b400: oklch(0.73 0.05 50); --b500: oklch(0.62 0.055 50); --b600: oklch(0.54 0.055 48); --b700: oklch(0.46 0.05 46); }
+	.v-lembut { --b50: oklch(0.975 0.01 55); --b100: oklch(0.95 0.02 52); --b300: oklch(0.83 0.065 48); --b400: oklch(0.73 0.09 46); --b500: oklch(0.62 0.105 43); --b600: oklch(0.55 0.105 41); --b700: oklch(0.47 0.09 39); }
+	.v-warna { --b50: oklch(0.975 0.016 55); --b100: oklch(0.95 0.035 52); --b300: oklch(0.85 0.09 48); --b400: oklch(0.76 0.13 44); --b500: oklch(0.66 0.16 41); --b600: oklch(0.58 0.16 39); --b700: oklch(0.49 0.14 37); }
+
+	/* contoh antarmuka: terang & gelap */
+	.panel { border-radius: 16px; padding: 14px; margin-bottom: 12px; border: 1px solid transparent; }
+	.light { --bg: #f2f1ef; --card: #fff; --line: #e7e5e4; --text: #1c1917; --muted: #78716c; --soft: #f5f5f4; background: var(--bg); color: var(--text); border-color: #dcdad7; }
+	.dark { --bg: #0c0a09; --card: #1c1917; --line: #2c2825; --text: #f5f5f4; --muted: #a8a29e; --soft: #292524; background: var(--bg); color: var(--text); border-color: #292524; }
+	.tag { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+	.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+	.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+
+	.menu { display: flex; flex-direction: column; gap: 4px; }
+	.menu div { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 10px; font-size: 14px; color: var(--muted); }
+	.menu .on { color: var(--text); font-weight: 600; }
+	.tile { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--soft); font-size: 13px; }
+	.on .tile { background: var(--b500); color: #fff; }
+
+	.btn { height: 32px; padding: 0 14px; border-radius: 9px; font: inherit; font-size: 14px; font-weight: 600; border: 0; cursor: pointer; }
+	.primary { background: var(--b600); color: #fff; box-shadow: 0 1px 2px color-mix(in oklab, var(--b700) 25%, transparent); }
+	.primary:hover { background: var(--b700); }
+	.dark .primary { background: var(--b500); box-shadow: none; }
+	.dark .primary:hover { background: var(--b400); }
+	.secondary { background: var(--card); color: var(--text); border: 1px solid var(--line); }
+	.avatar { width: 30px; height: 30px; border-radius: 99px; background: var(--b500); color: #fff; display: grid; place-items: center; font-size: 12px; font-weight: 600; }
+	.badge { font-size: 12px; padding: 2px 9px; border-radius: 99px; background: color-mix(in oklab, var(--b500) 14%, transparent); color: var(--b600); font-weight: 600; }
+	.dark .badge { color: var(--b300); background: color-mix(in oklab, var(--b500) 22%, transparent); }
+	.link { color: var(--b600); font-size: 14px; font-weight: 600; }
+	.dark .link { color: var(--b300); }
+	.input { height: 32px; width: 150px; border-radius: 10px; border: 1px solid var(--b400); box-shadow: 0 0 0 4px color-mix(in oklab, var(--b400) 20%, transparent); background: var(--card); color: var(--text); padding: 0 10px; font: inherit; font-size: 14px; }
+	.bar { height: 8px; border-radius: 99px; background: var(--soft); flex: 1; min-width: 120px; }
+	.bar b { display: block; height: 8px; width: 68%; border-radius: 99px; background: var(--b500); }
+	.sel { background: var(--b50); border: 1px solid color-mix(in oklab, var(--b500) 30%, transparent); border-radius: 10px; padding: 6px 10px; font-size: 14px; }
+	.dark .sel { background: color-mix(in oklab, var(--b500) 12%, transparent); }
+	.kpi { font-size: 22px; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>Pratinjau warna aksen Senja</h1>
+<p class="sub">Tiga pilihan, semuanya diturunkan dari oranye ikon. Hanya aksen yang berbeda; latar kertas, tombol Hapus, dan warna grafik sama.</p>
+
+<div class="grid">
+	<!-- A -->
+	<section class="variant v-netral">
+		<h2>A · Netral</h2>
+		<p class="desc">Coklat tanah hangat, hampir tidak berwarna. Paling tenang.</p>
+		<div class="chips"><i style="background:var(--b50)"></i><i style="background:var(--b100)"></i><i style="background:var(--b300)"></i><i style="background:var(--b400)"></i><i style="background:var(--b500)"></i><i style="background:var(--b600)"></i><i style="background:var(--b700)"></i></div>
+		<div class="panel light" data-mode="light">
+			<p class="tag">Mode terang</p>
+			<div class="row"><button class="btn primary">+ Buat Baru</button><button class="btn secondary">Analisa Lengkap</button><span class="avatar">AT</span><span class="badge">Aktif</span></div>
+			<div class="card row"><div class="menu" style="flex:1"><div class="on"><span class="tile">▦</span>Dashboard</div><div><span class="tile">▤</span>Material</div></div></div>
+			<div class="row"><input class="input" value="Cari…" /><a class="link">Lihat detail →</a></div>
+			<div class="row"><div class="bar"><b></b></div><span style="font-size:13px">68%</span></div>
+			<div class="sel">Baris terpilih / sorotan</div>
+		</div>
+		<div class="panel dark" data-mode="dark">
+			<p class="tag">Mode gelap</p>
+			<div class="row"><button class="btn primary">+ Buat Baru</button><button class="btn secondary">Analisa Lengkap</button><span class="avatar">AT</span><span class="badge">Aktif</span></div>
+			<div class="card row"><div class="menu" style="flex:1"><div class="on"><span class="tile">▦</span>Dashboard</div><div><span class="tile">▤</span>Material</div></div></div>
+			<div class="row"><input class="input" value="Cari…" /><a class="link">Lihat detail →</a></div>
+			<div class="row"><div class="bar"><b></b></div><span style="font-size:13px">68%</span></div>
+			<div class="sel">Baris terpilih / sorotan</div>
+		</div>
+	</section>
+
+	<!-- B -->
+	<section class="variant v-lembut">
+		<h2>B · Terakota lembut <span style="font-weight:400;color:#78716c">(yang terpasang sekarang)</span></h2>
+		<p class="desc">Coklat kemerahan yang tidak menyala. Seimbang.</p>
+		<div class="chips"><i style="background:var(--b50)"></i><i style="background:var(--b100)"></i><i style="background:var(--b300)"></i><i style="background:var(--b400)"></i><i style="background:var(--b500)"></i><i style="background:var(--b600)"></i><i style="background:var(--b700)"></i></div>
+		<div class="panel light">
+			<p class="tag">Mode terang</p>
+			<div class="row"><button class="btn primary">+ Buat Baru</button><button class="btn secondary">Analisa Lengkap</button><span class="avatar">AT</span><span class="badge">Aktif</span></div>
+			<div class="card row"><div class="menu" style="flex:1"><div class="on"><span class="tile">▦</span>Dashboard</div><div><span class="tile">▤</span>Material</div></div></div>
+			<div class="row"><input class="input" value="Cari…" /><a class="link">Lihat detail →</a></div>
+			<div class="row"><div class="bar"><b></b></div><span style="font-size:13px">68%</span></div>
+			<div class="sel">Baris terpilih / sorotan</div>
+		</div>
+		<div class="panel dark">
+			<p class="tag">Mode gelap</p>
+			<div class="row"><button class="btn primary">+ Buat Baru</button><button class="btn secondary">Analisa Lengkap</button><span class="avatar">AT</span><span class="badge">Aktif</span></div>
+			<div class="card row"><div class="menu" style="flex:1"><div class="on"><span class="tile">▦</span>Dashboard</div><div><span class="tile">▤</span>Material</div></div></div>
+			<div class="row"><input class="input" value="Cari…" /><a class="link">Lihat detail →</a></div>
+			<div class="row"><div class="bar"><b></b></div><span style="font-size:13px">68%</span></div>
+			<div class="sel">Baris terpilih / sorotan</div>
+		</div>
+	</section>
+
+	<!-- C -->
+	<section class="variant v-warna">
+		<h2>C · Lebih berwarna</h2>
+		<p class="desc">Jingga-koral hidup, paling dekat ke ikon. Lebih ceria, kontras lebih terasa.</p>
+		<div class="chips"><i style="background:var(--b50)"></i><i style="background:var(--b100)"></i><i style="background:var(--b300)"></i><i style="background:var(--b400)"></i><i style="background:var(--b500)"></i><i style="background:var(--b600)"></i><i style="background:var(--b700)"></i></div>
+		<div class="panel light">
+			<p class="tag">Mode terang</p>
+			<div class="row"><button class="btn primary">+ Buat Baru</button><button class="btn secondary">Analisa Lengkap</button><span class="avatar">AT</span><span class="badge">Aktif</span></div>
+			<div class="card row"><div class="menu" style="flex:1"><div class="on"><span class="tile">▦</span>Dashboard</div><div><span class="tile">▤</span>Material</div></div></div>
+			<div class="row"><input class="input" value="Cari…" /><a class="link">Lihat detail →</a></div>
+			<div class="row"><div class="bar"><b></b></div><span style="font-size:13px">68%</span></div>
+			<div class="sel">Baris terpilih / sorotan</div>
+		</div>
+		<div class="panel dark">
+			<p class="tag">Mode gelap</p>
+			<div class="row"><button class="btn primary">+ Buat Baru</button><button class="btn secondary">Analisa Lengkap</button><span class="avatar">AT</span><span class="badge">Aktif</span></div>
+			<div class="card row"><div class="menu" style="flex:1"><div class="on"><span class="tile">▦</span>Dashboard</div><div><span class="tile">▤</span>Material</div></div></div>
+			<div class="row"><input class="input" value="Cari…" /><a class="link">Lihat detail →</a></div>
+			<div class="row"><div class="bar"><b></b></div><span style="font-size:13px">68%</span></div>
+			<div class="sel">Baris terpilih / sorotan</div>
+		</div>
+	</section>
+</div>
+</body>
+</html>
