@@ -1,5 +1,5 @@
 <#
-  Pasang / perbarui ruangSenja di server Windows (aplikasi Node.js + Caddy untuk HTTPS).
+  Pasang / perbarui Senja di server Windows (aplikasi Node.js + Caddy untuk HTTPS).
 
   Aplikasi dijalankan dari folder tempat script ini berada (folder hasil ekstrak zip; boleh di drive mana saja).
   Jalankan di PowerShell "Run as Administrator", dari folder itu:
@@ -18,8 +18,8 @@
     4. jalankan migrasi database (tabel App*, aman diulang)
     5. buka firewall Windows untuk port 80 & 443
     6. daftarkan 2 Scheduled Task (jalan saat server menyala, walau tidak ada yang login):
-         ruangSenja-app   = node build  (hanya di 127.0.0.1:3001)
-         ruangSenja-https = caddy       (https://<Domain> -> 127.0.0.1:3001, sertifikat Let's Encrypt otomatis)
+         Senja-app   = node build  (hanya di 127.0.0.1:3001)
+         Senja-https = caddy       (https://<Domain> -> 127.0.0.1:3001, sertifikat Let's Encrypt otomatis)
     7. cek aplikasi & HTTPS sudah menjawab
 #>
 param(
@@ -47,7 +47,9 @@ if (-not $admin) { Gagal 'Buka PowerShell dengan "Run as Administrator", lalu ja
 
 # ---------- 1. hentikan versi yang sedang jalan ----------
 Langkah 'Hentikan versi yang sedang jalan (bila ada)'
-foreach ($t in 'ruangSenja-app', 'ruangSenja-https') {
+# nama lama (sebelum aplikasi bernama "Senja") ikut dihentikan lalu dihapus saat pemasangan
+$lama = 'ruangSenja-app', 'ruangSenja-https'
+foreach ($t in @('Senja-app', 'Senja-https') + $lama) {
 	if (Get-ScheduledTask -TaskName $t -ErrorAction SilentlyContinue) { Stop-ScheduledTask -TaskName $t -ErrorAction SilentlyContinue }
 }
 Start-Sleep -Seconds 2
@@ -57,7 +59,7 @@ Get-CimInstance Win32_Process -Filter "Name = 'caddy.exe'" | Where-Object { $_.E
 foreach ($c in @(Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue)) {
 	$p = Get-CimInstance Win32_Process -Filter "ProcessId = $($c.OwningProcess)"
 	if ($p.Name -eq 'node.exe' -and $p.CommandLine -like '*--env-file=.env build*') { Stop-Process -Id $p.ProcessId -Force }
-	elseif (-not ($Berhenti -or $Update)) { Gagal "Port $Port sudah dipakai program lain ($($p.Name), PID $($p.ProcessId)):`n  $($p.CommandLine)`nBila itu aplikasi lain, jalankan lagi dengan -Port <port lain>, mis. -Port 3002. Bila itu ruangSenja yang dijalankan manual (npm start), tutup dulu jendelanya." }
+	elseif (-not ($Berhenti -or $Update)) { Gagal "Port $Port sudah dipakai program lain ($($p.Name), PID $($p.ProcessId)):`n  $($p.CommandLine)`nBila itu aplikasi lain, jalankan lagi dengan -Port <port lain>, mis. -Port 3002. Bila itu Senja yang dijalankan manual (npm start), tutup dulu jendelanya." }
 }
 Start-Sleep -Seconds 1
 if ($Berhenti -and -not $Update) {
@@ -81,7 +83,7 @@ if ($Update) {
 	# tar bawaan Windows bisa membaca zip; lewat cmd agar pesan stderr tidak dianggap error oleh PowerShell 5.1
 	$tar = Join-Path $env:SystemRoot 'System32\tar.exe'
 	$isi = cmd /s /c "`"$tar`" -tf `"$Zip`" 2>nul"
-	if ($isi -notcontains 'pasang.ps1') { Gagal "$Zip bukan paket ruangSenja (tidak berisi pasang.ps1)." }
+	if ($isi -notcontains 'pasang.ps1') { Gagal "$Zip bukan paket Senja (tidak berisi pasang.ps1)." }
 	$out = cmd /s /c "`"$tar`" -xf `"$Zip`" -C `"$Folder`" 2>&1"
 	if ($LASTEXITCODE -ne 0) { Gagal "Ekstrak gagal (kode $LASTEXITCODE): $out`nFile mungkin masih dipakai program lain; tutup lalu jalankan update lagi." }
 	Write-Host 'OK'
@@ -155,7 +157,8 @@ if (-not $TanpaMigrasi) {
 # ---------- 5. firewall ----------
 Langkah 'Firewall Windows: buka port 80 & 443'
 foreach ($pp in 80, 443) {
-	$nama = "ruangSenja HTTPS $pp"
+	$nama = "Senja HTTPS $pp"
+	Get-NetFirewallRule -DisplayName "ruangSenja HTTPS $pp" -ErrorAction SilentlyContinue | Remove-NetFirewallRule
 	if (-not (Get-NetFirewallRule -DisplayName $nama -ErrorAction SilentlyContinue)) {
 		New-NetFirewallRule -DisplayName $nama -Direction Inbound -Protocol TCP -LocalPort $pp -Action Allow | Out-Null
 	}
@@ -168,11 +171,12 @@ $settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit ([TimeSpan]::Zero) 
 $principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccount -RunLevel Highest
 $trigger = New-ScheduledTaskTrigger -AtStartup
 $appCmd = "/s /c `"`"$node`" --env-file=.env build >> logs\app.log 2>&1`""
+foreach ($t in $lama) { if (Get-ScheduledTask -TaskName $t -ErrorAction SilentlyContinue) { Unregister-ScheduledTask -TaskName $t -Confirm:$false } }
 $caddyCmd = "/s /c `"`"$caddyPath`" run --config Caddyfile --adapter caddyfile >> logs\caddy.log 2>&1`""
-Register-ScheduledTask -TaskName 'ruangSenja-app' -Force -Settings $settings -Principal $principal -Trigger $trigger -Action (New-ScheduledTaskAction -Execute 'cmd.exe' -Argument $appCmd -WorkingDirectory $Folder) -Description 'ruangSenja ERP (Node.js, 127.0.0.1)' | Out-Null
-Register-ScheduledTask -TaskName 'ruangSenja-https' -Force -Settings $settings -Principal $principal -Trigger $trigger -Action (New-ScheduledTaskAction -Execute 'cmd.exe' -Argument $caddyCmd -WorkingDirectory $Folder) -Description "ruangSenja HTTPS (Caddy, $Domain)" | Out-Null
-Start-ScheduledTask -TaskName 'ruangSenja-app'
-Start-ScheduledTask -TaskName 'ruangSenja-https'
+Register-ScheduledTask -TaskName 'Senja-app' -Force -Settings $settings -Principal $principal -Trigger $trigger -Action (New-ScheduledTaskAction -Execute 'cmd.exe' -Argument $appCmd -WorkingDirectory $Folder) -Description 'Senja ERP (Node.js, 127.0.0.1)' | Out-Null
+Register-ScheduledTask -TaskName 'Senja-https' -Force -Settings $settings -Principal $principal -Trigger $trigger -Action (New-ScheduledTaskAction -Execute 'cmd.exe' -Argument $caddyCmd -WorkingDirectory $Folder) -Description "Senja HTTPS (Caddy, $Domain)" | Out-Null
+Start-ScheduledTask -TaskName 'Senja-app'
+Start-ScheduledTask -TaskName 'Senja-https'
 
 # ---------- 7. cek ----------
 Langkah 'Cek aplikasi'

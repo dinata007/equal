@@ -1,4 +1,4 @@
-ruangSenja ERP - paket deploy server Windows
+Senja ERP - paket deploy server Windows
 ============================================
 
 Isi paket
@@ -17,14 +17,14 @@ Syarat di server
      kalau server di belakang router / firewall penyedia, port 80 & 443 juga harus dibuka di sana.
   4. Port 80 & 443 di server belum dipakai program lain (mis. IIS). Script akan mengecek.
 
-Aplikasi jalan dari folder tempat zip diekstrak (drive & nama folder bebas, mis. D:\ruangSenja).
-Contoh di bawah memakai D:\ruangSenja - ganti dengan folder Anda.
+Aplikasi jalan dari folder tempat zip diekstrak (drive & nama folder bebas, mis. D:\Senja).
+Contoh di bawah memakai D:\Senja - ganti dengan folder Anda.
 
 Pasang pertama kali
   0. Di PC dev (folder project): npm run deploy:pack  ->  deploy\senja-deploy-<tanggal>.zip
-  1. Salin zip ke server, ekstrak ke folder aplikasi, mis. D:\ruangSenja
+  1. Salin zip ke server, ekstrak ke folder aplikasi, mis. D:\Senja
   2. Buka PowerShell dengan "Run as Administrator", lalu:
-       cd D:\ruangSenja
+       cd D:\Senja
        powershell -ExecutionPolicy Bypass -File .\pasang.ps1
   3. Tunggu sampai muncul "SELESAI: buka https://senja.co.id"
 
@@ -40,7 +40,7 @@ Update ke versi baru
   Catatan: .env ikut tertimpa dari zip; pengaturan server di .env diisi ulang otomatis oleh pasang.ps1.
 
   Bila update.bat belum ada di server (paket lama), sekali ini update manual:
-    1. cd D:\ruangSenja
+    1. cd D:\Senja
        powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -Berhenti
     2. Ekstrak zip versi baru ke folder yang sama (timpa semua)
     3. powershell -ExecutionPolicy Bypass -File .\pasang.ps1
@@ -49,10 +49,10 @@ Hentikan aplikasi: klik dua kali berhenti.bat.
 Menyalakan lagi tanpa versi baru: powershell -ExecutionPolicy Bypass -File .\pasang.ps1  (Administrator)
 
 Perintah berguna (PowerShell Administrator)
-  Lihat log          Get-Content D:\ruangSenja\logs\app.log -Tail 50
-                     Get-Content D:\ruangSenja\logs\caddy.log -Tail 50
-  Restart aplikasi   Stop-ScheduledTask ruangSenja-app;  Start-ScheduledTask ruangSenja-app
-  Matikan            Stop-ScheduledTask ruangSenja-app;  Stop-ScheduledTask ruangSenja-https
+  Lihat log          Get-Content D:\Senja\logs\app.log -Tail 50
+                     Get-Content D:\Senja\logs\caddy.log -Tail 50
+  Restart aplikasi   Stop-ScheduledTask Senja-app;  Start-ScheduledTask Senja-app
+  Matikan            Stop-ScheduledTask Senja-app;  Stop-ScheduledTask Senja-https
   Cek database       Invoke-RestMethod http://127.0.0.1:3001/api/health
 
 Pilihan script
