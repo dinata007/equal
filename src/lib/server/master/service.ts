@@ -76,9 +76,9 @@ function requireMenu(u: SessionUser, res: Resource) {
 }
 
 /** null = semua brand */
-const brandScope = (u: SessionUser) => (u.admin || u.brands.includes('*') ? null : u.brands);
+export const brandScope = (u: SessionUser) => (u.admin || u.brands.includes('*') ? null : u.brands);
 
-function brandWhere(req: sql.Request, column: string, open: boolean | undefined, scope: string[] | null) {
+export function brandWhere(req: sql.Request, column: string, open: boolean | undefined, scope: string[] | null) {
 	if (!scope) return '1 = 1';
 	const ps = scope.map((b, i) => (req.input(`_b${i}`, sql.VarChar(10), b), `@_b${i}`));
 	const list = ps.length ? `RTRIM(${column}) IN (${ps.join(', ')})` : '1 = 0';

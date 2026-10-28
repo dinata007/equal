@@ -42,7 +42,7 @@
 	}
 </script>
 
-<svelte:head><title>Ganti Password · ruangSenja ERP</title></svelte:head>
+<svelte:head><title>Ganti Password · Senja ERP</title></svelte:head>
 
 {#if auth.user}
 	<div class="grid min-h-dvh place-items-center bg-canvas px-5 py-10 dark:bg-stone-950">

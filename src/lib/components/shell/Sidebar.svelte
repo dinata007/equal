@@ -30,7 +30,7 @@
 			<button aria-label="Lebarkan sidebar" {@attach tooltip('Lebarkan sidebar', { placement: 'right' })} class="grid size-10 place-items-center rounded-xl text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800" onclick={() => shell.toggleCollapsed()}>
 				<ChevronsRight class="size-5" />
 			</button>
-			<a href="/" aria-label="Dashboard 1" {@attach tooltip("Dashboard 1", { placement: 'right' })} class="grid size-10 place-items-center rounded-xl {path === '/' ? 'bg-brand-500 text-white' : 'text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800'}">
+			<a href="/" aria-label="Dashboard" {@attach tooltip("Dashboard", { placement: 'right' })} class="grid size-10 place-items-center rounded-xl {path === '/' ? 'bg-brand-500 text-white' : 'text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800'}">
 				<LayoutDashboard class="size-5" />
 			</a>
 			<button aria-label="Cari menu" {@attach tooltip('Cari menu', { placement: 'right', kbd: 'Ctrl K' })} class="grid size-10 place-items-center rounded-xl text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800" onclick={() => (shell.palette = true)}>
@@ -66,7 +66,7 @@
 				<span class="grid size-7 place-items-center rounded-lg {path === '/' ? 'bg-brand-500 text-white shadow-sm shadow-stone-900/20' : 'bg-stone-100 text-stone-500 dark:bg-stone-800'}">
 					<LayoutDashboard class="size-4" />
 				</span>
-				Dashboard 1
+				Dashboard
 			</a>
 			<MenuTree nodes={tree} {onnavigate} />
 		</nav>

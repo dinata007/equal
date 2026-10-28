@@ -55,8 +55,8 @@
 	{#snippet filters()}
 		<PeriodFilter bind:from bind:to />
 		<div class="lg:w-60">
-			<label class="label" for="sa-ch">Channel / Toko</label>
-			<Select id="sa-ch" bind:value={channel} options={[{ value: '', label: 'Semua channel' }, ...channels]} label="Channel / Toko" />
+			<label class="label" for="sa-ch">Toko</label>
+			<Select id="sa-ch" bind:value={channel} options={[{ value: '', label: 'Semua toko' }, ...channels]} label="Toko" />
 		</div>
 	{/snippet}
 
@@ -78,7 +78,7 @@
 
 	<div class="mb-4 grid gap-4 lg:grid-cols-2">
 		<div class="card p-4 sm:p-5"><h2 class="mb-4 font-medium">Produk Terlaris</h2><BarList items={byProduct} /></div>
-		<div class="card p-4 sm:p-5"><h2 class="mb-4 font-medium">Per Channel / Toko</h2><BarList items={byChannel} /></div>
+		<div class="card p-4 sm:p-5"><h2 class="mb-4 font-medium">Per Toko</h2><BarList items={byChannel} /></div>
 		<div class="card p-4 sm:p-5"><h2 class="mb-4 font-medium">Per Kategori</h2><BarList items={byCategory} /></div>
 		<div class="card p-4 sm:p-5"><h2 class="mb-4 font-medium">Metode Pembayaran</h2><BarList items={byPayment} /></div>
 	</div>

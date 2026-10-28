@@ -1,5 +1,5 @@
 @echo off
-rem Update ruangSenja ke versi baru: hentikan -> ekstrak zip -> pasang ulang (pasang.ps1 -Update).
+rem Update Senja ke versi baru: hentikan -> ekstrak zip -> pasang ulang (pasang.ps1 -Update).
 rem   - seret file senja-deploy-*.zip ke file ini, atau
 rem   - klik dua kali: dipakai senja-deploy-*.zip terbaru di folder ini, folder di atasnya, Downloads, atau Desktop.
 rem Izin Administrator diminta otomatis.

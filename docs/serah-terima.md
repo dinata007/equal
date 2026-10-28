@@ -4,7 +4,7 @@ Ringkasan keputusan & status agar pekerjaan bisa dilanjutkan tanpa riwayat perca
 
 ## Konteks
 
-- Aplikasi web ini tampil sebagai satu link di sidebar (modul `flat`: Senja | JP dipilih di halaman, berbagi satu tab halaman) dan menggantikan **aplikasi desktop PowerBuilder** secara bertahap. Keduanya memakai database SQL Server 2019 yang sama; aplikasi lama **masih dipakai** selama transisi.
+- Aplikasi web ini menggantikan **aplikasi desktop PowerBuilder** secara bertahap. Keduanya memakai database SQL Server 2019 yang sama; aplikasi lama **masih dipakai** selama transisi.
 - Pengembangan memakai salinan restore bernama **`SENJA_DEMO`**. Struktur database ada di `docs/database/` (dibuat `npm run db:schema`; 222 tabel, multi-brand `brand_id` A/B/C/H, multi-site).
 - Logika posting/penomoran aplikasi lama ada di **kode PowerBuilder** (tidak ada trigger; hampir tidak ada stored procedure transaksi). Source PowerBuilder akan ditaruh di `legacy/powerbuilder/` (repo private) — baca sebelum memetakan transaksi.
 
@@ -81,12 +81,19 @@ Keputusan pemilik (23/10/2026): web **menulis langsung** ke tabel master lama de
 - Istilah umum aplikasi tidak diterjemahkan (Login/Logout, Install App, Upload, Light/Dark, Zoom, Crop…).
 - **Export** (`util/export.ts`, `components/data/ExportMenu.svelte`): menu Excel / CSV / PDF di semua laporan (`ReportShell` prop `exportTable`), MasterPage, daftar transaksi, dan bar baris terpilih DataTable (ikut baris total bila kolom ber-`sum`). Excel = .xlsx asli buatan sendiri + `fflate` (angka & tanggal tetap bernilai, header freeze + AutoFilter, lebar kolom otomatis, judul/periode/pengekspor); PDF = `jspdf` + `jspdf-autotable` (landscape bila > 6 kolom, header berulang, nomor halaman, font standar → karakter non-Latin-1 diganti). Library dimuat saat dipakai. Tipe kolom ditebak dari isi bila tidak disebut (`tableOf(nama, header, baris)`).
 
-## Dashboard 2 — pengganti dashboard Stimulsoft (25/10/2026)
+## Dashboard (beranda) — data langsung dari database (29/10/2026)
 
-- Menu **Dashboard 2** (`/dashboard-2/senja`, `/dashboard-2/jp`) menggantikan `https://senja.co.id:90/dashboard-senja/` & `/dashboard-jp/` (file `legacy/Dashboard_*.mrt`). Beranda berganti nama jadi **Dashboard 1**. Hak akses per perusahaan = dua menu terpisah di Pengguna & Hak Akses; server mengecek ulang (`server/dashboard.ts`).
-- Data = SP lama apa adanya (`sp_Dashboard_Sales`, `sp_Dashboard_Stok`, JP: + `sp_Dashboard_Beli`), dipanggil dengan nama tiga bagian `[DB].[dbo].[sp]` lewat koneksi yang sama. Database dari `.env` `DASHBOARD_SENJA_DB` (kosong = `DB_NAME`) & `DASHBOARD_JP_DB` (kosong = `JP`). Hanya SP di daftar yang bisa dipanggil; hasil di-cache 5 menit di server, tombol Refresh paling cepat tiap 15 detik. Kolom `Periode` SP = tanggal 1 tiap bulan (data sejak 1 Januari tahun lalu s.d. bulan berjalan).
-- Semua penjumlahan & filter di browser (`pages/dashboard/`, isi tab di `config.ts`). Tab Qty & Nilai lama digabung (pilihan Qty | Nilai); tab tabel pivot lama (Tabel, Tabel Stok) tidak dipakai atas permintaan pemilik → Senja: Penjualan, Stok; JP: Penjualan, Pembelian, Stok. Periode bawaan = bulan terbaru yang ada datanya s.d. bulan ini; KPI dibanding bulan sebelumnya (bulan berjalan: s.d. tanggal yang sama). Klik peringkat/donut/batang = filter silang.
-- Cakupan brand pengguna **tidak** diterapkan di Dashboard 2 (sama seperti dashboard lama); batasnya hak menu.
+- **Dashboard 2 (pengganti Stimulsoft) dihapus** atas keputusan bisnis; beranda (dulu "Dashboard 1") kini bernama **Dashboard** dan memakai data asli SQL Server, bukan mock. Hanya baca; transaksi masih di aplikasi lama.
+- Endpoint (hak menu & cakupan brand dicek di server, cache 5 menit, tombol Refresh paling cepat tiap 15 detik): `/api/penjualan` (`server/penjualan.ts`), `/api/stok` (`server/stok.ts`), `/api/pembelian` (`server/pembelian.ts`). Semua penjumlahan & filter di browser (`pages/beranda/`).
+- **Penjualan** = penjualan kotor tanpa retur dari tiga aliran: kirim gudang ke toko (`T_GUDANG` KIRIM PENJUALAN, status OUT), grosir (`T_TOKO` JUAL, `grosir=1`, tampil sebagai "Grosir / Corporate"), marketplace (`T_TOKO` KIRIM MP). Dokumen dengan total 0 dikeluarkan. Nilai baris = total baris × total dokumen ÷ jumlah total baris (diskon dokumen ikut terbagi). Di UI istilahnya **Toko**, bukan "channel".
+- **Stok Gudang & Nilai Persediaan** = saldo awal bulan (`S_AWAL_GUDANG`) + mutasi `T_GUDANG` (IN menambah, OUT mengurangi), sama dengan `sp_Dashboard_Stok` (total dicocokkan: 23.022 pcs). Nilai = qty × harga beli produk saat ini. Hanya gudang pusat; tampil bila pengguna punya menu Inventory.
+- **Pembelian** (pembanding Tren Penjualan, tombol "vs Pembelian") = penerimaan barang gudang (`T_GUDANG` TERIMA, status IN) pada tanggal terima, bukan tanggal PO (`T_BELI1`); retur ke supplier tidak dikurangkan. Alternatif bila bisnis menganggap pembelian = PO: ganti sumber di `server/pembelian.ts`.
+- Periode dipilih lewat pemilih rentang tanggal (`components/ui/DateRangePicker.svelte`, maks. 190 hari, data sejak 1 Juli 2020); pembanding = rentang sepanjang itu tepat sebelumnya ("Bulan ini" dibanding bulan lalu s.d. tanggal sama). Kartu Total Penjualan bisa diklik → rincian per kategori (`KategoriSheet.svelte`).
+- Belum dari database (sengaja disembunyikan sampai laporan/transaksi dikerjakan): segmentasi pelanggan, metode pembayaran, kas/piutang/utang, stok menipis, tugas & notifikasi, laba kotor. Halaman Laporan (mis. Analisa Penjualan) masih data mock.
+
+## Identitas Senja (29/10/2026)
+
+- Nama aplikasi **Senja** (bukan "ruangSenja"). Logo tulisan dari `SENJA_2.bmp`, ikon dari `i_exe.ico`; sumber di `brand/`, dibuat ulang dengan `node scripts/gen-icons.mjs`. Aksen UI jingga-koral (`--color-brand-*` di `src/app.css`); pratinjau opsi warna: `brand/pratinjau-warna.html`.
 
 ## Langkah berikutnya
 

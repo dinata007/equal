@@ -369,7 +369,7 @@
 <div class="hidden text-[12px] text-black print:block">
 	<div class="flex items-start justify-between border-b-2 border-black pb-3">
 		<div>
-			<p class="text-lg font-bold">ruangSenja</p>
+			<p class="text-lg font-bold">Senja</p>
 			<p>Jl. Ir. H. Juanda No. 88, Bandung</p>
 		</div>
 		<div class="text-right">

@@ -22,7 +22,7 @@
 </script>
 
 <svelte:head>
-	<title>ruangSenja ERP</title>
+	<title>Senja ERP</title>
 </svelte:head>
 
 {@render children()}

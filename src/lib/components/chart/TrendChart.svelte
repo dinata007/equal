@@ -22,9 +22,22 @@
 		fmt,
 		curLabel = 'Periode ini',
 		prevLabel = 'Periode sebelumnya',
+		prevColor = 'var(--viz-muted)',
+		delta = true,
 		height = 260,
 		ariaLabel
-	}: { points: TrendPoint[]; fmt: (v: number) => string; curLabel?: string; prevLabel?: string; height?: number; ariaLabel: string } = $props();
+	}: {
+		points: TrendPoint[];
+		fmt: (v: number) => string;
+		curLabel?: string;
+		prevLabel?: string;
+		/** warna garis pembanding (abu bila pembanding = periode sebelumnya; warna lain bila ukuran lain) */
+		prevColor?: string;
+		/** tampilkan selisih % di tooltip (tidak berarti bila pembanding ukuran lain) */
+		delta?: boolean;
+		height?: number;
+		ariaLabel: string;
+	} = $props();
 
 	const gid = $props.id();
 	let w = $state(640);
@@ -110,7 +123,7 @@
 		{/each}
 
 		{#if prevPath}
-			<path d={prevPath} fill="none" stroke="var(--viz-muted)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
+			<path d={prevPath} fill="none" stroke={prevColor} stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
 		{/if}
 		{#if curPath}
 			<path d="{curPath}L{x(points.length - 1)},{pad.t + ih}L{x(0)},{pad.t + ih}Z" fill="url(#{gid})" />
@@ -120,7 +133,7 @@
 		{#if hover !== null}
 			<line x1={x(hover)} x2={x(hover)} y1={pad.t} y2={pad.t + ih} class="stroke-stone-300 dark:stroke-stone-600" />
 			{#if hasPrev && points[hover].prev != null}
-				<circle cx={x(hover)} cy={y(points[hover].prev ?? 0)} r="4" fill="var(--viz-muted)" stroke="var(--viz-surface)" stroke-width="2" />
+				<circle cx={x(hover)} cy={y(points[hover].prev ?? 0)} r="4" fill={prevColor} stroke="var(--viz-surface)" stroke-width="2" />
 			{/if}
 		{/if}
 		{#if points.length}
@@ -142,12 +155,12 @@
 			<p class="mb-1 pl-5 text-sm font-semibold tabular-nums">{fmt(p.cur)}</p>
 			{#if hasPrev}
 				<div class="flex items-center gap-2">
-					<span class="h-0.5 w-3 rounded-full" style="background:var(--viz-muted)"></span>
+					<span class="h-0.5 w-3 rounded-full" style="background:{prevColor}"></span>
 					<span class="flex-1 text-stone-500">{prevLabel}</span>
 				</div>
 				<p class="flex items-center justify-between pl-5 font-medium tabular-nums">
 					{fmt(p.prev ?? 0)}
-					<Delta value={p.prev ? ((p.cur - p.prev) / p.prev) * 100 : null} size="xs" />
+					{#if delta}<Delta value={p.prev ? ((p.cur - p.prev) / p.prev) * 100 : null} size="xs" />{/if}
 				</p>
 			{/if}
 		</div>

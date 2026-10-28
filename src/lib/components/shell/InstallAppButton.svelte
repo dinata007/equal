@@ -29,7 +29,7 @@
 		busy = true;
 		const r = await pwa.install();
 		busy = false;
-		if (r === 'accepted') toast.success('ruangSenja ter-install. Buka dari layar utama atau taskbar.');
+		if (r === 'accepted') toast.success('Senja ter-install. Buka dari layar utama atau taskbar.');
 	}
 	function ontoggle(e: ToggleEvent) {
 		open = e.newState === 'open';
@@ -48,7 +48,7 @@
 			disabled={busy}
 			aria-label="Install App"
 			aria-haspopup={pwa.route === 'prompt' ? undefined : 'dialog'}
-			{@attach tooltip('Install ruangSenja di perangkat ini', { placement: 'bottom' })}
+			{@attach tooltip('Install Senja di perangkat ini', { placement: 'bottom' })}
 		>
 			{#if busy}<LoaderCircle class="size-4 animate-spin" />{:else}<Download class="size-4 max-sm:size-5" />{/if}
 			<span class="max-sm:hidden">Install App</span>
@@ -64,7 +64,7 @@
 			<img src="/icon-192.png" alt="" class="size-10 rounded-xl shadow-sm ring-1 ring-stone-900/5" />
 			<span class="min-w-0 flex-1">
 				<span class="block text-sm font-medium">Install App</span>
-				<span class="block text-xs text-stone-500">Buka ruangSenja langsung dari layar utama atau taskbar</span>
+				<span class="block text-xs text-stone-500">Buka Senja langsung dari layar utama atau taskbar</span>
 			</span>
 			<span class="grid size-9 shrink-0 place-items-center rounded-full bg-stone-900 text-white transition group-hover:scale-105 dark:bg-stone-100 dark:text-stone-900">
 				{#if busy}<LoaderCircle class="size-4 animate-spin" />{:else}<Download class="size-4" />{/if}
@@ -79,13 +79,13 @@
 			popover="auto"
 			{ontoggle}
 			role="dialog"
-			aria-label="Cara install ruangSenja"
+			aria-label="Cara install Senja"
 			class="pop z-[90] w-80 rounded-2xl border border-stone-200 bg-white p-4 text-stone-900 shadow-xl dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100 {sheet ? 'pop-sheet rounded-b-none pb-safe' : ''}"
 		>
 			<div class="mb-3 flex items-center gap-3">
 				<img src="/icon-192.png" alt="" class="size-10 rounded-xl ring-1 ring-stone-900/5" />
 				<div class="min-w-0 flex-1">
-					<p class="text-sm font-medium">Install ruangSenja</p>
+					<p class="text-sm font-medium">Install Senja</p>
 					<p class="text-xs text-stone-500">{pwa.route === 'ios' ? 'iPhone / iPad' : pwa.route === 'android' ? 'Android' : 'Safari di Mac'}</p>
 				</div>
 				<button class="btn btn-ghost btn-icon btn-sm -mr-1" onclick={() => pop?.hidePopover()} aria-label="Tutup"><X class="size-4" /></button>
@@ -101,7 +101,7 @@
 					<li class="flex items-start gap-3"><span class="step">1</span><span class="pt-0.5">Ketuk <EllipsisVertical class="inline size-4 -translate-y-px" /> <b class="font-medium">menu</b> di kanan atas browser</span></li>
 					<li class="flex items-start gap-3"><span class="step">2</span><span class="pt-0.5">Pilih <b class="font-medium">Instal aplikasi</b> (atau <b class="font-medium">Tambahkan ke layar utama</b>), lalu <b class="font-medium">Instal</b></span></li>
 				</ol>
-				<p class="mt-3 text-xs text-stone-400">Kalau di menu tertulis <b class="font-medium">Buka aplikasi</b>, ruangSenja sudah ter-install. Buka dari layar utama.</p>
+				<p class="mt-3 text-xs text-stone-400">Kalau di menu tertulis <b class="font-medium">Buka aplikasi</b>, Senja sudah ter-install. Buka dari layar utama.</p>
 			{:else}
 				<ol class="space-y-2.5 text-sm text-stone-600 dark:text-stone-300">
 					<li class="flex items-start gap-3"><span class="step">1</span><span class="pt-0.5">Buka menu <b class="font-medium">File</b> di Safari</span></li>

@@ -68,7 +68,7 @@ function show(v: unknown, type: ColType) {
 	return String(v);
 }
 
-const meta = () => `Diekspor ${stamp.format(new Date())}${auth.user ? ` oleh ${auth.user.name}` : ''} · ruangSenja ERP`;
+const meta = () => `Diekspor ${stamp.format(new Date())}${auth.user ? ` oleh ${auth.user.name}` : ''} · Senja ERP`;
 const safeName = (s: string) => s.replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, ' ').trim().slice(0, 120) || 'data';
 
 function save(blob: Blob, filename: string) {
@@ -205,9 +205,9 @@ async function xlsx(t: ExportTable, cols: Required<ExportColumn>[]) {
 		'_rels/.rels': `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/></Relationships>`,
 		'docProps/core.xml': `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>${xml(t.title)}</dc:title><dc:creator>${xml(auth.user?.name ?? 'ruangSenja ERP')}</dc:creator><dcterms:created xsi:type="dcterms:W3CDTF">${new Date().toISOString().slice(0, 19)}Z</dcterms:created></cp:coreProperties>`,
+<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>${xml(t.title)}</dc:title><dc:creator>${xml(auth.user?.name ?? 'Senja ERP')}</dc:creator><dcterms:created xsi:type="dcterms:W3CDTF">${new Date().toISOString().slice(0, 19)}Z</dcterms:created></cp:coreProperties>`,
 		'docProps/app.xml': `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>ruangSenja ERP</Application></Properties>`,
+<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>Senja ERP</Application></Properties>`,
 		'xl/workbook.xml': `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${sheetName}" sheetId="1" r:id="rId1"/></sheets><definedNames><definedName name="_xlnm._FilterDatabase" localSheetId="0" hidden="1">'${sheetName.replace(/'/g, "''")}'!$A$${headRow}:$${last}$${Math.max(lastData, headRow)}</definedName><definedName name="_xlnm.Print_Titles" localSheetId="0">'${sheetName.replace(/'/g, "''")}'!$${headRow}:$${headRow}</definedName></definedNames></workbook>`,
 		'xl/_rels/workbook.xml.rels': `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -238,7 +238,7 @@ async function pdf(t: ExportTable, cols: Required<ExportColumn>[]) {
 	const W = doc.internal.pageSize.getWidth();
 	const H = doc.internal.pageSize.getHeight();
 	const M = 36;
-	doc.setProperties({ title: pdfText(t.title), creator: 'ruangSenja ERP', author: pdfText(auth.user?.name ?? '') });
+	doc.setProperties({ title: pdfText(t.title), creator: 'Senja ERP', author: pdfText(auth.user?.name ?? '') });
 
 	// kepala halaman pertama
 	doc.setFont('helvetica', 'bold').setFontSize(15).setTextColor(28, 25, 23);
@@ -282,7 +282,7 @@ async function pdf(t: ExportTable, cols: Required<ExportColumn>[]) {
 	for (let i = 1; i <= pages; i++) {
 		doc.setPage(i);
 		doc.setFont('helvetica', 'normal').setFontSize(8).setTextColor(168, 162, 158);
-		doc.text('ruangSenja ERP', M, H - M / 2);
+		doc.text('Senja ERP', M, H - M / 2);
 		doc.text(`Halaman ${i} dari ${pages}`, W - M, H - M / 2, { align: 'right' });
 	}
 	return doc.output('blob');

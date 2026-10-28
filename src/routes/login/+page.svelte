@@ -29,7 +29,7 @@
 	}
 </script>
 
-<svelte:head><title>Login · ruangSenja ERP</title></svelte:head>
+<svelte:head><title>Login · Senja ERP</title></svelte:head>
 
 <div class="grid min-h-dvh lg:grid-cols-[1.1fr_1fr]">
 	<!-- panel brand -->
