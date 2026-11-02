@@ -31,6 +31,7 @@
 	let from = $state(addDays(T, -29));
 	let to = $state(T);
 	let channel = $state('');
+	let brand = $state('');
 	/** rincian Total Penjualan per kategori */
 	let catOpen = $state(false);
 	let category = $state('');
@@ -58,14 +59,14 @@
 	let error = $state('');
 	const lastMonthStart = monthStart(addDays(monthStart(T), -1));
 	let seq = 0;
-	async function load(fresh = false) {
+	async function load(fresh = false, selectedBrand = brand) {
 		const id = ++seq;
 		const [f, t] = [per.prevFrom, per.to];
 		loading = true;
 		error = '';
 		try {
-			const [main, stk] = await Promise.all([loadSales(f, t, fresh), showStock ? loadStock(monthStart(f), t, fresh) : null]);
-			const month = main.covers(lastMonthStart, T) ? main : await loadSales(lastMonthStart, T, fresh);
+			const [main, stk] = await Promise.all([loadSales(f, t, fresh, selectedBrand), showStock ? loadStock(monthStart(f), t, fresh) : null]);
+			const month = main.covers(lastMonthStart, T) ? main : await loadSales(lastMonthStart, T, fresh, selectedBrand);
 			if (id !== seq) return; // rentang sudah diganti lagi
 			data = main;
 			monthData = month;
@@ -77,11 +78,12 @@
 		}
 	}
 	$effect(() => {
-		if (showSales) load();
+		if (showSales) load(false, brand);
 	});
 	const updatedAt = $derived(data?.at.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) ?? '');
 
 	const channels = $derived(data?.channels ?? []);
+	const brandOptions = $derived((auth.user?.brands ?? []).filter((b) => b && b !== '*').map((b) => ({ value: b, label: `Brand ${b}` })));
 	const categories = $derived(data?.categories ?? []);
 	const catColor = (c: string) => slot(Math.max(0, categories.indexOf(c)));
 
@@ -223,7 +225,7 @@
 	const shortcuts = $derived(LEAVES.filter((l) => l.page.kind === 'transaction' && auth.can(l.path, 'create')).map((l) => ({ label: l.label, icon: l.icon, href: `${l.path}?id=new`, section: l.module.label })));
 	const modules = $derived(visibleTree(MENU, (pth) => auth.can(pth)));
 	const analysis = $derived(leafOf('analisa-penjualan'));
-	const filtered = $derived(!!channel || !!category);
+	const filtered = $derived(!!channel || !!brand || !!category);
 	const periodText = $derived(`${fdate(per.from)} – ${fdate(per.to)}`);
 </script>
 
@@ -305,10 +307,13 @@
 			<Select bind:value={channel} options={[{ value: '', label: 'Semua toko' }, ...channels.map((c) => ({ value: c.id, label: c.name, hint: c.city }))]} label="Toko" compact />
 		</div>
 		<div class="w-[calc(50%-0.25rem)] sm:w-44">
+			<Select bind:value={brand} options={[{ value: '', label: 'Semua brand' }, ...brandOptions]} label="Brand" compact />
+		</div>
+		<div class="w-[calc(50%-0.25rem)] sm:w-44">
 			<Select bind:value={category} options={[{ value: '', label: 'Semua kategori' }, ...categories]} label="Kategori" compact />
 		</div>
-		{#if filtered}
-			<button class="btn btn-ghost btn-sm" onclick={() => ((channel = ''), (category = ''))}><RotateCcw class="size-3.5" /> Reset</button>
+		{#if filtered || brand}
+			<button class="btn btn-ghost btn-sm" onclick={() => ((channel = ''), (brand = ''), (category = ''))}><RotateCcw class="size-3.5" /> Reset</button>
 		{/if}
 		<span class="ml-auto hidden text-xs text-stone-400 lg:inline">dibanding {fdate(per.prevFrom)} – {fdate(per.prevTo)}</span>
 	</div>
