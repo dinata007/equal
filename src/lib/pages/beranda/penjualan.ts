@@ -113,11 +113,12 @@ export const MIN_DATE = '2020-07-01';
 
 const cache = new Map<string, Promise<Sales>>();
 
-export function loadSales(from: string, to: string, fresh = false): Promise<Sales> {
-	const key = from + '|' + to;
+export function loadSales(from: string, to: string, fresh = false, brand = ''): Promise<Sales> {
+	const key = `${from}|${to}|${brand}`;
 	const hit = cache.get(key);
 	if (hit && !fresh) return hit;
-	const p = api<Raw>(`/api/penjualan?from=${from}&to=${to}${fresh ? '&fresh=1' : ''}`).then((raw) => new Sales(raw, from, to));
+	const q = `/api/penjualan?from=${from}&to=${to}${brand ? `&brand=${encodeURIComponent(brand)}` : ''}${fresh ? '&fresh=1' : ''}`;
+	const p = api<Raw>(q).then((raw) => new Sales(raw, from, to));
 	cache.set(key, p);
 	if (cache.size > 6) cache.delete(cache.keys().next().value!);
 	p.catch(() => cache.get(key) === p && cache.delete(key));
