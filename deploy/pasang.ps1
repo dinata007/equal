@@ -7,9 +7,12 @@
 
   Aman dijalankan ulang. Untuk update, klik dua kali update.bat (atau seret zip baru ke update.bat), atau:
       powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -Update [-Zip <path zip>]
-        = hentikan -> ekstrak zip baru ke folder ini -> jalankan pasang.ps1 versi baru.
+        = hentikan -> simpan versi sekarang ke <folder>-sebelumnya -> ekstrak zip baru ke folder ini -> jalankan pasang.ps1 versi baru.
+        Bila versi baru gagal jalan, versi sebelumnya dikembalikan & dijalankan lagi.
         Tanpa -Zip: dipakai senja-deploy-*.zip terbaru di folder ini, folder di atasnya, Downloads, atau Desktop.
   Hentikan saja (berhenti.bat): powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -Berhenti
+  Update otomatis tiap merge ke main (token GitHub ditanyakan): powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -Otomatis
+        matikan lagi: .\pasang.ps1 -OtomatisMati      (lihat otomatis.ps1)
 
   Yang dilakukan:
     1. hentikan versi yang sedang jalan (bila ada)
@@ -32,7 +35,12 @@ param(
 	# hentikan, ekstrak zip versi baru ke folder ini, lalu jalankan pasang.ps1 versi baru
 	[switch]$Update,
 	# zip untuk -Update (kosong = cari senja-deploy-*.zip terbaru)
-	[string]$Zip
+	[string]$Zip,
+	# simpan token GitHub & daftarkan Scheduled Task Senja-update (otomatis.ps1 tiap 5 menit)
+	[switch]$Otomatis,
+	# hapus Senja-update & token
+	[switch]$OtomatisMati,
+	[string]$Repo = 'dinata007/senja'
 )
 $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -45,23 +53,61 @@ function Gagal($t) { Write-Host ''; Write-Host "GAGAL: $t" -ForegroundColor Red;
 $admin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $admin) { Gagal 'Buka PowerShell dengan "Run as Administrator", lalu jalankan script ini lagi.' }
 
+# ---------- update otomatis dari GitHub (otomatis.ps1) ----------
+$tokenFile = Join-Path $env:ProgramData 'Senja\github-token.bin'
+if ($OtomatisMati) {
+	if (Get-ScheduledTask -TaskName 'Senja-update' -ErrorAction SilentlyContinue) { Unregister-ScheduledTask -TaskName 'Senja-update' -Confirm:$false }
+	Remove-Item -LiteralPath $tokenFile -Force -ErrorAction SilentlyContinue
+	Write-Host ''
+	Write-Host 'Update otomatis dimatikan (task Senja-update & token dihapus).' -ForegroundColor Green
+	exit 0
+}
+if ($Otomatis) {
+	Langkah "Update otomatis dari GitHub ($Repo, branch main)"
+	if (-not (Test-Path (Join-Path $Folder 'otomatis.ps1'))) { Gagal "otomatis.ps1 tidak ada di $Folder. Update dulu ke paket terbaru (update.bat), lalu jalankan -Otomatis lagi." }
+	$aman = Read-Host -AsSecureString 'Tempel token GitHub (tidak tampil di layar), lalu Enter'
+	$token = [Runtime.InteropServices.Marshal]::PtrToStringBSTR([Runtime.InteropServices.Marshal]::SecureStringToBSTR($aman)).Trim()
+	if (-not $token) { Gagal 'Token kosong.' }
+	try { $null = Invoke-RestMethod "https://api.github.com/repos/$Repo" -Headers @{ Authorization = "Bearer $token"; 'User-Agent' = 'senja-otomatis' } }
+	catch { Gagal "Token tidak bisa membuka repo $Repo ($($_.Exception.Message)). Token classic perlu scope 'repo'." }
+	# disimpan terenkripsi (DPAPI mesin ini), file hanya bisa dibuka SYSTEM & Administrators
+	New-Item -ItemType Directory -Force -Path (Split-Path $tokenFile) | Out-Null
+	Add-Type -AssemblyName System.Security
+	[IO.File]::WriteAllBytes($tokenFile, [Security.Cryptography.ProtectedData]::Protect([Text.Encoding]::UTF8.GetBytes($token), $null, 'LocalMachine'))
+	icacls $tokenFile /inheritance:r /grant:r '*S-1-5-18:F' '*S-1-5-32-544:F' | Out-Null
+	Write-Host "Token disimpan: $tokenFile"
+	# update bisa makan beberapa menit; jalan berikutnya dilewati selama update masih berjalan
+	$settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Hours 1) -MultipleInstances IgnoreNew -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+	$principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccount -RunLevel Highest
+	$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1) -RepetitionInterval (New-TimeSpan -Minutes 5) -RepetitionDuration (New-TimeSpan -Days 3650)
+	$arg = "-NoProfile -ExecutionPolicy Bypass -File `"$(Join-Path $Folder 'otomatis.ps1')`" -Repo $Repo"
+	Register-ScheduledTask -TaskName 'Senja-update' -Force -Settings $settings -Principal $principal -Trigger $trigger -Action (New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $arg -WorkingDirectory $Folder) -Description "Senja: update otomatis dari GitHub ($Repo, branch main)" | Out-Null
+	Write-Host ''
+	Write-Host "AKTIF: tiap 5 menit server mengecek paket baru dari main. Log: $Folder\logs\otomatis.log" -ForegroundColor Green
+	exit 0
+}
+
 # ---------- 1. hentikan versi yang sedang jalan ----------
-Langkah 'Hentikan versi yang sedang jalan (bila ada)'
 # nama lama (sebelum aplikasi bernama "Senja") ikut dihentikan lalu dihapus saat pemasangan
 $lama = 'ruangSenja-app', 'ruangSenja-https'
-foreach ($t in @('Senja-app', 'Senja-https') + $lama) {
-	if (Get-ScheduledTask -TaskName $t -ErrorAction SilentlyContinue) { Stop-ScheduledTask -TaskName $t -ErrorAction SilentlyContinue }
-}
-Start-Sleep -Seconds 2
-# proses anak task bisa tetap hidup: caddy dikenali dari perintah jalannya (juga dari folder lain), node dari port aplikasi
 $caddyPath = Join-Path $Folder 'caddy.exe'
-Get-CimInstance Win32_Process -Filter "Name = 'caddy.exe'" | Where-Object { $_.ExecutablePath -eq $caddyPath -or $_.CommandLine -like '*run --config Caddyfile --adapter caddyfile*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
-foreach ($c in @(Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue)) {
-	$p = Get-CimInstance Win32_Process -Filter "ProcessId = $($c.OwningProcess)"
-	if ($p.Name -eq 'node.exe' -and $p.CommandLine -like '*--env-file=.env build*') { Stop-Process -Id $p.ProcessId -Force }
-	elseif (-not ($Berhenti -or $Update)) { Gagal "Port $Port sudah dipakai program lain ($($p.Name), PID $($p.ProcessId)):`n  $($p.CommandLine)`nBila itu aplikasi lain, jalankan lagi dengan -Port <port lain>, mis. -Port 3002. Bila itu Senja yang dijalankan manual (npm start), tutup dulu jendelanya." }
+# $Biarkan: port aplikasi dipakai program lain tidak dianggap gagal
+function Hentikan([switch]$Biarkan) {
+	foreach ($t in @('Senja-app', 'Senja-https') + $lama) {
+		if (Get-ScheduledTask -TaskName $t -ErrorAction SilentlyContinue) { Stop-ScheduledTask -TaskName $t -ErrorAction SilentlyContinue }
+	}
+	Start-Sleep -Seconds 2
+	# proses anak task bisa tetap hidup: caddy dikenali dari perintah jalannya (juga dari folder lain), node dari port aplikasi
+	Get-CimInstance Win32_Process -Filter "Name = 'caddy.exe'" | Where-Object { $_.ExecutablePath -eq $caddyPath -or $_.CommandLine -like '*run --config Caddyfile --adapter caddyfile*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+	foreach ($c in @(Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue)) {
+		$p = Get-CimInstance Win32_Process -Filter "ProcessId = $($c.OwningProcess)"
+		if ($p.Name -eq 'node.exe' -and $p.CommandLine -like '*--env-file=.env build*') { Stop-Process -Id $p.ProcessId -Force }
+		elseif (-not $Biarkan) { Gagal "Port $Port sudah dipakai program lain ($($p.Name), PID $($p.ProcessId)):`n  $($p.CommandLine)`nBila itu aplikasi lain, jalankan lagi dengan -Port <port lain>, mis. -Port 3002. Bila itu Senja yang dijalankan manual (npm start), tutup dulu jendelanya." }
+	}
+	Start-Sleep -Seconds 1
 }
-Start-Sleep -Seconds 1
+Langkah 'Hentikan versi yang sedang jalan (bila ada)'
+Hentikan -Biarkan:($Berhenti -or $Update)
 if ($Berhenti -and -not $Update) {
 	Write-Host ''
 	Write-Host 'Aplikasi & Caddy sudah berhenti. Untuk update: klik dua kali update.bat (atau seret zip baru ke update.bat).' -ForegroundColor Green
@@ -84,14 +130,52 @@ if ($Update) {
 	$tar = Join-Path $env:SystemRoot 'System32\tar.exe'
 	$isi = cmd /s /c "`"$tar`" -tf `"$Zip`" 2>nul"
 	if ($isi -notcontains 'pasang.ps1') { Gagal "$Zip bukan paket Senja (tidak berisi pasang.ps1)." }
+
+	# versi sekarang dipindah ke <folder>-sebelumnya (sekaligus membuang file build lama), dikembalikan bila versi baru gagal.
+	# .env, logs, Caddyfile & caddy-data (sertifikat) tetap di folder ini.
+	$cadangan = "$Folder-sebelumnya"
+	$isiPaket = 'build', 'node_modules', 'db', 'scripts', 'src', 'package.json', 'package-lock.json', '.npmrc', 'VERSION', 'caddy.exe', 'pasang.ps1', 'otomatis.ps1', 'update.bat', 'berhenti.bat', 'BACA-DULU.txt'
+	function Pulihkan([switch]$HapusBaru) {
+		foreach ($n in $isiPaket) {
+			$p = Join-Path $Folder $n
+			$c = Join-Path $cadangan $n
+			if ($HapusBaru -and (Test-Path -LiteralPath $p)) { Remove-Item -LiteralPath $p -Recurse -Force }
+			if (Test-Path -LiteralPath $c) { Move-Item -LiteralPath $c -Destination $Folder }
+		}
+		$e = Join-Path $cadangan '.env'
+		if (Test-Path -LiteralPath $e) { Copy-Item -LiteralPath $e -Destination $Folder -Force }
+	}
+	# versi baru tidak jalan: kembalikan versi sebelumnya lalu jalankan lagi (tanpa migrasi)
+	function Batal($t) {
+		Langkah 'Kembali ke versi sebelumnya'
+		Hentikan -Biarkan
+		Pulihkan -HapusBaru
+		& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Folder 'pasang.ps1') -Domain $Domain -Port $Port -TanpaMigrasi
+		Gagal "$t`nVersi sebelumnya dipasang lagi."
+	}
+	if (Test-Path -LiteralPath $cadangan) { Remove-Item -LiteralPath $cadangan -Recurse -Force }
+	New-Item -ItemType Directory -Path $cadangan | Out-Null
+	try {
+		foreach ($n in $isiPaket) {
+			$p = Join-Path $Folder $n
+			if (Test-Path -LiteralPath $p) { Move-Item -LiteralPath $p -Destination $cadangan }
+		}
+		if (Test-Path -LiteralPath (Join-Path $Folder '.env')) { Copy-Item -LiteralPath (Join-Path $Folder '.env') -Destination $cadangan }
+	} catch {
+		Pulihkan
+		Gagal "Versi sekarang tidak bisa dipindah ke ${cadangan}: $($_.Exception.Message)`nFile mungkin masih dipakai program lain; tutup lalu jalankan update lagi."
+	}
+	Write-Host "Versi sekarang disimpan di $cadangan"
+
 	$out = cmd /s /c "`"$tar`" -xf `"$Zip`" -C `"$Folder`" 2>&1"
-	if ($LASTEXITCODE -ne 0) { Gagal "Ekstrak gagal (kode $LASTEXITCODE): $out`nFile mungkin masih dipakai program lain; tutup lalu jalankan update lagi." }
+	if ($LASTEXITCODE -ne 0) { Batal "Ekstrak gagal (kode $LASTEXITCODE): $out" }
 	Write-Host 'OK'
 	# script yang sedang berjalan masih versi lama (sudah dimuat ke memori) -> lanjutkan dengan versi baru
 	$lanjut = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $Folder 'pasang.ps1'), '-Domain', $Domain, '-Port', $Port)
 	if ($TanpaMigrasi) { $lanjut += '-TanpaMigrasi' }
 	& powershell.exe @lanjut
-	exit $LASTEXITCODE
+	if ($LASTEXITCODE -ne 0) { Batal "Versi baru gagal dipasang (kode $LASTEXITCODE, lihat pesan di atas)." }
+	exit 0
 }
 
 # ---------- 2. Node.js & port ----------
@@ -117,8 +201,9 @@ New-Item -ItemType Directory -Force -Path (Join-Path $Folder 'logs') | Out-Null
 # file dari zip hasil unduhan/salinan bisa ditandai "dari internet" oleh Windows
 Get-ChildItem -Recurse -File $Folder | Unblock-File
 
-# .env: pengaturan server (aplikasi di belakang Caddy)
+# .env: pengaturan server (aplikasi di belakang Caddy). Paket dari GitHub tidak berisi .env -> memakai .env yang sudah ada di server.
 $envFile = Join-Path $Folder '.env'
+if (-not (Test-Path -LiteralPath $envFile)) { Gagal ".env tidak ada di $Folder. Buat file .env berisi koneksi database (DB_SERVER, DB_NAME, DB_USER, DB_PASSWORD), atau pasang dari paket buatan npm run deploy:pack." }
 $set = [ordered]@{ HOST = '127.0.0.1'; PORT = "$Port"; PROTOCOL_HEADER = 'x-forwarded-proto'; ADDRESS_HEADER = 'x-forwarded-for'; XFF_DEPTH = '1' }
 $mark = '# ---------- server (diisi pasang.ps1) ----------'
 $lines = @(Get-Content -Encoding UTF8 $envFile | Where-Object { $_ -ne $mark -and $_ -notmatch "^\s*($($set.Keys -join '|'))\s*=" })

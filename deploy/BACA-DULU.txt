@@ -4,11 +4,14 @@ Senja ERP - paket deploy server Windows
 Isi paket
   build\, node_modules\    aplikasi siap jalan (tidak perlu npm install)
   .env                     koneksi database SENJA_DEMO  (BERISI PASSWORD DATABASE - jangan dibagikan)
+                           hanya di paket buatan npm run deploy:pack; paket dari GitHub tanpa .env (memakai .env di server)
   caddy.exe                Caddy 2.11.7 - HTTPS otomatis (sertifikat Let's Encrypt)
   db\, scripts\, src\      migrasi database (tabel App*, aman diulang)
   pasang.ps1               script pemasangan / update
   update.bat               update ke versi baru (klik dua kali, atau seret zip baru ke file ini)
   berhenti.bat             hentikan aplikasi & Caddy
+  otomatis.ps1             update otomatis dari GitHub tiap merge ke main (lihat di bawah)
+  VERSION                  commit git paket ini
 
 Syarat di server
   1. Node.js 22 LTS atau lebih baru (https://nodejs.org) - sekali saja
@@ -35,15 +38,33 @@ Update ke versi baru
   2. Salin zip ke server (ke folder aplikasi, folder di atasnya, Downloads, atau Desktop)
   3. Klik dua kali update.bat di folder aplikasi (izin Administrator diminta otomatis),
      atau seret file zip ke update.bat bila zip ada di tempat lain.
-     update.bat = hentikan -> ekstrak zip terbaru ke folder aplikasi (timpa) -> pasang.ps1 versi baru.
+     update.bat = hentikan -> pindah versi sekarang ke D:\Senja-sebelumnya -> ekstrak zip terbaru ke folder aplikasi
+                  -> pasang.ps1 versi baru. Bila versi baru gagal jalan, versi sebelumnya dikembalikan & dijalankan lagi.
   4. Tunggu sampai muncul "SELESAI: buka https://senja.co.id", lalu tekan tombol apa saja.
-  Catatan: .env ikut tertimpa dari zip; pengaturan server di .env diisi ulang otomatis oleh pasang.ps1.
+  Catatan: .env dari zip (bila ada) menimpa .env server; pengaturan server di .env diisi ulang otomatis oleh pasang.ps1.
 
   Bila update.bat belum ada di server (paket lama), sekali ini update manual:
     1. cd D:\Senja
        powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -Berhenti
     2. Ekstrak zip versi baru ke folder yang sama (timpa semua)
     3. powershell -ExecutionPolicy Bypass -File .\pasang.ps1
+
+Update otomatis tiap merge ke main (GitHub Actions + otomatis.ps1)
+  Tiap commit di main, GitHub Actions (.github/workflows/deploy.yml) membuat paket tanpa .env (artifact "senja-deploy").
+  Server mengecek tiap 5 menit (Scheduled Task Senja-update): ada commit baru -> unduh paket -> update seperti update.bat
+  (migrasi, cek aplikasi, kembali ke versi sebelumnya bila gagal). Commit yang gagal tidak dicoba lagi sampai ada commit baru.
+  Aktifkan sekali (server harus sudah memakai paket yang berisi otomatis.ps1):
+    1. Token GitHub classic dengan scope "repo" dari akun yang bisa membuka repo dinata007/senja
+       (github.com -> Settings -> Developer settings -> Personal access tokens -> Tokens (classic))
+    2. PowerShell Administrator:
+         cd D:\Senja
+         powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -Otomatis
+       lalu tempel token. Token disimpan terenkripsi di C:\ProgramData\Senja\github-token.bin.
+  Log                 Get-Content D:\Senja\logs\otomatis.log -Tail 50
+  Cek sekarang        Start-ScheduledTask Senja-update
+  Ulangi commit gagal powershell -ExecutionPolicy Bypass -File .\otomatis.ps1 -Paksa
+  Ganti token         jalankan -Otomatis lagi
+  Matikan             powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -OtomatisMati
 
 Hentikan aplikasi: klik dua kali berhenti.bat.
 Menyalakan lagi tanpa versi baru: powershell -ExecutionPolicy Bypass -File .\pasang.ps1  (Administrator)
@@ -61,3 +82,4 @@ Pilihan script
   -TanpaMigrasi             lewati migrasi database
   -Berhenti                 hanya hentikan aplikasi & Caddy (= berhenti.bat)
   -Update [-Zip <zip>]      hentikan, ekstrak zip baru, pasang ulang (= update.bat)
+  -Otomatis / -OtomatisMati nyalakan / matikan update otomatis dari GitHub

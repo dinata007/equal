@@ -1,0 +1,38 @@
+# Paket deploy server Windows (tanpa .env) untuk tiap commit di main.
+# Server mengambil paket ini sendiri lewat deploy/otomatis.ps1 (Scheduled Task Senja-update), lihat deploy/BACA-DULU.txt.
+# Pull request ikut dibuat paketnya: cek build & bisa diunduh untuk uji manual.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  paket:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - uses: actions/cache@v6
+        with:
+          path: deploy/caddy.exe
+          key: caddy-2.11.7
+      - run: npm run deploy:pack -- --ci
+      - uses: actions/upload-artifact@v7
+        with:
+          name: senja-deploy
+          path: deploy/senja-deploy-*.zip
+          if-no-files-found: error
+          retention-days: ${{ github.event_name == 'pull_request' && 3 || 14 }}
+          compression-level: 0
