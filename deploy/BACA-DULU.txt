@@ -61,6 +61,10 @@ Update otomatis tiap merge ke main (GitHub Actions + otomatis.ps1)
          powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -Otomatis
        lalu tempel token. Token disimpan terenkripsi di C:\ProgramData\Senja\github-token.bin.
   Log                 Get-Content D:\Senja\logs\otomatis.log -Tail 50
+                      (hanya ditulis saat ada versi baru atau error; kosong/belum ada = belum ada update, normal)
+  Pantau langsung     Get-Content D:\Senja\logs\otomatis.log -Wait   (Ctrl+C untuk berhenti)
+  Versi terpasang     Get-Content D:\Senja\VERSION
+  Status task         Get-ScheduledTaskInfo Senja-update   (LastTaskResult 0 = OK)
   Cek sekarang        Start-ScheduledTask Senja-update
   Ulangi commit gagal powershell -ExecutionPolicy Bypass -File .\otomatis.ps1 -Paksa
   Ganti token         jalankan -Otomatis lagi
