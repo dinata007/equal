@@ -1,7 +1,8 @@
 /**
  * Data penjualan untuk Dashboard (beranda). Hanya baca, langsung dari tabel aplikasi lama.
- * Penjualan kotor dari gudang (retur tidak dikurangkan, sama seperti dashboard Stimulsoft lama):
- *   - Kirim gudang ke toko  : T_GUDANG1/2 status OUT, tipe_trans KIRIM PENJUALAN (channel = toko)
+ * Penjualan kotor tanpa retur dari semua aliran utama (sama seperti dashboard Stimulsoft lama):
+ *   - Kirim gudang ke toko   : T_GUDANG1/2 status OUT, tipe_trans KIRIM PENJUALAN
+ *   - Marketplace           : T_TOKO1/2 KIRIM MP dikurangi RETUR MP
  * Nilai baris = (qty × harga) - disc_rp per baris detail.
  * Hasil dikirim per (tanggal, channel, kategori, produk) dan disaring cakupan brand pengguna.
  */
@@ -35,10 +36,24 @@ const SOURCES = `
 	INTO #s0
 	FROM T_GUDANG1 a JOIN T_GUDANG2 b ON a.bukti = b.bukti
 	WHERE a.status = 'OUT'
-	  AND a.tipe_trans IN ('KIRIM PENJUALAN', 'KIRIM TOKO')
+	  AND a.tipe_trans IN ('KIRIM PENJUALAN')
 	  AND a.total > 0
 	  AND a.tgl >= @f AND a.tgl < @t;
 
+	INSERT INTO #s0
+	SELECT CONVERT(char(10), a.tgl, 23) d,
+	       CAST(RTRIM(COALESCE(NULLIF(a.toko_id2, ''), 'MP')) AS varchar(10)) ch,
+	       CAST('MP' + a.bukti AS varchar(40)) doc,
+	       b.produk_id,
+	       CASE WHEN a.tipe_trans = 'KIRIM MP' THEN b.qty ELSE -b.qty END qty,
+	       CASE WHEN a.tipe_trans = 'KIRIM MP' THEN (b.qty * b.harga) - ISNULL(b.disc_rp, 0)
+	            ELSE -((b.qty * b.harga) - ISNULL(b.disc_rp, 0)) END amount,
+	       CASE WHEN a.tipe_trans = 'KIRIM MP' THEN (b.qty * b.harga) - ISNULL(b.disc_rp, 0)
+	            ELSE -((b.qty * b.harga) - ISNULL(b.disc_rp, 0)) END raw
+	FROM T_TOKO1 a JOIN T_TOKO2 b ON a.site_id = b.site_id AND a.bukti = b.bukti
+	WHERE a.tipe_trans IN ('KIRIM MP', 'RETUR MP')
+	  AND a.total > 0
+	  AND a.tgl >= @f AND a.tgl < @t;
 `;
 
 async function run(from: string, to: string, scope: string[] | null, brandOverride?: string): Promise<PenjualanData> {
@@ -64,7 +79,11 @@ async function run(from: string, to: string, scope: string[] | null, brandOverri
 		SELECT d, ch, cat, item, SUM(qty) qty, SUM(amount) amount FROM #s GROUP BY d, ch, cat, item;
 		SELECT d, ch, cat, COUNT(DISTINCT doc) n FROM #s GROUP BY d, ch, cat;
 		SELECT d, ch, '' cat, COUNT(DISTINCT doc) n FROM #s GROUP BY d, ch;
-		SELECT RTRIM(toko_id) id, RTRIM(nama) name, RTRIM(ISNULL(kota, '')) city FROM M_TOKO;`);
+		SELECT RTRIM(id) id, RTRIM(name) name, RTRIM(ISNULL(city, '')) city FROM (
+			SELECT RTRIM(toko_id) id, RTRIM(nama) name, RTRIM(ISNULL(kota, '')) city FROM M_TOKO
+			UNION ALL
+			SELECT RTRIM(toko_id2) id, RTRIM(nama) name, RTRIM(ISNULL(kota, '')) city FROM M_TOKO2
+		) x;`);
 
 	const [rows, docsCat, docsAll, tokos] = r.recordsets as unknown as Record<string, any>[][];
 	const used = new Set([...rows].map((x) => x.ch as string));
