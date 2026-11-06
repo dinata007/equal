@@ -4,7 +4,7 @@
 	 * Klik tanggal awal lalu tanggal akhir; periode cepat langsung berlaku. Keyboard: panah, PgUp/PgDn, Enter.
 	 * Nilai `from` & `to` selalu "yyyy-mm-dd" (from ≤ to).
 	 */
-	import { CalendarRange, ChevronLeft, ChevronRight } from '@lucide/svelte';
+	import { CalendarRange, ChevronDown, ChevronLeft, ChevronRight } from '@lucide/svelte';
 	import { tick } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { addDays, iso, monthStart, today } from '#lib/util/format.ts';
@@ -49,13 +49,15 @@
 			['7 hari terakhir', addDays(T, -6), T],
 			['30 hari terakhir', addDays(T, -29), T],
 			['90 hari terakhir', addDays(T, -89), T],
+			['400 hari terakhir', addDays(T, -399), T],
 			['Bulan ini', monthStart(T), T],
 			['Bulan lalu', monthStart(lastMonthEnd), lastMonthEnd]
 		];
 		return all.filter(([, f, t]) => allowed(f) && allowed(t) && (!maxDays || span(f, t) <= maxDays));
 	});
 	const active = $derived(presets.find(([, f, t]) => f === from && t === to)?.[0]);
-	const label = $derived(from === to ? dmy.format(dd(from)) : from.slice(0, 4) === to.slice(0, 4) ? `${dm.format(dd(from))} – ${dmy.format(dd(to))}` : `${dmy.format(dd(from))} – ${dmy.format(dd(to))}`);
+	const shortDate = (s: string) => new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(dd(s)).replace(/\./g, '');
+	const label = $derived(from === to ? shortDate(from) : `${shortDate(from)} s/d ${shortDate(to)}`);
 
 	const popId = uidEl('range');
 	let btn = $state<HTMLButtonElement>();
@@ -177,7 +179,12 @@
 	aria-expanded={open}
 >
 	<CalendarRange class="size-4 shrink-0 text-stone-500" />
-	{#if active}<span class="font-medium">{active}</span><span class="hidden truncate text-stone-400 md:inline">{label}</span>{:else}<span class="truncate font-medium">{label}</span>{/if}
+	<div class="flex min-w-0 items-center gap-2 text-sm">
+		<span class="inline-flex min-w-0 items-center rounded-md border border-stone-200 bg-white px-2 py-1 text-xs font-medium text-stone-700 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">{shortDate(from)}</span>
+		<span class="shrink-0 text-stone-500">s/d</span>
+		<span class="inline-flex min-w-0 items-center rounded-md border border-stone-200 bg-white px-2 py-1 text-xs font-medium text-stone-700 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">{shortDate(to)}</span>
+	</div>
+	<ChevronDown class="size-4 shrink-0 text-stone-500" />
 </button>
 
 <div

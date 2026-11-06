@@ -107,7 +107,7 @@ export const pctChange = (cur: number, prev: number) => (prev ? ((cur - prev) / 
 /* ---------------- muat ---------------- */
 
 /** panjang rentang terpanjang yang boleh dipilih (hari); server menerima maks. 400 hari termasuk pembandingnya */
-export const MAX_DAYS = 190;
+export const MAX_DAYS = 400;
 /** data terlama di database lama */
 export const MIN_DATE = '2020-07-01';
 

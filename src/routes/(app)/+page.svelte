@@ -226,7 +226,9 @@
 	const modules = $derived(visibleTree(MENU, (pth) => auth.can(pth)));
 	const analysis = $derived(leafOf('analisa-penjualan'));
 	const filtered = $derived(!!channel || !!brand || !!category);
-	const periodText = $derived(`${fdate(per.from)} – ${fdate(per.to)}`);
+	const shortDate = (s: string) => new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(s + 'T00:00:00')).replace(/\./g, '');
+	const periodText = $derived(`${shortDate(per.from)} s/d ${shortDate(per.to)}`);
+	const prevPeriodText = $derived(`${shortDate(per.prevFrom)} s/d ${shortDate(per.prevTo)}`);
 </script>
 
 <svelte:head><title>Dashboard · Senja</title></svelte:head>
@@ -315,7 +317,7 @@
 		{#if filtered || brand}
 			<button class="btn btn-ghost btn-sm" onclick={() => ((channel = ''), (brand = ''), (category = ''))}><RotateCcw class="size-3.5" /> Reset</button>
 		{/if}
-		<span class="ml-auto hidden text-xs text-stone-400 lg:inline">dibanding {fdate(per.prevFrom)} – {fdate(per.prevTo)}</span>
+		<span class="ml-auto hidden text-xs text-stone-400 lg:inline">{periodText}</span>
 	</div>
 
 	<!-- KPI -->
@@ -373,8 +375,8 @@
 				<div>
 					<h2 class="font-medium">{vsBeli ? 'Penjualan vs Pembelian' : `Tren ${METRICS.find((m) => m.key === metric)?.label}`}</h2>
 					<div class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-500">
-						<span class="inline-flex items-center gap-1.5"><span class="h-0.5 w-4 rounded-full" style="background:var(--viz-1)"></span>{vsBeli ? 'Penjualan' : `${per.size === 7 ? 'Mingguan, ' : 'Harian, '}periode ini`}</span>
-						<span class="inline-flex items-center gap-1.5"><span class="h-0.5 w-4 rounded-full" style="background:{vsBeli ? 'var(--viz-2)' : 'var(--viz-muted)'}"></span>{vsBeli ? 'Pembelian (penerimaan barang)' : per.prevLabel}</span>
+						<span class="inline-flex items-center gap-1.5"><span class="h-0.5 w-4 rounded-full" style="background:var(--viz-1)"></span>{vsBeli ? 'Penjualan' : periodText}</span>
+						<span class="inline-flex items-center gap-1.5"><span class="h-0.5 w-4 rounded-full" style="background:{vsBeli ? 'var(--viz-2)' : 'var(--viz-muted)'}"></span>{vsBeli ? 'Pembelian (penerimaan barang)' : prevPeriodText}</span>
 					</div>
 				</div>
 				<div class="flex flex-wrap items-center gap-2">
