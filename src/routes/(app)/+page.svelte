@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { BadgeDollarSign, Boxes, ChartLine, ChevronRight, Plus, ReceiptText, RotateCcw, Sparkles, TrendingDown, TrendingUp, Warehouse } from '@lucide/svelte';
+	import { BadgeDollarSign, ChartLine, ChevronRight, Plus, ReceiptText, RotateCcw, Sparkles, TrendingDown, TrendingUp } from '@lucide/svelte';
 	import KategoriSheet from '#lib/pages/beranda/KategoriSheet.svelte';
+	import StokKategoriSheet from '#lib/pages/beranda/StokKategoriSheet.svelte';
 	import { MAX_DAYS, MIN_DATE, buckets, loadSales, pctChange, stats, type Sales } from '#lib/pages/beranda/penjualan.ts';
 	import { loadPurchases, type Purchases } from '#lib/pages/beranda/pembelian.ts';
 	import { loadStock, type Stock } from '#lib/pages/beranda/stok.ts';
@@ -22,18 +23,20 @@
 	const hour = new Date().getHours();
 	const greet = hour < 11 ? 'Selamat pagi' : hour < 15 ? 'Selamat siang' : hour < 18 ? 'Selamat sore' : 'Selamat malam';
 	const slot = (i: number) => `var(--viz-${(i % 5) + 1})`;
+	const TOP_CUSTOMERS = 7;
 
 	const showSales = $derived(auth.canAny('/sales') || auth.canAny('/toko'));
 	const showStock = $derived(auth.canAny('/inventory'));
 	const leafOf = (component: ReportPage | CustomPage) => LEAVES.find((l) => l.page.kind !== 'transaction' && 'component' in l.page && l.page.component === component && auth.can(l.path));
 
 	/* ---------------- filter (berlaku untuk semua angka penjualan di bawahnya) ---------------- */
-	let from = $state(addDays(T, -29));
+	let from = $state(monthStart(T));
 	let to = $state(T);
 	let channel = $state('');
-	let brand = $state('');
+	let payment = $state('');
 	/** rincian Total Penjualan per kategori */
 	let catOpen = $state(false);
+	let stockCatOpen = $state(false);
 	let category = $state('');
 
 	const days = (a: string, b: string) => Math.round((+new Date(b + 'T00:00:00') - +new Date(a + 'T00:00:00')) / 864e5) + 1;
@@ -59,14 +62,14 @@
 	let error = $state('');
 	const lastMonthStart = monthStart(addDays(monthStart(T), -1));
 	let seq = 0;
-	async function load(fresh = false, selectedBrand = brand) {
+	async function load(fresh = false) {
 		const id = ++seq;
 		const [f, t] = [per.prevFrom, per.to];
 		loading = true;
 		error = '';
 		try {
-			const [main, stk] = await Promise.all([loadSales(f, t, fresh, selectedBrand), showStock ? loadStock(monthStart(f), t, fresh) : null]);
-			const month = main.covers(lastMonthStart, T) ? main : await loadSales(lastMonthStart, T, fresh, selectedBrand);
+			const [main, stk] = await Promise.all([loadSales(f, t, fresh), showStock ? loadStock(monthStart(f), t, fresh) : null]);
+			const month = main.covers(lastMonthStart, T) ? main : await loadSales(lastMonthStart, T, fresh);
 			if (id !== seq) return; // rentang sudah diganti lagi
 			data = main;
 			monthData = month;
@@ -78,16 +81,22 @@
 		}
 	}
 	$effect(() => {
-		if (showSales) load(false, brand);
+		if (showSales) load();
 	});
 	const updatedAt = $derived(data?.at.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) ?? '');
 
 	const channels = $derived(data?.channels ?? []);
-	const brandOptions = $derived((auth.user?.brands ?? []).filter((b) => b && b !== '*').map((b) => ({ value: b, label: `Brand ${b}` })));
+	const customerIds = $derived(new Set((data?.customers ?? []).map((c) => c.id)));
+	const customerOptions = $derived([
+		...(data?.customers ?? []).map((c) => ({ value: c.id, label: c.name, hint: c.city })),
+		...channels
+			.filter((c) => !customerIds.has(c.id))
+			.map((c) => ({ value: c.id, label: c.name, hint: c.city }))
+	]);
 	const categories = $derived(data?.categories ?? []);
 	const catColor = (c: string) => slot(Math.max(0, categories.indexOf(c)));
 
-	const pick = (from: string, to: string, ch = '', cat = '') => data?.pick(from, to, ch, cat) ?? { rows: [], trx: 0 };
+	const pick = (from: string, to: string, ch = '', cat = '') => data?.pick(from, to, ch, cat, payment) ?? { rows: [], trx: 0 };
 	const cur = $derived(pick(per.from, per.to, channel, category));
 	const prev = $derived(pick(per.prevFrom, per.prevTo, channel, category));
 	const s = $derived(stats(cur));
@@ -100,16 +109,14 @@
 
 	/* stok gudang akhir periode vs akhir periode pembanding */
 	const stockNow = $derived(stock?.level(per.to) ?? null);
-	const stockPrev = $derived(stock?.level(per.prevTo) ?? null);
-	const stockSeries = $derived(bs.map((b) => stock?.level(b.to) ?? { qty: 0, nilai: 0 }));
 
 	/* bulan berjalan vs bulan lalu (tidak terikat periode; ikut filter channel & kategori) */
 	const month = $derived.by(() => {
 		if (!monthData) return null;
 		const ms = monthStart(T);
 		const lastFrom = monthStart(addDays(ms, -1));
-		const mtd = stats(monthData.pick(ms, T, channel, category)).sales;
-		const last = stats(monthData.pick(lastFrom, addDays(ms, -1), channel, category)).sales;
+		const mtd = stats(monthData.pick(ms, T, channel, category, payment)).sales;
+		const last = stats(monthData.pick(lastFrom, addDays(ms, -1), channel, category, payment)).sales;
 		const d = new Date(T + 'T00:00:00');
 		const dim = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
 		const projected = (mtd / d.getDate()) * dim;
@@ -175,16 +182,29 @@
 			.filter((r) => r.st.sales || r.st.trx)
 			.sort((a, b) => b.st.sales - a.st.sales);
 	});
+	let showAllCustomers = $state(false);
+	const visibleCustomerRows = $derived.by(() => {
+		if (showAllCustomers) return chRows;
+		const top = chRows.slice(0, TOP_CUSTOMERS);
+		const selected = chRows.find((r) => r.id === channel);
+		return selected && !top.some((r) => r.id === selected.id) ? [...top, selected] : top;
+	});
 
 	/* ---------------- pola harian: rata-rata penjualan per hari dalam minggu ---------------- */
 	const DOW = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+	let showAllWeeklyCustomers = $state(false);
 	const heat = $derived.by(() => {
-		const rows = chRows.filter((c) => !channel || c.id === channel);
+		const rows = showAllWeeklyCustomers
+			? chRows
+			: channel
+				? chRows.filter((c) => c.id === channel)
+				: chRows.slice(0, TOP_CUSTOMERS);
+		const salesRows = pick(per.from, per.to, '', category).rows;
 		const count = Array(7).fill(0);
 		for (let d = per.from; d <= per.to; d = addDays(d, 1)) count[(dt(d).getDay() + 6) % 7]++;
 		const values = rows.map((r) => {
 			const sums = Array(7).fill(0);
-			for (const l of cur.rows) if (l.ch === r.id) sums[(dt(l.date).getDay() + 6) % 7] += l.amount;
+			for (const l of salesRows) if (l.ch === r.id) sums[(dt(l.date).getDay() + 6) % 7] += l.amount;
 			return sums.map((v, i) => (count[i] ? v / count[i] : 0));
 		});
 		return { rows: rows.map((r) => r.name.replace(' / Corporate', '')), values };
@@ -225,7 +245,7 @@
 	const shortcuts = $derived(LEAVES.filter((l) => l.page.kind === 'transaction' && auth.can(l.path, 'create')).map((l) => ({ label: l.label, icon: l.icon, href: `${l.path}?id=new`, section: l.module.label })));
 	const modules = $derived(visibleTree(MENU, (pth) => auth.can(pth)));
 	const analysis = $derived(leafOf('analisa-penjualan'));
-	const filtered = $derived(!!channel || !!brand || !!category);
+	const filtered = $derived(!!channel || !!category || !!payment);
 	const shortDate = (s: string) => new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(s + 'T00:00:00')).replace(/\./g, '');
 	const periodText = $derived(`${shortDate(per.from)} s/d ${shortDate(per.to)}`);
 	const prevPeriodText = $derived(`${shortDate(per.prevFrom)} s/d ${shortDate(per.prevTo)}`);
@@ -248,7 +268,7 @@
 	</div>
 {/snippet}
 
-{#snippet kpi(icon: typeof ReceiptText, color: string, label: string, value: string, full: string, delta: number | null, spark: number[], foot?: string, upGood = true, onclick?: () => void)}
+{#snippet kpi(icon: typeof ReceiptText, color: string, label: string, value: string, full: string, delta: number | null, spark: number[], foot?: string, upGood = true, onclick?: () => void, subtext?: string)}
 	{@const Icon = icon}
 	<!-- svelte-ignore a11y_no_static_element_interactions (menjadi <button> bila onclick ada) -->
 	<svelte:element
@@ -262,6 +282,7 @@
 			<div class="min-w-0 flex-1">
 				<p class="truncate text-xs text-stone-500">{label}</p>
 				<p class="truncate text-xl font-semibold tracking-tight sm:text-2xl" title={full}>{value}</p>
+				{#if subtext}<p class="truncate text-xs text-stone-500">{subtext}</p>{/if}
 			</div>
 		</div>
 		<div class="mt-1.5 flex items-center gap-1.5 text-xs sm:mt-2">
@@ -306,28 +327,54 @@
 	<div class="card mb-4 flex flex-wrap items-center gap-2 p-2 sm:gap-3">
 		<DateRangePicker bind:from bind:to min={MIN_DATE} maxDays={MAX_DAYS} />
 		<div class="w-[calc(50%-0.25rem)] sm:w-48">
-			<Select bind:value={channel} options={[{ value: '', label: 'Semua toko' }, ...channels.map((c) => ({ value: c.id, label: c.name, hint: c.city }))]} label="Toko" compact />
-		</div>
-		<div class="w-[calc(50%-0.25rem)] sm:w-44">
-			<Select bind:value={brand} options={[{ value: '', label: 'Semua brand' }, ...brandOptions]} label="Brand" compact />
+			<Select bind:value={channel} options={[{ value: '', label: 'Semua customer' }, ...customerOptions]} label="Customer" compact />
 		</div>
 		<div class="w-[calc(50%-0.25rem)] sm:w-44">
 			<Select bind:value={category} options={[{ value: '', label: 'Semua kategori' }, ...categories]} label="Kategori" compact />
 		</div>
-		{#if filtered || brand}
-			<button class="btn btn-ghost btn-sm" onclick={() => ((channel = ''), (brand = ''), (category = ''))}><RotateCcw class="size-3.5" /> Reset</button>
+		<div class="w-[calc(50%-0.25rem)] sm:w-44">
+			<Select bind:value={payment} options={[{ value: '', label: 'Semua jenis bayar' }, ...data.payments.map((value) => ({ value, label: value.trim() || '(kosong)' }))]} label="Jenis bayar" compact />
+		</div>
+		{#if filtered}
+			<button class="btn btn-ghost btn-sm" onclick={() => ((channel = ''), (category = ''), (payment = ''))}><RotateCcw class="size-3.5" /> Reset</button>
 		{/if}
 		<span class="ml-auto hidden text-xs text-stone-400 lg:inline">{periodText}</span>
 	</div>
 
 	<!-- KPI -->
 	<div class="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-5">
-		{@render kpi(BadgeDollarSign, 'var(--viz-1)', 'Total Penjualan', short(s.sales), money(s.sales), pctChange(s.sales, p.sales), series.map((x) => x.sales), undefined, true, () => (catOpen = true))}
+		<div class="flex min-w-0 flex-col gap-3">
+			{@render kpi(BadgeDollarSign, 'var(--viz-1)', 'Total Penjualan', short(s.sales), money(s.sales), pctChange(s.sales, p.sales), series.map((x) => x.sales), undefined, true, () => (catOpen = true), `${num(s.qty)} pcs`)}
+			{#if showStock}
+				<div class="card min-w-0 p-3.5 sm:p-4">
+					<div class="flex items-center justify-between gap-2">
+						<p class="text-xs text-stone-500">Stok Toko per {fdate(per.to)}</p>
+						{#if stockNow}
+							<button type="button" class="btn btn-ghost btn-sm shrink-0" onclick={() => (stockCatOpen = true)}>
+								Detail <ChevronRight class="size-3.5" />
+							</button>
+						{/if}
+					</div>
+					{#if stockNow}
+						<div class="mt-2 grid grid-cols-2 gap-3">
+							<div class="min-w-0">
+								<p class="text-[11px] text-stone-400">Jumlah stok</p>
+								<p class="truncate text-lg font-semibold tabular-nums">{num(stockNow.qty)} <span class="text-xs font-normal text-stone-500">pcs</span></p>
+							</div>
+							<div class="min-w-0">
+								<p class="text-[11px] text-stone-400">Nilai persediaan</p>
+								<p class="truncate text-lg font-semibold tabular-nums" title={money(stockNow.nilai)}>{short(stockNow.nilai)}</p>
+							</div>
+						</div>
+					{:else}
+						<div class="mt-2 rounded-xl bg-stone-50 px-3 py-2 text-xs text-stone-500 dark:bg-stone-800/50">
+							Saldo stok belum tersedia untuk periode ini karena saldo awal bulan belum ada.
+						</div>
+					{/if}
+				</div>
+			{/if}
+		</div>
 		{@render kpi(ReceiptText, 'var(--viz-3)', 'Jumlah Transaksi', num(s.trx), `${num(s.qty)} pcs terjual`, pctChange(s.trx, p.trx), series.map((x) => x.trx))}
-		{#if showStock && stockNow}
-			{@render kpi(Boxes, 'var(--viz-5)', 'Stok Gudang', num(stockNow.qty), `${num(stockNow.qty)} pcs per ${fdate(per.to)}`, stockPrev ? pctChange(stockNow.qty, stockPrev.qty) : null, stockSeries.map((x) => x.qty), 'vs akhir ' + per.prevLabel.toLowerCase().replace(/ sebelumnya$/, ' lalu').replace(/^bulan lalu$/, 'bulan lalu'))}
-			{@render kpi(Warehouse, 'var(--viz-2)', 'Nilai Persediaan', short(stockNow.nilai), money(stockNow.nilai), stockPrev ? pctChange(stockNow.nilai, stockPrev.nilai) : null, stockSeries.map((x) => x.nilai), 'harga beli · vs periode lalu')}
-		{/if}
 		{#if month}
 			<div class="card col-span-2 flex flex-col p-3.5 sm:p-4 lg:col-span-1">
 				<div class="flex items-start gap-3">
@@ -433,15 +480,20 @@
 		<section class="card min-w-0 overflow-hidden xl:col-span-7">
 			<div class="flex items-start justify-between gap-3 px-4 pt-4 pb-2 sm:px-5">
 				<div>
-					<h2 class="font-medium">Kinerja Toko</h2>
+					<h2 class="font-medium">Kinerja Customer</h2>
 					<p class="text-xs text-stone-500">Klik baris untuk memfilter dashboard</p>
 				</div>
+				{#if chRows.length > TOP_CUSTOMERS}
+					<button type="button" class="btn btn-ghost btn-sm shrink-0" onclick={() => (showAllCustomers = !showAllCustomers)}>
+						{showAllCustomers ? `Tampilkan ${TOP_CUSTOMERS} teratas` : `Lihat semua customer (${num(chRows.length)})`}
+					</button>
+				{/if}
 			</div>
 			<div class="overflow-x-auto">
 				<table class="w-full text-sm">
 					<thead>
 						<tr class="text-left text-[11px] font-semibold tracking-wide text-stone-400 uppercase">
-							<th class="py-2 pr-2 pl-4 font-semibold sm:pl-5">Toko</th>
+							<th class="py-2 pr-2 pl-4 font-semibold sm:pl-5">Customer</th>
 							<th class="px-2 py-2 text-right font-semibold">Penjualan</th>
 							<th class="hidden px-2 py-2 text-right font-semibold sm:table-cell">Trx</th>
 							<th class="px-2 py-2 text-right font-semibold">Tumbuh</th>
@@ -449,7 +501,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#each chRows as r (r.id)}
+						{#each visibleCustomerRows as r (r.id)}
 							<tr
 								class="cursor-pointer border-t border-stone-100 transition hover:bg-stone-50 dark:border-stone-800 dark:hover:bg-stone-800/40 {channel === r.id ? 'bg-stone-50 dark:bg-stone-800/60' : ''} {channel && channel !== r.id ? 'opacity-45' : ''}"
 								onclick={() => (channel = channel === r.id ? '' : r.id)}
@@ -480,8 +532,17 @@
 
 		<!-- pola harian -->
 		<section class="card min-w-0 p-4 sm:p-5 xl:col-span-5">
-			<h2 class="font-medium">Pola Penjualan Mingguan</h2>
-			<p class="mb-3 text-xs text-stone-500">Rata-rata penjualan per hari, per toko</p>
+			<div class="mb-3 flex items-start justify-between gap-3">
+				<div>
+					<h2 class="font-medium">Pola Penjualan Mingguan</h2>
+					<p class="text-xs text-stone-500">Rata-rata penjualan per hari, per toko</p>
+				</div>
+				{#if chRows.length > TOP_CUSTOMERS}
+					<button type="button" class="btn btn-ghost btn-sm shrink-0" onclick={() => (showAllWeeklyCustomers = !showAllWeeklyCustomers)}>
+						{showAllWeeklyCustomers ? `Tampilkan ${TOP_CUSTOMERS} teratas` : `Lihat semua customer (${num(chRows.length)})`}
+					</button>
+				{/if}
+			</div>
 			<Heatmap rows={heat.rows} cols={DOW} values={heat.values} fmt={money} cellFmt={(v) => (v >= 1e6 ? (v / 1e6).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + 'jt' : Math.round(v / 1e3) + 'rb')} />
 		</section>
 	</div>
@@ -533,5 +594,6 @@
 </div>
 
 {#if data}
-	<KategoriSheet bind:open={catOpen} {data} {per} {channel} channelName={channels.find((c) => c.id === channel)?.name ?? ''} {category} color={catColor} />
+	<KategoriSheet bind:open={catOpen} {data} {per} {channel} {payment} channelName={channels.find((c) => c.id === channel)?.name ?? ''} {category} color={catColor} />
+	{#if stock}<StokKategoriSheet bind:open={stockCatOpen} {stock} date={per.to} />{/if}
 {/if}

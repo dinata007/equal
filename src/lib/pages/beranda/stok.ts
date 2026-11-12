@@ -1,16 +1,14 @@
 /**
- * Stok gudang Dashboard di browser: saldo awal bulan + mutasi bersih per hari dari /api/stok.
- * Stok pada tanggal mana pun = saldo awal + mutasi kumulatif sampai tanggal itu.
+ * Posisi stok toko dashboard, dihitung server dari saldo awal dan mutasi aplikasi lama.
  */
 import { api } from '#lib/util/api.ts';
-import { monthStart } from '#lib/util/format.ts';
 
 interface Raw {
 	at: string;
-	anchor: string;
+	date: string;
 	ready: boolean;
-	awal: [number, number];
-	days: [string, number, number][];
+	balance: [number, number];
+	categories: [string, string, number, number][];
 }
 
 export interface Level {
@@ -22,46 +20,24 @@ export class Stock {
 	readonly at: Date;
 	readonly from: string;
 	readonly to: string;
-	private anchor: string;
+	readonly categories: { id: string; name: string; qty: number; nilai: number }[];
+	private date: string;
 	private ready: boolean;
-	private awal: Level;
-	/** tanggal (urut naik) dan stok kumulatif akhir hari itu */
-	private dates: string[] = [];
-	private levels: Level[] = [];
+	private balance: Level;
 
 	constructor(raw: Raw, from: string, to: string) {
 		this.at = new Date(raw.at);
 		this.from = from;
 		this.to = to;
-		this.anchor = raw.anchor;
+		this.date = raw.date;
 		this.ready = raw.ready;
-		this.awal = { qty: raw.awal[0], nilai: raw.awal[1] };
-		let qty = this.awal.qty;
-		let nilai = this.awal.nilai;
-		for (const [d, q, v] of [...raw.days].sort((a, b) => a[0].localeCompare(b[0]))) {
-			qty += q;
-			nilai += v;
-			this.dates.push(d);
-			this.levels.push({ qty, nilai });
-		}
+		this.balance = { qty: raw.balance[0], nilai: raw.balance[1] };
+		this.categories = raw.categories.map(([id, name, qty, nilai]) => ({ id, name, qty, nilai }));
 	}
 
-	covers(from: string, to: string) {
-		return this.from <= monthStart(from) && this.to >= to;
-	}
-
-	/** stok akhir hari `date`; null bila saldo awal bulan itu belum ada di database */
+	/** Stok akhir pada tanggal yang diminta; null bila periode tidak punya saldo awal */
 	level(date: string): Level | null {
-		if (!this.ready || date < this.anchor) return null;
-		// mutasi terakhir pada atau sebelum `date` (pencarian biner)
-		let lo = 0;
-		let hi = this.dates.length;
-		while (lo < hi) {
-			const mid = (lo + hi) >> 1;
-			if (this.dates[mid] <= date) lo = mid + 1;
-			else hi = mid;
-		}
-		return lo ? this.levels[lo - 1] : this.awal;
+		return this.ready && date === this.date ? this.balance : null;
 	}
 }
 

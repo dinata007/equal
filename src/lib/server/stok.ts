@@ -1,9 +1,7 @@
 /**
- * Posisi stok gudang untuk Dashboard. Hanya baca, aturan sama dengan sp_Dashboard_Stok aplikasi lama:
- * stok = saldo awal bulan (S_AWAL_GUDANG) + mutasi T_GUDANG sejak awal bulan (status IN menambah, OUT mengurangi).
- * Server hanya mengirim saldo awal bulan dari tanggal `from` dan mutasi per hari; stok pada tanggal mana pun
- * dihitung di browser (saldo awal + mutasi kumulatif), jadi pembanding antarperiode tidak perlu permintaan baru.
- * Nilai persediaan = qty × harga beli produk saat ini. Disaring cakupan brand pengguna.
+ * Posisi stok toko untuk Dashboard. Hanya baca, mengikuti rumus laporan PowerBuilder w_02b_r01_acc /
+ * d_02b_r01_acc: saldo S_AWAL_TOKO + mutasi TERIMA, RETUR, JUAL, dan RETUR JUAL.
+ * Nilai akhir = qty × M_PRODUK.hjual (dipetakan sebagai hbeli di DataWindow tersebut).
  */
 import type { SessionUser } from '#lib/domain/types.ts';
 import { AuthError } from './auth/users.ts';
@@ -12,46 +10,88 @@ import { brandScope, brandWhere } from './master/service.ts';
 
 export interface StokData {
 	at: string;
-	/** tanggal awal bulan dari `from` (titik saldo awal) */
-	anchor: string;
-	/** false bila saldo awal bulan itu belum ada di database (belum closing) → stok tidak bisa dihitung */
+	/** tanggal posisi stok */
+	date: string;
+	/** false bila belum ada saldo awal untuk periode posisi */
 	ready: boolean;
-	/** saldo awal: [qty, nilai] */
-	awal: [number, number];
-	/** mutasi bersih per hari: [tanggal, qty, nilai] */
-	days: [string, number, number][];
+	/** posisi akhir: [qty, nilai] */
+	balance: [number, number];
+	/** rincian posisi akhir per kategori: [nama, qty, nilai] */
+	categories: [string, string, number, number][];
 }
 
 const TTL = 5 * 60_000;
 const MIN_FRESH = 15_000;
-const MAX_SPAN_DAYS = 500;
+const MAX_SPAN_DAYS = 630;
 const cache = new Map<string, { at: number; data: Promise<StokData> }>();
 const isDate = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s));
 
-async function run(from: string, to: string, scope: string[] | null): Promise<StokData> {
+async function run(to: string, scope: string[] | null): Promise<StokData> {
 	const req = await request();
-	req.input('pf', from);
 	req.input('pt', to);
 	const brand = brandWhere(req, 'p.brand_id', false, scope);
 	const r = await req.query(`
 		SET NOCOUNT ON;
-		DECLARE @m date = DATEFROMPARTS(YEAR(CAST(@pf AS date)), MONTH(CAST(@pf AS date)), 1), @t date = DATEADD(DAY, 1, CAST(@pt AS date));
-		SELECT COUNT(*) n, ISNULL(SUM(a.qty), 0) qty, ISNULL(SUM(a.qty * ISNULL(p.hbeli, 0)), 0) nilai, CONVERT(char(10), @m, 23) anchor
-		FROM S_AWAL_GUDANG a LEFT JOIN View_produk p ON p.produk_id = a.produk_id
-		WHERE a.periode = @m AND ${brand};
-		SELECT CONVERT(char(10), g.tgl, 23) d,
-		       SUM(CASE g.status WHEN 'IN' THEN l.qty ELSE -l.qty END) qty,
-		       SUM(CASE g.status WHEN 'IN' THEN l.qty ELSE -l.qty END * ISNULL(p.hbeli, 0)) nilai
-		FROM T_GUDANG1 g JOIN T_GUDANG2 l ON l.bukti = g.bukti LEFT JOIN View_produk p ON p.produk_id = l.produk_id
-		WHERE g.tgl >= @m AND g.tgl < @t AND ${brand}
-		GROUP BY CONVERT(char(10), g.tgl, 23);`);
-	const [awal, days] = r.recordsets as unknown as Record<string, any>[][];
+		DECLARE @asof date = CAST(@pt AS date),
+		        @anchor date = DATEFROMPARTS(YEAR(CAST(@pt AS date)), MONTH(CAST(@pt AS date)), 1);
+		;WITH StoreOpening AS (
+			SELECT a.toko_id, a.produk_id, SUM(a.qty) qty
+			FROM S_AWAL_TOKO a
+			WHERE CAST(a.periode AS date) = @anchor
+			GROUP BY a.toko_id, a.produk_id
+		),
+		StoreIds AS (
+			SELECT DISTINCT toko_id FROM StoreOpening
+		),
+		StoreMovement AS (
+			SELECT l.produk_id,
+			       SUM(CASE
+			            WHEN g.tipe_trans = 'TERIMA' THEN l.qty
+			            WHEN g.tipe_trans = 'RETUR' THEN -l.qty
+			            WHEN g.tipe_trans = 'JUAL'
+			             AND UPPER(ISNULL(g.tipe_bayar, '')) <> 'BATAL' THEN -l.qty
+			            WHEN g.tipe_trans = 'RETUR JUAL'
+			             AND UPPER(ISNULL(g.tipe_bayar, '')) <> 'BATAL' THEN l.qty
+			            ELSE 0
+			       END) qty
+			FROM T_TOKO1 g
+			JOIN T_TOKO2 l ON l.site_id = g.site_id AND l.bukti = g.bukti
+			WHERE g.tgl >= @anchor AND g.tgl < DATEADD(DAY, 1, @asof)
+			  AND EXISTS (SELECT 1 FROM StoreIds s WHERE s.toko_id = g.toko_id)
+			  AND g.tipe_trans IN ('TERIMA', 'RETUR', 'JUAL', 'RETUR JUAL')
+			GROUP BY l.produk_id
+		),
+		Balance AS (
+			SELECT produk_id, SUM(qty) qty FROM StoreOpening GROUP BY produk_id
+			UNION ALL
+			SELECT produk_id, qty FROM StoreMovement
+		),
+		ProductBalance AS (
+			SELECT produk_id, SUM(qty) qty FROM Balance GROUP BY produk_id
+		)
+		SELECT GROUPING(d.grup_dept) is_total,
+		       CASE WHEN GROUPING(d.grup_dept) = 1 THEN '' ELSE COALESCE(NULLIF(RTRIM(d.grup_dept), ''), '-') END category_id,
+		       CASE WHEN GROUPING(d.grup_dept) = 1 THEN '' ELSE COALESCE(NULLIF(RTRIM(d.nama), ''), '-') END category,
+		       CONVERT(char(10), @asof, 23) date,
+		       CASE WHEN EXISTS (SELECT 1 FROM StoreOpening) THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END ready,
+		       ISNULL(SUM(ISNULL(b.qty, 0)), 0) qty,
+		       ISNULL(SUM(ISNULL(b.qty, 0) * ISNULL(p.hjual, 0)), 0) nilai
+		FROM M_PRODUK p
+		LEFT JOIN ProductBalance b ON b.produk_id = p.produk_id
+		LEFT JOIN M_PRODUK_DEPT d ON d.grup_dept = p.grup_dept
+		WHERE ${brand}
+		GROUP BY GROUPING SETS ((d.grup_dept, d.nama), ());`);
+	const records = r.recordset as Record<string, any>[];
+	const total = records.find((x) => !!x.is_total);
 	return {
 		at: new Date().toISOString(),
-		anchor: awal[0].anchor,
-		ready: awal[0].n > 0,
-		awal: [+awal[0].qty || 0, Math.round(+awal[0].nilai || 0)],
-		days: days.map((x) => [x.d, +x.qty || 0, Math.round(+x.nilai || 0)] as StokData['days'][number])
+		date: String(total?.date ?? to),
+		ready: !!total?.ready,
+		balance: [+total?.qty || 0, Math.round(+total?.nilai || 0)],
+		categories: records
+			.filter((x) => !x.is_total)
+			.map((x) => [String(x.category_id), String(x.category), +x.qty || 0, Math.round(+x.nilai || 0)] as StokData['categories'][number])
+			.sort((a, b) => b[3] - a[3] || a[1].localeCompare(b[1]))
 	};
 }
 
@@ -59,10 +99,10 @@ export async function stok(user: SessionUser, from: unknown, to: unknown, fresh:
 	if (!user.admin && !user.menus.some((m) => m.startsWith('/inventory/'))) throw new AuthError('Anda tidak punya akses ke data stok', 403);
 	if (!isDate(from) || !isDate(to) || from > to || (Date.parse(to) - Date.parse(from)) / 864e5 > MAX_SPAN_DAYS) throw new AuthError('Rentang tanggal tidak valid');
 	const scope = brandScope(user);
-	const key = `${from}|${to}|${scope?.slice().sort().join(',') ?? '*'}`;
+	const key = `${to}|${scope?.slice().sort().join(',') ?? '*'}`;
 	const hit = cache.get(key);
 	if (hit && Date.now() - hit.at < (fresh ? MIN_FRESH : TTL)) return hit.data;
-	const entry = { at: Date.now(), data: run(from, to, scope) };
+	const entry = { at: Date.now(), data: run(to, scope) };
 	cache.set(key, entry);
 	entry.data.catch(() => cache.get(key) === entry && cache.delete(key));
 	if (cache.size > 50) cache.delete(cache.keys().next().value!);

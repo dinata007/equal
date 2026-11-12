@@ -9,6 +9,7 @@
 	import Lookup from '#lib/components/ui/Lookup.svelte';
 	import PeriodFilter from './PeriodFilter.svelte';
 	import ReportShell from './ReportShell.svelte';
+	import TokoKartuStok from './TokoKartuStok.svelte';
 
 	let { leaf, itemTable, scope }: { leaf: Leaf; itemTable: string; scope: string } = $props();
 
@@ -40,73 +41,69 @@
 	}
 </script>
 
-<ReportShell {leaf} subtitle="{item?.name ?? '-'} · {location} · {fdate(from)} – {fdate(to)}" exportTable={exportData}>
-	{#snippet filters()}
-		<div class="lg:w-72">
-			<span class="label">{itemTable === 'products' ? 'Produk' : 'Material'}</span>
-			<Lookup table={itemTable} bind:value={itemId} />
-		</div>
-		{#if scope === 'TOKO'}
-			<div class="lg:w-56">
-				<span class="label">Toko</span>
-				<Lookup table="stores" bind:value={storeId} placeholder="Semua toko" clearable />
+{#if scope === 'TOKO'}
+	<TokoKartuStok {leaf} />
+{:else}
+	<ReportShell {leaf} subtitle="{item?.name ?? '-'} · {location} · {fdate(from)} – {fdate(to)}" exportTable={exportData}>
+		{#snippet filters()}
+			<div class="lg:w-72">
+				<span class="label">{itemTable === 'products' ? 'Produk' : 'Material'}</span>
+				<Lookup table={itemTable} bind:value={itemId} />
 			</div>
-		{/if}
-		<PeriodFilter bind:from bind:to />
-	{/snippet}
+			<PeriodFilter bind:from bind:to />
+		{/snippet}
 
-	<div class="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-		<div class="card p-4"><p class="text-xs text-stone-500">Saldo Awal</p><p class="mt-1 text-xl font-semibold tabular-nums">{num(opening)}</p></div>
-		<div class="card p-4"><p class="text-xs text-stone-500">Masuk</p><p class="mt-1 text-xl font-semibold text-emerald-600 tabular-nums">+{num(totIn)}</p></div>
-		<div class="card p-4"><p class="text-xs text-stone-500">Keluar</p><p class="mt-1 text-xl font-semibold text-rose-600 tabular-nums">-{num(totOut)}</p></div>
-		<div class="card p-4"><p class="text-xs text-stone-500">Saldo Akhir</p><p class="mt-1 text-xl font-semibold tabular-nums">{num(closing)} <span class="text-sm font-normal text-stone-400">{item?.unit}</span></p></div>
-	</div>
-
-	<div class="card overflow-hidden">
-		<!-- desktop -->
-		<div class="hidden overflow-x-auto md:block">
-			<table class="table-erp">
-				<thead>
-					<tr><th>Tanggal</th><th>No. Dokumen</th><th>Transaksi</th><th class="text-right">Masuk</th><th class="text-right">Keluar</th><th class="text-right">Saldo</th></tr>
-				</thead>
-				<tbody>
-					<tr class="bg-stone-50/60 dark:bg-stone-800/30">
-						<td>{fdate(from)}</td><td colspan="4" class="text-stone-500 italic">Saldo awal</td><td class="num font-semibold">{num(opening)}</td>
-					</tr>
-					{#each rows as r, i (r.docId + i)}
-						<tr>
-							<td>{fdate(r.date)}</td>
-							<td><a class="font-mono text-xs font-semibold text-brand-600 hover:underline" href="{r.path}?id={r.docId}">{r.no}</a></td>
-							<td class="text-stone-500">{r.label}</td>
-							<td class="num text-emerald-600">{r.qty > 0 ? num(r.qty) : ''}</td>
-							<td class="num text-rose-600">{r.qty < 0 ? num(-r.qty) : ''}</td>
-							<td class="num font-medium">{num(r.bal)}</td>
-						</tr>
-					{:else}
-						<tr><td colspan="6" class="py-10 text-center text-stone-400">Tidak ada mutasi pada periode ini</td></tr>
-					{/each}
-				</tbody>
-			</table>
+		<div class="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+			<div class="card p-4"><p class="text-xs text-stone-500">Saldo Awal</p><p class="mt-1 text-xl font-semibold tabular-nums">{num(opening)}</p></div>
+			<div class="card p-4"><p class="text-xs text-stone-500">Masuk</p><p class="mt-1 text-xl font-semibold text-emerald-600 tabular-nums">+{num(totIn)}</p></div>
+			<div class="card p-4"><p class="text-xs text-stone-500">Keluar</p><p class="mt-1 text-xl font-semibold text-rose-600 tabular-nums">-{num(totOut)}</p></div>
+			<div class="card p-4"><p class="text-xs text-stone-500">Saldo Akhir</p><p class="mt-1 text-xl font-semibold tabular-nums">{num(closing)} <span class="text-sm font-normal text-stone-400">{item?.unit}</span></p></div>
 		</div>
-		<!-- mobile -->
-		<ul class="divide-y divide-stone-100 md:hidden dark:divide-stone-800">
-			<li class="flex justify-between bg-stone-50 px-4 py-2.5 text-sm dark:bg-stone-800/40"><span class="text-stone-500">Saldo awal</span><span class="font-semibold">{num(opening)}</span></li>
-			{#each rows as r, i (r.docId + i)}
-				<li>
-					<a href="{r.path}?id={r.docId}" class="flex items-center gap-3 px-4 py-3 focus-visible:-outline-offset-2">
-						<div class="min-w-0 flex-1">
-							<p class="truncate font-mono text-xs font-semibold">{r.no}</p>
-							<p class="truncate text-xs text-stone-500">{fdate(r.date)} · {r.label}</p>
-						</div>
-						<div class="text-right">
-							<p class="text-sm font-semibold tabular-nums {r.qty > 0 ? 'text-emerald-600' : 'text-rose-600'}">{r.qty > 0 ? '+' : ''}{num(r.qty)}</p>
-							<p class="text-[11px] text-stone-400 tabular-nums">saldo {num(r.bal)}</p>
-						</div>
-					</a>
-				</li>
-			{:else}
-				<li class="py-10 text-center text-sm text-stone-400">Tidak ada mutasi</li>
-			{/each}
-		</ul>
-	</div>
-</ReportShell>
+
+		<div class="card overflow-hidden">
+			<div class="hidden overflow-x-auto md:block">
+				<table class="table-erp">
+					<thead>
+						<tr><th>Tanggal</th><th>No. Dokumen</th><th>Transaksi</th><th class="text-right">Masuk</th><th class="text-right">Keluar</th><th class="text-right">Saldo</th></tr>
+					</thead>
+					<tbody>
+						<tr class="bg-stone-50/60 dark:bg-stone-800/30">
+							<td>{fdate(from)}</td><td colspan="4" class="text-stone-500 italic">Saldo awal</td><td class="num font-semibold">{num(opening)}</td>
+						</tr>
+						{#each rows as r, i (r.docId + i)}
+							<tr>
+								<td>{fdate(r.date)}</td>
+								<td><a class="font-mono text-xs font-semibold text-brand-600 hover:underline" href="{r.path}?id={r.docId}">{r.no}</a></td>
+								<td class="text-stone-500">{r.label}</td>
+								<td class="num text-emerald-600">{r.qty > 0 ? num(r.qty) : ''}</td>
+								<td class="num text-rose-600">{r.qty < 0 ? num(-r.qty) : ''}</td>
+								<td class="num font-medium">{num(r.bal)}</td>
+							</tr>
+						{:else}
+							<tr><td colspan="6" class="py-10 text-center text-stone-400">Tidak ada mutasi pada periode ini</td></tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
+			<ul class="divide-y divide-stone-100 md:hidden dark:divide-stone-800">
+				<li class="flex justify-between bg-stone-50 px-4 py-2.5 text-sm dark:bg-stone-800/40"><span class="text-stone-500">Saldo awal</span><span class="font-semibold">{num(opening)}</span></li>
+				{#each rows as r, i (r.docId + i)}
+					<li>
+						<a href="{r.path}?id={r.docId}" class="flex items-center gap-3 px-4 py-3 focus-visible:-outline-offset-2">
+							<div class="min-w-0 flex-1">
+								<p class="truncate font-mono text-xs font-semibold">{r.no}</p>
+								<p class="truncate text-xs text-stone-500">{fdate(r.date)} · {r.label}</p>
+							</div>
+							<div class="text-right">
+								<p class="text-sm font-semibold tabular-nums {r.qty > 0 ? 'text-emerald-600' : 'text-rose-600'}">{r.qty > 0 ? '+' : ''}{num(r.qty)}</p>
+								<p class="text-[11px] text-stone-400 tabular-nums">saldo {num(r.bal)}</p>
+							</div>
+						</a>
+					</li>
+				{:else}
+					<li class="py-10 text-center text-sm text-stone-400">Tidak ada mutasi</li>
+				{/each}
+			</ul>
+		</div>
+	</ReportShell>
+{/if}

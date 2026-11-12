@@ -12,6 +12,7 @@
 	import { loadSession, saveSession } from '#lib/components/data/grid/core.ts';
 	import PeriodFilter from './PeriodFilter.svelte';
 	import ReportShell from './ReportShell.svelte';
+	import TokoMutasiStok from './TokoMutasiStok.svelte';
 
 	let { leaf, itemTable, scope }: { leaf: Leaf; itemTable: string; scope: string } = $props();
 
@@ -79,29 +80,31 @@
 	</div>
 {/snippet}
 
-<ReportShell {leaf} subtitle="{location} · {fdate(from)} – {fdate(to)}" exportTable={exportData}>
-	{#snippet filters()}
-		<PeriodFilter bind:from bind:to />
-		{#if scope === 'TOKO'}
+{#if scope === 'TOKO'}
+	<TokoMutasiStok {leaf} />
+{:else}
+	<ReportShell {leaf} subtitle="{location} · {fdate(from)} – {fdate(to)}" exportTable={exportData}>
+		{#snippet filters()}
+			<PeriodFilter bind:from bind:to />
 			<div class="lg:w-56">
 				<span class="label">Toko</span>
 				<Lookup table="stores" bind:value={storeId} placeholder="Semua toko" clearable />
 			</div>
-		{/if}
-		<label class="flex h-10 items-center gap-2 text-sm lg:h-9">
-			<input type="checkbox" class="size-4 accent-brand-600" bind:checked={onlyMoving} /> Hanya item bermutasi
-		</label>
-	{/snippet}
+			<label class="flex h-10 items-center gap-2 text-sm lg:h-9">
+				<input type="checkbox" class="size-4 accent-brand-600" bind:checked={onlyMoving} /> Hanya item bermutasi
+			</label>
+		{/snippet}
 
-	<div class="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-		<div class="card p-4"><p class="text-xs text-stone-500">Saldo Awal</p><p class="mt-1 text-xl font-semibold tabular-nums">{num(tot.open)}</p></div>
-		<div class="card p-4"><p class="text-xs text-stone-500">Masuk</p><p class="mt-1 text-xl font-semibold text-emerald-600 tabular-nums">+{num(tot.in)}</p></div>
-		<div class="card p-4"><p class="text-xs text-stone-500">Keluar</p><p class="mt-1 text-xl font-semibold text-rose-600 tabular-nums">-{num(tot.out)}</p></div>
-		<div class="card p-4"><p class="text-xs text-stone-500">Nilai Persediaan</p><p class="mt-1 text-base font-semibold tabular-nums sm:text-xl">Rp {money(tot.value)}</p></div>
-	</div>
+		<div class="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+			<div class="card p-4"><p class="text-xs text-stone-500">Saldo Awal</p><p class="mt-1 text-xl font-semibold tabular-nums">{num(tot.open)}</p></div>
+			<div class="card p-4"><p class="text-xs text-stone-500">Masuk</p><p class="mt-1 text-xl font-semibold text-emerald-600 tabular-nums">+{num(tot.in)}</p></div>
+			<div class="card p-4"><p class="text-xs text-stone-500">Keluar</p><p class="mt-1 text-xl font-semibold text-rose-600 tabular-nums">-{num(tot.out)}</p></div>
+			<div class="card p-4"><p class="text-xs text-stone-500">Nilai Persediaan</p><p class="mt-1 text-base font-semibold tabular-nums sm:text-xl">Rp {money(tot.value)}</p></div>
+		</div>
 
-	<div class="card overflow-clip">
-		<DataTable rows={data} {columns} bind:query {card} rowKey={(r) => r.item.id} searchPlaceholder="Cari item…" exportName="Mutasi Stok {location} {from} sd {to}" onrow={openCard} />
-	</div>
-	<p class="no-print mt-2 text-xs text-stone-400">Klik baris untuk membuka kartu stok. Angka akhir berwarna kuning = di bawah stok minimum.</p>
-</ReportShell>
+		<div class="card overflow-clip">
+			<DataTable rows={data} {columns} bind:query {card} rowKey={(r) => r.item.id} searchPlaceholder="Cari item…" exportName="Mutasi Stok {location} {from} sd {to}" onrow={openCard} />
+		</div>
+		<p class="no-print mt-2 text-xs text-stone-400">Klik baris untuk membuka kartu stok. Angka akhir berwarna kuning = di bawah stok minimum.</p>
+	</ReportShell>
+{/if}

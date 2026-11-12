@@ -11,6 +11,7 @@
 		data,
 		per,
 		channel,
+		payment,
 		channelName,
 		category,
 		color
@@ -19,6 +20,7 @@
 		data: Sales;
 		per: { from: string; to: string; prevFrom: string; prevTo: string; prevLabel: string };
 		channel: string;
+		payment: string;
 		channelName: string;
 		/** filter kategori di dashboard; kosong = semua kategori */
 		category: string;
@@ -29,15 +31,15 @@
 	let openCat = $state('');
 
 	const cats = $derived(category ? [category] : data.categories);
-	const all = $derived(data.pick(per.from, per.to, channel, category));
+	const all = $derived(data.pick(per.from, per.to, channel, category, payment));
 	const total = $derived(stats(all));
-	const prevTotal = $derived(stats(data.pick(per.prevFrom, per.prevTo, channel, category)));
+	const prevTotal = $derived(stats(data.pick(per.prevFrom, per.prevTo, channel, category, payment)));
 
 	const rows = $derived.by(() => {
 		const out = cats
 			.map((c) => {
-				const st = stats(data.pick(per.from, per.to, channel, c));
-				const ps = stats(data.pick(per.prevFrom, per.prevTo, channel, c));
+				const st = stats(data.pick(per.from, per.to, channel, c, payment));
+				const ps = stats(data.pick(per.prevFrom, per.prevTo, channel, c, payment));
 				return { cat: c, st, growth: pctChange(st.sales, ps.sales) };
 			})
 			.filter((r) => r.st.sales || r.st.qty)
@@ -63,7 +65,7 @@
 		return [...m].map(([name, r]) => ({ name, ...r })).sort((a, b) => b[measure] - a[measure]).slice(0, 5);
 	}
 
-	const subtitle = $derived(`${fdate(per.from)} – ${fdate(per.to)} · ${channel ? channelName : 'Semua toko'}`);
+	const subtitle = $derived(`${fdate(per.from)} – ${fdate(per.to)} · ${channel ? channelName : 'Semua customer'}${payment ? ` · ${payment.trim() || '(kosong)'}` : ''}`);
 </script>
 
 <Sheet bind:open title="Total Penjualan per Kategori" {subtitle} size="lg" onclose={() => (openCat = '')}>

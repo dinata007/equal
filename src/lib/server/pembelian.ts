@@ -29,14 +29,15 @@ async function run(from: string, to: string, scope: string[] | null): Promise<Pe
 	const r = await req.query(`
 		SET NOCOUNT ON;
 		DECLARE @f date = CAST(@pf AS date), @t date = DATEADD(DAY, 1, CAST(@pt AS date));
-		SELECT CONVERT(char(10), g.tgl, 23) d, ISNULL(RTRIM(p.grup), '-') cat, SUM(l.qty) qty,
+		SELECT CONVERT(char(10), g.tgl, 23) d, ISNULL(RTRIM(d.nama), '-') cat, SUM(l.qty) qty,
 		       SUM(ISNULL(l.total * g.total / NULLIF(s.sum_total, 0), l.total)) nilai
 		FROM T_GUDANG1 g
 		JOIN T_GUDANG2 l ON l.bukti = g.bukti
 		JOIN (SELECT bukti, SUM(total) sum_total FROM T_GUDANG2 GROUP BY bukti) s ON s.bukti = g.bukti
-		LEFT JOIN View_produk p ON p.produk_id = l.produk_id
+		LEFT JOIN M_PRODUK p ON p.produk_id = l.produk_id
+		LEFT JOIN M_PRODUK_DEPT d ON d.grup_dept = p.grup_dept
 		WHERE g.status = 'IN' AND g.tipe_trans = 'TERIMA' AND g.total > 0 AND g.tgl >= @f AND g.tgl < @t AND ${brand}
-		GROUP BY CONVERT(char(10), g.tgl, 23), ISNULL(RTRIM(p.grup), '-');`);
+		GROUP BY CONVERT(char(10), g.tgl, 23), ISNULL(RTRIM(d.nama), '-');`);
 	return {
 		at: new Date().toISOString(),
 		rows: (r.recordset as Record<string, any>[]).map((x) => [x.d, x.cat, +x.qty || 0, Math.round(+x.nilai || 0)] as PembelianData['rows'][number])

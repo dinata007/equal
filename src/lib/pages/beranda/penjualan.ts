@@ -5,8 +5,6 @@
 import { api } from '#lib/util/api.ts';
 import { addDays } from '#lib/util/format.ts';
 
-export const GROSIR = 'GROSIR';
-
 export interface Channel {
 	id: string;
 	name: string;
@@ -17,6 +15,7 @@ export interface Sale {
 	ch: string;
 	cat: string;
 	item: string;
+	payment: string;
 	qty: number;
 	amount: number;
 }
@@ -24,13 +23,15 @@ interface Docs {
 	date: string;
 	ch: string;
 	cat: string;
+	payment: string;
 	n: number;
 }
 interface Raw {
 	at: string;
 	channels: Channel[];
-	rows: [string, string, string, string, number, number][];
-	docs: [string, string, string, number][];
+	customers: Channel[];
+	rows: [string, string, string, string, string, number, number][];
+	docs: [string, string, string, string, number][];
 }
 
 export class Sales {
@@ -39,6 +40,8 @@ export class Sales {
 	readonly from: string;
 	readonly to: string;
 	readonly channels: Channel[];
+	readonly customers: Channel[];
+	readonly payments: string[];
 	/** kategori urut tetap (warna mengikuti entitas, bukan peringkat) */
 	readonly categories: string[];
 	private rows = new Map<string, Sale[]>();
@@ -48,13 +51,17 @@ export class Sales {
 		this.at = new Date(raw.at);
 		this.from = from;
 		this.to = to;
-		this.channels = [...raw.channels].sort((a, b) => (a.id === GROSIR ? -1 : b.id === GROSIR ? 1 : a.name.localeCompare(b.name)));
+		this.channels = [...raw.channels].sort((a, b) => a.name.localeCompare(b.name));
+		this.customers = [...raw.customers].sort((a, b) => a.name.localeCompare(b.name));
 		const total = new Map<string, number>();
-		for (const [date, ch, cat, item, qty, amount] of raw.rows) {
-			(this.rows.get(date) ?? this.rows.set(date, []).get(date)!).push({ date, ch, cat, item, qty, amount });
+		const payments = new Set<string>(['BOOKING']);
+		for (const [date, ch, cat, item, payment, qty, amount] of raw.rows) {
+			(this.rows.get(date) ?? this.rows.set(date, []).get(date)!).push({ date, ch, cat, item, payment, qty, amount });
+			payments.add(payment);
 			total.set(cat, (total.get(cat) ?? 0) + amount);
 		}
-		for (const [date, ch, cat, n] of raw.docs) (this.docs.get(date) ?? this.docs.set(date, []).get(date)!).push({ date, ch, cat, n });
+		for (const [date, ch, cat, payment, n] of raw.docs) (this.docs.get(date) ?? this.docs.set(date, []).get(date)!).push({ date, ch, cat, payment, n });
+		this.payments = [...payments].sort((a, b) => a.localeCompare(b));
 		this.categories = [...total].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([k]) => k);
 	}
 
@@ -63,13 +70,13 @@ export class Sales {
 	}
 
 	/** baris & jumlah transaksi dalam rentang [from, to]; `channel`/`category` kosong = semua */
-	pick(from: string, to: string, channel = '', category = ''): Slice {
+	pick(from: string, to: string, channel = '', category = '', payment = ''): Slice {
 		const rows: Sale[] = [];
 		let trx = 0;
 		for (let d = from; d <= to; d = addDays(d, 1)) {
-			for (const r of this.rows.get(d) ?? []) if ((!channel || r.ch === channel) && (!category || r.cat === category)) rows.push(r);
+			for (const r of this.rows.get(d) ?? []) if ((!channel || r.ch === channel) && (!category || r.cat === category) && (!payment || r.payment === payment)) rows.push(r);
 			// transaksi berbeda: bila kategori dipilih, hitung per kategori itu; bila tidak, per dokumen utuh
-			for (const x of this.docs.get(d) ?? []) if (x.cat === category && (!channel || x.ch === channel)) trx += x.n;
+			for (const x of this.docs.get(d) ?? []) if (x.cat === category && (!channel || x.ch === channel) && (!payment || x.payment === payment)) trx += x.n;
 		}
 		return { rows, trx };
 	}
@@ -106,8 +113,8 @@ export const pctChange = (cur: number, prev: number) => (prev ? ((cur - prev) / 
 
 /* ---------------- muat ---------------- */
 
-/** panjang rentang terpanjang yang boleh dipilih (hari); server menerima maks. 400 hari termasuk pembandingnya */
-export const MAX_DAYS = 400;
+/** rentang + periode pembanding dikirim sekaligus; API penjualan mengizinkan hingga 600 hari */
+export const MAX_DAYS = 300;
 /** data terlama di database lama */
 export const MIN_DATE = '2020-07-01';
 

@@ -49,7 +49,7 @@
 			['7 hari terakhir', addDays(T, -6), T],
 			['30 hari terakhir', addDays(T, -29), T],
 			['90 hari terakhir', addDays(T, -89), T],
-			['400 hari terakhir', addDays(T, -399), T],
+			['300 hari terakhir', addDays(T, -299), T],
 			['Bulan ini', monthStart(T), T],
 			['Bulan lalu', monthStart(lastMonthEnd), lastMonthEnd]
 		];
