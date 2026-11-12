@@ -53,15 +53,12 @@ Butuh **Node.js 22** atau lebih baru.
 6. Source PowerBuilder (`legacy/powerbuilder/*.pbl`, tidak ikut git): `npm run legacy:extract` menulis source teks (.srw/.srd/…) ke `legacy/src/` untuk dibaca saat memetakan master/transaksi.
 7. Produksi: `npm run build` lalu `npm start` (membaca `.env` bila ada). Server Windows (senja.co.id): `npm run deploy:pack` membuat `deploy/senja-deploy-<tanggal>.zip` (build + node_modules runtime + `.env` + Caddy untuk HTTPS), lalu di server jalankan `pasang.ps1` — lihat `deploy/BACA-DULU.txt`. Gunakan HTTPS di produksi agar cookie sesi hanya dikirim lewat koneksi aman. Bila dipasang di balik reverse proxy (IIS/nginx), set `ADDRESS_HEADER=X-Forwarded-For` (dan `XFF_DEPTH`) agar batas percobaan login memakai IP asli pengguna, bukan IP proxy.
 
-### Deploy otomatis ke Windows Server via GitHub Actions
+### Deploy otomatis ke Windows Server
 
-1. Pasang **Self-hosted runner** Windows di server target (`runs-on: [self-hosted, windows, x64]`). Ikuti instruksi GitHub: **Settings → Actions → Runners → New self-hosted runner**.
-2. Tambahkan repo secrets berikut di GitHub: `DB_SERVER`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_DOMAIN`, `APP_DOMAIN`, `APP_PORT`, `WINDOWS_APP_DIR`.
-3. `WINDOWS_APP_DIR` adalah folder aplikasi yang sudah ada di server, misalnya `D:\Web\Senja` (default workflow juga memakai `D:\Web\Senja` bila secret tidak diisi).
-4. Setelah runner aktif, setiap push ke `main` otomatis menjalankan workflow `.github/workflows/deploy-windows-server.yml`, membangun paket deploy, lalu memanggil `pasang.ps1 -Update -Zip ...` di server target.
-5. Untuk deploy manual: buka **Actions → Deploy to Windows Server → Run workflow**.
+Repo produksi adalah [`dinata007/equal`](https://github.com/dinata007/equal), branch `main`.
+Workflow `.github/workflows/deploy.yml` membuat artifact `senja-deploy` pada setiap push ke `main`. Server Windows dapat memeriksa artifact terbaru tiap 5 menit melalui `deploy/otomatis.ps1`; tidak diperlukan self-hosted runner. Paket GitHub tidak berisi `.env`, jadi kredensial database tetap hanya tersimpan di server.
 
-Workflow ini aman karena `.env` dibuat dari GitHub Secrets saat build, dan paket deploy dipindahkan ke server oleh runner Windows itu sendiri. Jangan pernah commit file `.env` ke repo.
+Untuk instalasi pertama, unduh artifact dari **Actions → Deploy**, ekstrak paket deploy ke folder server, buat `.env` server dengan koneksi database, lalu jalankan `pasang.ps1` sebagai Administrator. Setelah aplikasi aktif, jalankan `pasang.ps1 -Otomatis` dan masukkan fine-grained GitHub token dengan permission **Actions: Read-only** untuk repo tersebut. Lihat langkah lengkap, domain, log, dan pemulihan di [deploy/BACA-DULU.txt](deploy/BACA-DULU.txt). Workflow `Deploy to Windows Server` hanya manual dan bukan jalur update otomatis yang direkomendasikan.
 
 **Keamanan login:** password di-hash scrypt (tidak bisa dikembalikan ke teks asli); 5× salah password → akun dikunci 15 menit, plus batas 50 login gagal per IP per 15 menit; sesi berakhir setelah 12 jam tidak dipakai atau maksimal 7 hari; ganti password / nonaktifkan akun langsung mencabut sesi di perangkat lain; semua kejadian penting tercatat di `dbo.AppAuditLog`.
 

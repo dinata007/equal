@@ -40,7 +40,7 @@ param(
 	[switch]$Otomatis,
 	# hapus Senja-update & token
 	[switch]$OtomatisMati,
-	[string]$Repo = 'dinata007/senja'
+	[string]$Repo = 'dinata007/equal'
 )
 $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12

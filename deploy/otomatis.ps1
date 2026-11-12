@@ -11,7 +11,7 @@
   Log: logs\otomatis.log.  Coba lagi commit yang gagal: powershell -ExecutionPolicy Bypass -File .\otomatis.ps1 -Paksa
 #>
 param(
-	[string]$Repo = 'dinata007/senja',
+	[string]$Repo = 'dinata007/equal',
 	# pasang juga commit yang sebelumnya gagal
 	[switch]$Paksa
 )

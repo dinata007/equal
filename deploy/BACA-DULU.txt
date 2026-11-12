@@ -49,17 +49,23 @@ Update ke versi baru
     2. Ekstrak zip versi baru ke folder yang sama (timpa semua)
     3. powershell -ExecutionPolicy Bypass -File .\pasang.ps1
 
-Update otomatis tiap merge ke main (GitHub Actions + otomatis.ps1)
-  Tiap commit di main, GitHub Actions (.github/workflows/deploy.yml) membuat paket tanpa .env (artifact "senja-deploy").
+Update otomatis tiap push ke main (GitHub Actions + otomatis.ps1)
+  Repo produksi: https://github.com/dinata007/equal (branch main).
+  Tiap push ke main, GitHub Actions (.github/workflows/deploy.yml) membuat paket tanpa .env (artifact "senja-deploy").
   Server mengecek tiap 5 menit (Scheduled Task Senja-update): ada commit baru -> unduh paket -> update seperti update.bat
   (migrasi, cek aplikasi, kembali ke versi sebelumnya bila gagal). Commit yang gagal tidak dicoba lagi sampai ada commit baru.
-  Aktifkan sekali (server harus sudah memakai paket yang berisi otomatis.ps1):
-    1. Token GitHub classic dengan scope "repo" dari akun yang bisa membuka repo dinata007/senja
-       (github.com -> Settings -> Developer settings -> Personal access tokens -> Tokens (classic))
+  Pertama kali: push perubahan deploy ke main, lalu unduh artifact "senja-deploy" dari Actions → workflow "Deploy".
+  Extract artifact ZIP untuk mendapat senja-deploy-*.zip, lalu ekstrak ZIP itu ke folder aplikasi.
+  Buat .env di folder itu dengan DB_SERVER, DB_NAME, DB_USER, DB_PASSWORD (jangan kirim/commit file ini).
+  Jalankan pasang.ps1 sebagai Administrator dengan domain Anda, misalnya:
+       powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -Domain senja.co.id
+  Setelah aplikasi terpasang dan bisa dibuka:
+    1. Buat fine-grained Personal Access Token dengan akses ke repo dinata007/equal dan permission Actions: Read-only.
+       Token diperlukan server untuk membaca workflow run dan mengunduh artifact. Jangan gunakan token write/admin.
     2. PowerShell Administrator:
          cd D:\Senja
          powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -Otomatis
-       lalu tempel token. Token disimpan terenkripsi di C:\ProgramData\Senja\github-token.bin.
+       lalu tempel token (tidak tampil di layar). Token disimpan terenkripsi di C:\ProgramData\Senja\github-token.bin.
   Log                 Get-Content D:\Senja\logs\otomatis.log -Tail 50
                       (hanya ditulis saat ada versi baru atau error; kosong/belum ada = belum ada update, normal)
   Pantau langsung     Get-Content D:\Senja\logs\otomatis.log -Wait   (Ctrl+C untuk berhenti)
@@ -69,6 +75,9 @@ Update otomatis tiap merge ke main (GitHub Actions + otomatis.ps1)
   Ulangi commit gagal powershell -ExecutionPolicy Bypass -File .\otomatis.ps1 -Paksa
   Ganti token         jalankan -Otomatis lagi
   Matikan             powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -OtomatisMati
+
+  Untuk deploy otomatis gunakan workflow "Deploy" (membuat artifact) dan polling server di atas.
+  Workflow "Deploy to Windows Server" hanya tersedia untuk Run workflow manual; tidak berjalan setiap push.
 
 Hentikan aplikasi: klik dua kali berhenti.bat.
 Menyalakan lagi tanpa versi baru: powershell -ExecutionPolicy Bypass -File .\pasang.ps1  (Administrator)
