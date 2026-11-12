@@ -61,7 +61,8 @@
 		{#each entries.slice(0, 200) as e (e.docId)}
 			<div class="card overflow-hidden">
 				<div class="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-stone-100 bg-stone-50/60 px-4 py-2.5 dark:border-stone-800 dark:bg-stone-800/30">
-					<a href="{e.path}?id={e.docId}" class="font-mono text-xs font-semibold text-brand-600 hover:underline">{e.no}</a>
+					{#if e.path}<a href="{e.path}?id={e.docId}" class="font-mono text-xs font-semibold text-brand-600 hover:underline">{e.no}</a>
+					{:else}<span class="font-mono text-xs font-semibold">{e.no}</span>{/if}
 					<span class="text-xs text-stone-500">{fdate(e.date)}</span>
 					<span class="badge bg-stone-200/70 text-stone-600 dark:bg-stone-700 dark:text-stone-300">{e.label}</span>
 					{#if e.memo}<span class="w-full truncate text-xs text-stone-500 sm:w-auto">{e.memo}</span>{/if}

@@ -15,6 +15,8 @@
 	import { fly } from 'svelte/transition';
 	import { page } from '$app/state';
 	import { auth } from '#lib/state/auth.svelte.ts';
+	import { appearance } from '#lib/state/appearance.svelte.ts';
+	import { TEXT_SIZES } from '#lib/domain/prefs.ts';
 	import { num } from '#lib/util/format.ts';
 	import type { ExportTable } from '#lib/util/export.ts';
 	import ExportMenu from './ExportMenu.svelte';
@@ -44,7 +46,8 @@
 		rowKey,
 		bulk = [],
 		selectable = true,
-		exportName
+		exportName,
+		smallText = false
 	}: {
 		rows: T[];
 		columns: Col<T>[];
@@ -70,6 +73,8 @@
 		bulk?: BulkAction<T>[];
 		selectable?: boolean;
 		exportName?: string;
+		/** smaller body text for dense, wide tables */
+		smallText?: boolean;
 	} = $props();
 
 	/* ---------------- preferensi tersimpan per user ---------------- */
@@ -77,6 +82,11 @@
 	const storeKey = `senja:grid:${auth.user?.id ?? 'anon'}:${id ?? page.url.pathname}`;
 	// diingat selama aplikasi terbuka (sessionStorage): pindah menu lalu kembali → tampilan tetap
 	const saved = loadPrefs(storeKey);
+	const initialUiScale = (TEXT_SIZES.find((size) => size.id === appearance.prefs.textSize)?.scale ?? 100) / 100;
+	if (!saved.widthsInRem) {
+		for (const key of Object.keys(saved.widths)) saved.widths[key] /= initialUiScale * 0.9;
+		saved.widthsInRem = true;
+	}
 	const { filters: savedFilters, query: savedQuery, ...savedPrefs } = saved;
 	const prefs = $state(savedPrefs);
 	let filters = $state<Record<string, FilterValue>>(savedFilters);
@@ -98,13 +108,16 @@
 	/** jenis data per kolom (teks/angka/tanggal); null = kolom tanpa filter */
 	const kinds = $derived(Object.fromEntries(columns.map((c) => [c.key, c.filter === false ? null : filterType(c, rows)])) as Record<string, FilterType | null>);
 
-	const wCache = new Map<string, number>();
 	const widths = $derived.by(() => {
+		void appearance.prefs.textSize;
+		const scale = (TEXT_SIZES.find((size) => size.id === appearance.prefs.textSize)?.scale ?? 100) / 100;
+		const fontScale = smallText ? 0.857 : 1;
+		const widthScale = scale * 0.9;
 		const o: Record<string, number> = {};
 		for (const c of visible) {
-			let w = prefs.widths[c.key] ?? c.width ?? wCache.get(c.key);
-			if (w == null && rows.length) wCache.set(c.key, (w = autoWidth(c, rows)));
-			o[c.key] = w ?? 140;
+			const savedWidth = prefs.widths[c.key];
+			const width = savedWidth != null ? savedWidth * widthScale : c.width != null ? c.width * widthScale : rows.length ? autoWidth(c, rows, 400, fontScale) : 140 * widthScale * fontScale;
+			o[c.key] = width;
 		}
 		return o;
 	});
@@ -262,7 +275,8 @@
 	const showSel = $derived(selectable && !printing);
 	const selW = $derived(showSel ? SEL_W : 0);
 	const fh = $derived(sumCols.length ? footH : 0);
-	const RH = $derived(measured || (prefs.density === 'compact' ? 34 : 44));
+	const uiScale = $derived((TEXT_SIZES.find((size) => size.id === appearance.prefs.textSize)?.scale ?? 100) / 100);
+	const RH = $derived(measured || (prefs.density === 'compact' ? 30.6 : 39.6) * uiScale);
 	const start = $derived(printing ? 0 : Math.max(0, Math.floor(scrollTop / RH) - OVER));
 	const end = $derived(printing ? filtered.length : Math.min(filtered.length, Math.ceil((scrollTop + viewH) / RH) + OVER));
 	const slice = $derived(filtered.slice(start, end));
@@ -294,7 +308,9 @@
 
 	// tinggi baris sebenarnya (border & font bisa membuat ukuran berbeda dari nominal)
 	$effect(() => {
+		void appearance.prefs.textSize;
 		void prefs.density;
+		measured = 0;
 		if (!slice.length) return;
 		tick().then(() => {
 			const h = tbodyEl?.querySelector('tr[data-row]')?.getBoundingClientRect().height ?? 0;
@@ -434,7 +450,7 @@
 		const x0 = e.clientX;
 		const w0 = widths[c.key];
 		resizing = c.key;
-		const move = (ev: PointerEvent) => (prefs.widths[c.key] = Math.round(Math.min(800, Math.max(56, w0 + ev.clientX - x0))));
+		const move = (ev: PointerEvent) => (prefs.widths[c.key] = Math.round(Math.min(800, Math.max(56, w0 + ev.clientX - x0)) / (uiScale * 0.9)));
 		const up = () => {
 			el.removeEventListener('pointermove', move);
 			el.removeEventListener('pointerup', up);
@@ -583,8 +599,8 @@
 		prefs.order = [];
 		prefs.hidden = [];
 		prefs.widths = {};
+		prefs.widthsInRem = true;
 		prefs.freeze = null;
-		wCache.clear();
 	}
 
 	/** ada yang berbeda dari tampilan bawaan? → tampilkan tombol "kembalikan" */
@@ -593,7 +609,7 @@
 	);
 	function resetAll() {
 		Object.assign(prefs, blankPrefs());
-		wCache.clear();
+		prefs.widthsInRem = true;
 		filters = {};
 		query = '';
 	}
@@ -753,7 +769,7 @@
 			onkeydown={onGridKey}
 			onfocus={(e) => e.target === scroller && activeIdx < 0 && (activeIdx = firstVis - 1)}
 		>
-			<table class="dg" role="grid" style="width: max(100%, {tableW}px); --rh: {prefs.density === 'compact' ? 34 : 44}px" aria-rowcount={filtered.length + 1} aria-multiselectable={showSel || undefined}>
+			<table class="dg" class:dg-small={smallText} role="grid" style="width: max(100%, {tableW}px); --rh: {prefs.density === 'compact' ? 1.9125 : 2.475}rem" aria-rowcount={filtered.length + 1} aria-multiselectable={showSel || undefined}>
 				<colgroup>
 					{#if showSel}<col style="width: {SEL_W}px" />{/if}
 					{#each visible as c (c.key)}<col style="width: {widths[c.key]}px" />{/each}
@@ -809,7 +825,7 @@
 									</button>
 								</div>
 								<!-- svelte-ignore a11y_no_static_element_interactions -->
-								<span class="dg-resize {resizing === c.key ? 'is-on' : ''}" onpointerdown={(e) => startResize(e, c)} ondblclick={() => (prefs.widths[c.key] = fitWidth(c, filtered))}></span>
+								<span class="dg-resize {resizing === c.key ? 'is-on' : ''}" onpointerdown={(e) => startResize(e, c)} ondblclick={() => (prefs.widths[c.key] = fitWidth(c, filtered, smallText ? 0.857 : 1) / (uiScale * 0.9))}></span>
 							</th>
 						{/each}
 						<th class="dg-fill" aria-hidden="true"></th>

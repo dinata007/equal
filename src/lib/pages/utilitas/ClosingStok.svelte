@@ -33,7 +33,7 @@
 
 	// dokumen draft di periode yang akan ditutup
 	const drafts = $derived(
-		TX.filter((t) => t.def.closingScope === scope).flatMap((t) =>
+		TX.filter((t) => t.path && t.def.closingScope === scope).flatMap((t) =>
 			db
 				.all<Doc>(t.def.table)
 				.filter((d) => d.status === 'draft' && d.date >= nextPeriod + '-01' && d.date <= nextEnd)

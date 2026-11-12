@@ -263,7 +263,7 @@
 								disabled={!editable}
 								onchange={(v) => applySource(v ? String(v) : '')}
 							/>
-							{#if doc.sourceId && sourceMeta}
+							{#if doc.sourceId && sourceMeta?.path}
 								<a class="mt-1 inline-block text-xs text-brand-600 hover:underline" href="{sourceMeta.path}?id={doc.sourceId}">Lihat dokumen sumber →</a>
 							{/if}
 						</div>

@@ -278,6 +278,7 @@ export const storeSale: TxDef = {
 	kind: 'transaction',
 	table: 'store_sales',
 	prefix: 'POS',
+	listLayout: 'sales-lines',
 	party: { field: 'storeId', ref: 'stores', label: 'Toko' },
 	header: [
 		storeField(),
@@ -285,7 +286,25 @@ export const storeSale: TxDef = {
 		{ key: 'payment', label: 'Pembayaran', type: 'select', options: ['Tunai', 'Debit', 'Kartu Kredit', 'QRIS', 'Transfer'], default: 'Tunai', required: true },
 		{ key: 'bankId', label: 'Bank / EDC', type: 'lookup', ref: 'banks', showIf: (f) => f.payment && f.payment !== 'Tunai' }
 	],
-	lines: priced('products', 'sellPrice', 'Produk'),
+	lines: {
+		itemTable: 'products',
+		itemLabel: 'Artikel',
+		fields: [
+			itemCol('Artikel'),
+			unitCol,
+			qtyCol,
+			{ key: 'price', label: 'Harga Grosir', type: 'money', width: 'min-w-32' },
+			{ key: 'subtotal', label: 'Sub Total', type: 'computed', format: 'money', compute: (l) => (Number(l.qty) || 0) * (Number(l.price) || 0), width: 'min-w-36' },
+			{ key: 'disc', label: 'Disc (%)', type: 'number', width: 'min-w-20' },
+			{ key: 'disc_rp', label: 'Disc (Rp)', type: 'computed', format: 'money', compute: (l) => ((Number(l.qty) || 0) * (Number(l.price) || 0) * (Number(l.disc) || 0)) / 100, width: 'min-w-36' },
+			{ key: 'amount', label: 'Total', type: 'computed', format: 'money', compute: (l) => amount(l), width: 'min-w-36' }
+		],
+		amount,
+		onItem: (l, it) => {
+			l.unit = it.unit;
+			l.price = it.sellPrice ?? 0;
+		}
+	},
 	totals: { discount: true },
 	stock: { itemTable: 'products', loc: (d) => 'TOKO:' + d.storeId, qty: (l) => -l.qty },
 	cash: { kasbank: posKasbank, sign: 1 },
@@ -523,4 +542,3 @@ export const leave: TxDef = {
 	postLabel: 'Setujui',
 	statusLabels: { draft: 'Diajukan', posted: 'Disetujui', void: 'Ditolak' }
 };
-

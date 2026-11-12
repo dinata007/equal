@@ -31,13 +31,11 @@ import {
 	PackageCheck,
 	PackageMinus,
 	PackagePlus,
-	Receipt,
 	Scale,
 	Settings,
 	ShoppingCart,
 	Store,
 	Tags,
-	TrendingUp,
 	Truck,
 	Undo2,
 	UserCheck,
@@ -119,17 +117,6 @@ export const MENU: MenuNode[] = [
 		]
 	},
 	{
-		slug: 'sales',
-		label: 'Sales',
-		icon: TrendingUp,
-		description: 'Penjualan & analisa',
-		children: [
-			{ slug: 'master', label: 'Master', children: [{ slug: 'toko', label: 'Toko', icon: Store, page: M.store }] },
-			{ slug: 'transaksi', label: 'Transaksi', children: [{ slug: 'penjualan', label: 'Penjualan', icon: Receipt, page: T.salesOrder }] },
-			{ slug: 'report', label: 'Report', children: [{ slug: 'analisa-penjualan', label: 'Analisa Penjualan', icon: ChartColumn, page: R('analisa-penjualan') }] }
-		]
-	},
-	{
 		slug: 'toko',
 		label: 'Toko',
 		icon: Store,
@@ -139,6 +126,7 @@ export const MENU: MenuNode[] = [
 				slug: 'master',
 				label: 'Master',
 				children: [
+					{ slug: 'toko', label: 'Toko', icon: Store, page: M.store },
 					{ slug: 'customer', label: 'Customer', icon: Users, page: M.customer },
 					{ slug: 'bank', label: 'Bank', icon: CreditCard, page: M.bank }
 				]
@@ -344,7 +332,7 @@ export function chain(path: string): MenuNode[] {
 /** Semua definisi transaksi beserta path & labelnya (untuk ledger stok/AR/AP/kas/jurnal) */
 export const TX: { def: TxDef; path: string; label: string }[] = LEAVES.filter((l) => l.page.kind === 'transaction').map(
 	(l) => ({ def: l.page as TxDef, path: l.path, label: l.label })
-);
+).concat({ def: T.salesOrder, path: '', label: 'Penjualan Grosir (Legacy)' });
 export const txByTable = (table: string) => TX.find((t) => t.def.table === table);
 
 /** Filter pohon menu berdasarkan izin view */

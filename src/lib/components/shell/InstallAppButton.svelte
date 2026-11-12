@@ -123,7 +123,7 @@
 		border-radius: 9999px;
 		background: var(--color-brand-500);
 		color: #fff;
-		font-size: 0.75rem;
+		font-size: var(--text-xs);
 		font-weight: 600;
 	}
 </style>

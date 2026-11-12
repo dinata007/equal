@@ -86,7 +86,7 @@ export const RESOURCES: Record<string, Resource> = {
 	},
 	toko: {
 		def: M.store,
-		menu: '/sales/master/toko',
+		menu: '/toko/master/toko',
 		table: 'dbo.M_TOKO',
 		keys: ['toko_id'],
 		brand: { column: 'brand_id', open: true },

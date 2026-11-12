@@ -294,7 +294,7 @@
 						<label class="choice flex-1 cursor-pointer sm:flex-none">
 							<input type="radio" name="textsize" class="sr-only" checked={p.textSize === s.id} onchange={() => appearance.set({ textSize: s.id })} />
 							<span class="flex h-10 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-medium transition sm:px-4 {p.textSize === s.id ? 'bg-white text-stone-900 shadow-sm dark:bg-stone-700 dark:text-white' : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'}">
-								<span class="font-semibold" style="font-size: {12 + i * 2}px">A</span><span class="hidden sm:inline">{s.label}</span>
+								<span class="font-semibold" style="font-size: {(12 + i * 2) * 0.9}px">A</span><span class="hidden sm:inline">{s.label}</span>
 							</span>
 						</label>
 					{/each}
@@ -505,7 +505,7 @@
 		border-radius: 9999px;
 		background: var(--color-brand-500);
 		color: #fff;
-		font-size: 0.75rem;
+		font-size: var(--text-xs);
 		font-weight: 600;
 	}
 	/* sampul profil: gradasi lembut warna brand */

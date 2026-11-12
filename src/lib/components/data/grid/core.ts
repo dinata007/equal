@@ -258,26 +258,26 @@ const remScale = () => parseFloat(getComputedStyle(document.documentElement).fon
 const FONT = '"Source Sans 3", system-ui, sans-serif';
 
 /** judul: teks + padding, ikon urut + nomor urut ganda, tombol filter */
-function headWidth(label: string, k: number) {
-	return measure(label.toUpperCase(), `600 ${12 * k}px ${FONT}`) + label.length * 0.3 * k + 80 * k;
+function headWidth(label: string, k: number, fontScale = 1) {
+	return measure(label.toUpperCase(), `600 ${10.8 * k * fontScale}px ${FONT}`) + label.length * 0.27 * k * fontScale + 72 * k;
 }
-const bodyWidth = (s: string, k: number, cell: boolean) => measure(s, `400 ${14 * k}px ${FONT}`) + (26 + (cell ? 18 : 0)) * k + 4;
+const bodyWidth = (s: string, k: number, cell: boolean, fontScale = 1) => measure(s, `400 ${12.6 * k * fontScale}px ${FONT}`) + (23.6 + (cell ? 16.2 : 0)) * k + 3.6;
 
 /** lebar kolom dari isi (persentil 95 agar satu nilai panjang tidak melebarkan kolom) */
-export function autoWidth<T>(c: Col<T>, rows: T[], limit = 400): number {
+export function autoWidth<T>(c: Col<T>, rows: T[], limit = 400, fontScale = 1): number {
 	const k = remScale();
 	const ws: number[] = [];
 	const step = Math.max(1, Math.floor(rows.length / limit));
-	for (let i = 0; i < rows.length; i += step) ws.push(bodyWidth(text(c, rows[i]), k, !!c.cell));
+	for (let i = 0; i < rows.length; i += step) ws.push(bodyWidth(text(c, rows[i]), k, !!c.cell, fontScale));
 	ws.sort((a, b) => a - b);
-	return Math.round(Math.min(380 * k, Math.max(72 * k, headWidth(c.label, k), ws[Math.floor(ws.length * 0.95)] ?? 0)));
+	return Math.round(Math.min(342 * k * fontScale, Math.max(64.8 * k * fontScale, headWidth(c.label, k, fontScale), ws[Math.floor(ws.length * 0.95)] ?? 0)));
 }
 /** lebar pas untuk semua isi (klik ganda pada garis batas kolom) */
-export function fitWidth<T>(c: Col<T>, rows: T[]): number {
+export function fitWidth<T>(c: Col<T>, rows: T[], fontScale = 1): number {
 	const k = remScale();
-	let w = headWidth(c.label, k);
-	for (const r of rows.slice(0, 5000)) w = Math.max(w, bodyWidth(text(c, r), k, !!c.cell));
-	return Math.round(Math.min(640 * k, Math.max(64, w)));
+	let w = headWidth(c.label, k, fontScale);
+	for (const r of rows.slice(0, 5000)) w = Math.max(w, bodyWidth(text(c, r), k, !!c.cell, fontScale));
+	return Math.round(Math.min(576 * k * fontScale, Math.max(58 * k * fontScale, w)));
 }
 
 /* ---------------- preferensi tersimpan ---------------- */
@@ -286,6 +286,7 @@ export interface GridPrefs {
 	order: string[];
 	hidden: string[];
 	widths: Record<string, number>;
+	widthsInRem?: boolean;
 	density: Density;
 	/** null = belum pernah diatur → pakai urutan awal halaman */
 	sort: SortKey[] | null;

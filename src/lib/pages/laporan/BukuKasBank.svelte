@@ -82,7 +82,10 @@
 				{#each rows as r, i (r.docId + i)}
 					<tr>
 						<td class="whitespace-nowrap">{fdate(r.date)}</td>
-						<td><a class="font-mono text-xs font-semibold whitespace-nowrap text-brand-600 hover:underline" href="{r.path}?id={r.docId}">{r.no}</a></td>
+						<td>
+							{#if r.path}<a class="font-mono text-xs font-semibold whitespace-nowrap text-brand-600 hover:underline" href="{r.path}?id={r.docId}">{r.no}</a>
+							{:else}<span class="font-mono text-xs font-semibold whitespace-nowrap">{r.no}</span>{/if}
+						</td>
 						<td class="max-w-72 truncate text-stone-600 dark:text-stone-400">{r.memo}</td>
 						<td class="num text-emerald-600">{r.in ? money(r.in) : ''}</td>
 						<td class="num text-rose-600">{r.out ? money(r.out) : ''}</td>
@@ -99,7 +102,7 @@
 			<li class="flex justify-between bg-stone-50 px-4 py-2.5 text-sm dark:bg-stone-800/40"><span class="text-stone-500">Saldo awal</span><span class="font-semibold tabular-nums">{money(opening)}</span></li>
 			{#each rows as r, i (r.docId + i)}
 				<li>
-					<a href="{r.path}?id={r.docId}" class="flex items-center gap-3 px-4 py-3 focus-visible:-outline-offset-2">
+					<svelte:element this={r.path ? 'a' : 'div'} href={r.path ? `${r.path}?id=${r.docId}` : undefined} class="flex items-center gap-3 px-4 py-3 focus-visible:-outline-offset-2">
 						<div class="min-w-0 flex-1">
 							<p class="truncate font-mono text-xs font-semibold">{r.no}</p>
 							<p class="truncate text-xs text-stone-500">{fdate(r.date)}{r.memo ? ' · ' + r.memo : ''}</p>
@@ -108,7 +111,7 @@
 							<p class="text-sm font-semibold tabular-nums {r.in ? 'text-emerald-600' : 'text-rose-600'}">{r.in ? '+' + money(r.in) : '-' + money(r.out)}</p>
 							<p class="text-[11px] text-stone-400 tabular-nums">saldo {money(r.bal)}</p>
 						</div>
-					</a>
+					</svelte:element>
 				</li>
 			{:else}
 				<li class="py-10 text-center text-sm text-stone-400">Tidak ada transaksi pada periode ini</li>

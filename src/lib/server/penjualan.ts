@@ -107,7 +107,7 @@ async function run(from: string, to: string, scope: string[] | null, brandOverri
 }
 
 export async function penjualan(user: SessionUser, from: unknown, to: unknown, fresh: boolean, brand?: string): Promise<PenjualanData> {
-	if (!user.admin && !user.menus.some((m) => m.startsWith('/sales/') || m.startsWith('/toko/'))) throw new AuthError('Anda tidak punya akses ke data penjualan', 403);
+	if (!user.admin && !user.menus.some((m) => m.startsWith('/toko/'))) throw new AuthError('Anda tidak punya akses ke data penjualan', 403);
 	if (!isDate(from) || !isDate(to) || from > to || (Date.parse(to) - Date.parse(from)) / 864e5 > MAX_SPAN_DAYS) throw new AuthError('Rentang tanggal tidak valid');
 	const scope = brandScope(user);
 	const selectedBrand = brand && brand.trim();

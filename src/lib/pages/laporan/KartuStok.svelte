@@ -73,7 +73,10 @@
 						{#each rows as r, i (r.docId + i)}
 							<tr>
 								<td>{fdate(r.date)}</td>
-								<td><a class="font-mono text-xs font-semibold text-brand-600 hover:underline" href="{r.path}?id={r.docId}">{r.no}</a></td>
+								<td>
+									{#if r.path}<a class="font-mono text-xs font-semibold text-brand-600 hover:underline" href="{r.path}?id={r.docId}">{r.no}</a>
+									{:else}<span class="font-mono text-xs font-semibold">{r.no}</span>{/if}
+								</td>
 								<td class="text-stone-500">{r.label}</td>
 								<td class="num text-emerald-600">{r.qty > 0 ? num(r.qty) : ''}</td>
 								<td class="num text-rose-600">{r.qty < 0 ? num(-r.qty) : ''}</td>
@@ -89,7 +92,7 @@
 				<li class="flex justify-between bg-stone-50 px-4 py-2.5 text-sm dark:bg-stone-800/40"><span class="text-stone-500">Saldo awal</span><span class="font-semibold">{num(opening)}</span></li>
 				{#each rows as r, i (r.docId + i)}
 					<li>
-						<a href="{r.path}?id={r.docId}" class="flex items-center gap-3 px-4 py-3 focus-visible:-outline-offset-2">
+						<svelte:element this={r.path ? 'a' : 'div'} href={r.path ? `${r.path}?id=${r.docId}` : undefined} class="flex items-center gap-3 px-4 py-3 focus-visible:-outline-offset-2">
 							<div class="min-w-0 flex-1">
 								<p class="truncate font-mono text-xs font-semibold">{r.no}</p>
 								<p class="truncate text-xs text-stone-500">{fdate(r.date)} · {r.label}</p>
@@ -98,7 +101,7 @@
 								<p class="text-sm font-semibold tabular-nums {r.qty > 0 ? 'text-emerald-600' : 'text-rose-600'}">{r.qty > 0 ? '+' : ''}{num(r.qty)}</p>
 								<p class="text-[11px] text-stone-400 tabular-nums">saldo {num(r.bal)}</p>
 							</div>
-						</a>
+						</svelte:element>
 					</li>
 				{:else}
 					<li class="py-10 text-center text-sm text-stone-400">Tidak ada mutasi</li>

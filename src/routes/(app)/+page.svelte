@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { BadgeDollarSign, ChartLine, ChevronRight, Plus, ReceiptText, RotateCcw, Sparkles, TrendingDown, TrendingUp } from '@lucide/svelte';
+	import { BadgeDollarSign, ChevronRight, Plus, ReceiptText, RotateCcw, Sparkles, TrendingDown, TrendingUp } from '@lucide/svelte';
 	import KategoriSheet from '#lib/pages/beranda/KategoriSheet.svelte';
 	import StokKategoriSheet from '#lib/pages/beranda/StokKategoriSheet.svelte';
 	import { MAX_DAYS, MIN_DATE, buckets, loadSales, pctChange, stats, type Sales } from '#lib/pages/beranda/penjualan.ts';
@@ -9,7 +9,6 @@
 	import { ApiError } from '#lib/util/api.ts';
 	import { addDays, date as fdate, monthStart, money, num, short, today } from '#lib/util/format.ts';
 	import { LEAVES, MENU, visibleTree } from '#lib/domain/menu.ts';
-	import type { CustomPage, ReportPage } from '#lib/domain/types.ts';
 	import Menu from '#lib/components/ui/Menu.svelte';
 	import DateRangePicker from '#lib/components/ui/DateRangePicker.svelte';
 	import Select from '#lib/components/ui/Select.svelte';
@@ -25,9 +24,8 @@
 	const slot = (i: number) => `var(--viz-${(i % 5) + 1})`;
 	const TOP_CUSTOMERS = 7;
 
-	const showSales = $derived(auth.canAny('/sales') || auth.canAny('/toko'));
+	const showSales = $derived(auth.canAny('/toko'));
 	const showStock = $derived(auth.canAny('/inventory'));
-	const leafOf = (component: ReportPage | CustomPage) => LEAVES.find((l) => l.page.kind !== 'transaction' && 'component' in l.page && l.page.component === component && auth.can(l.path));
 
 	/* ---------------- filter (berlaku untuk semua angka penjualan di bawahnya) ---------------- */
 	let from = $state(monthStart(T));
@@ -244,7 +242,6 @@
 
 	const shortcuts = $derived(LEAVES.filter((l) => l.page.kind === 'transaction' && auth.can(l.path, 'create')).map((l) => ({ label: l.label, icon: l.icon, href: `${l.path}?id=new`, section: l.module.label })));
 	const modules = $derived(visibleTree(MENU, (pth) => auth.can(pth)));
-	const analysis = $derived(leafOf('analisa-penjualan'));
 	const filtered = $derived(!!channel || !!category || !!payment);
 	const shortDate = (s: string) => new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(s + 'T00:00:00')).replace(/\./g, '');
 	const periodText = $derived(`${shortDate(per.from)} s/d ${shortDate(per.to)}`);
@@ -302,7 +299,6 @@
 	</div>
 	<div class="flex items-center gap-2">
 		{#if showSales && data}<button class="btn btn-ghost btn-sm" onclick={() => load(true)} disabled={loading}><RotateCcw class="size-3.5 {loading ? 'animate-spin' : ''}" /> Refresh<span class="hidden text-stone-400 sm:inline">· {updatedAt}</span></button>{/if}
-		{#if analysis}<a href={analysis.path} class="btn btn-secondary"><ChartLine class="size-4" /><span class="hidden sm:inline">Analisa Lengkap</span></a>{/if}
 		{#if shortcuts.length}
 			<Menu items={shortcuts}>
 				{#snippet trigger(props)}

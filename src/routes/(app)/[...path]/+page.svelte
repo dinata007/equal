@@ -10,7 +10,6 @@
 	import ModuleOverview from '#lib/pages/ModuleOverview.svelte';
 	import MutasiStok from '#lib/pages/laporan/MutasiStok.svelte';
 	import KartuStok from '#lib/pages/laporan/KartuStok.svelte';
-	import AnalisaPenjualan from '#lib/pages/laporan/AnalisaPenjualan.svelte';
 	import MutasiHutangPiutang from '#lib/pages/laporan/MutasiHutangPiutang.svelte';
 	import KartuHutangPiutang from '#lib/pages/laporan/KartuHutangPiutang.svelte';
 	import BukuKasBank from '#lib/pages/laporan/BukuKasBank.svelte';
@@ -26,7 +25,6 @@
 	const components: Record<ReportPage | CustomPage, Component<any>> = {
 		'mutasi-stok': MutasiStok,
 		'kartu-stok': KartuStok,
-		'analisa-penjualan': AnalisaPenjualan,
 		'mutasi-hutang-piutang': MutasiHutangPiutang,
 		'kartu-hutang-piutang': KartuHutangPiutang,
 		'buku-kas-bank': BukuKasBank,

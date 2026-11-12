@@ -207,6 +207,7 @@ export interface TxDef {
 	kind: 'transaction';
 	table: string;
 	prefix: string;
+	listLayout?: 'sales-lines';
 	header: FieldDef[];
 	lines?: LinesDef;
 	/** kolom pihak utama untuk list */
@@ -236,7 +237,7 @@ export interface TxDef {
  * Halaman laporan & halaman khusus yang dipanggil menu. Kunci = nama file di pages/ (kebab-case);
  * pemetaannya di routes/(app)/[...path]/+page.svelte — bertipe, jadi salah ketik ketahuan saat `npm run check`.
  */
-export type ReportPage = 'mutasi-stok' | 'kartu-stok' | 'analisa-penjualan' | 'mutasi-hutang-piutang' | 'kartu-hutang-piutang' | 'buku-kas-bank' | 'jurnal' | 'absensi';
+export type ReportPage = 'mutasi-stok' | 'kartu-stok' | 'mutasi-hutang-piutang' | 'kartu-hutang-piutang' | 'buku-kas-bank' | 'jurnal' | 'absensi';
 export type CustomPage = 'atribut' | 'pegawai' | 'pengguna' | 'closing-stok';
 
 export interface ReportDef {

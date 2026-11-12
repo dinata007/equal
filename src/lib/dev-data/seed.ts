@@ -323,9 +323,6 @@ export function seed(): Record<string, Row[]> {
 			]);
 	}
 
-	const payments = ['Tunai', 'Tunai', 'Tunai', 'Debit', 'QRIS', 'QRIS', 'Kartu Kredit'];
-	const bankFor: Record<string, string> = { Debit: 'bnk-BNK-01', 'Kartu Kredit': 'bnk-BNK-02', QRIS: 'bnk-BNK-03', Transfer: 'bnk-BNK-04' };
-	const memberOf = (sid: string) => customers.filter((c) => c.storeId === sid);
 	const corporates = customers.filter((c) => c.type === 'Corporate');
 	const shipments: { day: number; d: any }[] = [];
 	const salesOrders: { day: number; d: any }[] = [];
@@ -380,23 +377,6 @@ export function seed(): Record<string, Row[]> {
 		if (day === 18) {
 			doc('store_sale_returns', 'RPJ', date, { storeId: 'store-T01', customerId: 'cus-CUS-0002', refNo: '', reason: 'Ukuran Tidak Sesuai' }, [{ itemId: 'prd-PRD-0001', unit: 'Pcs', qty: 1, price: 99000, disc: 0 }]);
 			add(tok.get('store-T01')!, 'prd-PRD-0001', 1);
-		}
-
-		// penjualan toko harian
-		for (const s of stores) {
-			const st = tok.get(s.id)!;
-			const n = ri(1, new Date(date).getDay() % 6 === 0 ? 6 : 4);
-			for (let i = 0; i < n; i++) {
-				const avail = products.filter((p) => (st.get(p.id) ?? 0) > 0);
-				if (!avail.length) break;
-				const lines = shuffle(avail)
-					.slice(0, ri(1, 3))
-					.map((p) => ({ itemId: p.id, unit: 'Pcs', qty: Math.min(ri(1, 2), st.get(p.id)!), price: p.sellPrice, disc: rnd() < 0.15 ? 10 : 0 }));
-				lines.forEach((l) => add(st, l.itemId, -l.qty));
-				const payment = pick(payments);
-				const cust = rnd() < 0.3 && memberOf(s.id).length ? pick(memberOf(s.id)).id : 'cus-CUS-0001';
-				doc('store_sales', 'POS', date, { storeId: s.id, customerId: cust, payment, bankId: bankFor[payment] ?? '' }, lines);
-			}
 		}
 
 		// penjualan grosir ke corporate

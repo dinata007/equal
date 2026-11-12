@@ -126,12 +126,11 @@ class Database {
 }
 
 /**
- * Bersihkan data lokal versi lama: akun & hak akses kini dikelola di server (dbo.AppUser),
- * jadi tabel users prototipe (berisi password teks biasa) dihapus dari browser.
+ * Bersihkan data lokal lama yang tidak lagi menjadi sumber data aplikasi.
  */
 function migrate(t: Record<string, Row[]>) {
 	let changed = false;
-	for (const k of ['users', 'roles', 'divisions'])
+	for (const k of ['users', 'roles', 'divisions', 'store_sales'])
 		if (k in t) {
 			delete t[k];
 			changed = true;

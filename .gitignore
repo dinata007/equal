@@ -23,7 +23,7 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 #legacy
-/legacy
+/PB
 # Paket deploy (berisi .env) — dibuat npm run deploy:pack
 /deploy/paket
 /deploy/*.zip
