@@ -1,4 +1,6 @@
-# Senja ERP
+# Equal
+
+Turunan dari Senja ERP (repo `dinata007/senja`), di-deploy terpisah ke https://equal.senja.co.id.
 
 ERP modern berbasis **SvelteKit 3 + Svelte 5 (runes) + Tailwind CSS 4**, PWA, mobile-first.
 Tahap saat ini: **prototipe UI/UX** dengan data contoh di browser (localStorage). Tahap berikutnya: koneksi **MSSQL Server**.
@@ -45,20 +47,20 @@ Aplikasi ini akan memakai **database aplikasi lama (PowerBuilder)** apa adanya. 
 
 Butuh **Node.js 22** atau lebih baru.
 
-1. Salin `.env.example` menjadi `.env`, lalu isi `DB_SERVER`, `DB_NAME=SENJA`, `DB_USER`, `DB_PASSWORD`. Password yang mengandung `#` atau spasi harus diapit tanda kutip. File `.env` tidak ikut ke git.
+1. Salin `.env.example` menjadi `.env`, lalu isi `DB_SERVER`, `DB_NAME=EQUAL`, `DB_USER`, `DB_PASSWORD`. Password yang mengandung `#` atau spasi harus diapit tanda kutip. File `.env` tidak ikut ke git.
 2. Siapkan tabel aplikasi web: `npm run db:migrate` (tabel `dbo.App*`; aman diulang). Script ini juga menyalin akun dari `SYS_USER` tanpa password lamanya.
 3. Buat admin pertama: `npm run db:admin` (username & password ditanyakan; password diketik tidak tampil).
 4. Jalankan `npm run dev`, login dengan admin tadi. Di **Pengaturan → Pengguna & Hak Akses**, atur menu & brand tiap pengguna lalu **Buat password sementara** (tampil sekali); pengguna wajib menggantinya saat login pertama. Status koneksi terlihat di **Profil → Server database** atau `http://localhost:5173/api/health`.
 5. Dokumentasikan struktur database: `npm run db:schema` menulis `docs/database/schema.md`, `schema.json`, dan `objects.sql` (definisi view/procedure/trigger). Isi data tidak disertakan, kecuali contoh nilai kolom kode pendek seperti status/flag (matikan dengan `npm run db:schema -- --no-codes`). Periksa `objects.sql` sebelum di-commit.
 6. Source PowerBuilder (`legacy/powerbuilder/*.pbl`, tidak ikut git): `npm run legacy:extract` menulis source teks (.srw/.srd/…) ke `legacy/src/` untuk dibaca saat memetakan master/transaksi.
-7. Produksi: `npm run build` lalu `npm start` (membaca `.env` bila ada). Server Windows (senja.co.id): `npm run deploy:pack` membuat `deploy/senja-deploy-<tanggal>.zip` (build + node_modules runtime + `.env` + Caddy untuk HTTPS), lalu di server jalankan `pasang.ps1` — lihat `deploy/BACA-DULU.txt`. Gunakan HTTPS di produksi agar cookie sesi hanya dikirim lewat koneksi aman. Bila dipasang di balik reverse proxy (IIS/nginx), set `ADDRESS_HEADER=X-Forwarded-For` (dan `XFF_DEPTH`) agar batas percobaan login memakai IP asli pengguna, bukan IP proxy.
+7. Produksi: `npm run build` lalu `npm start` (membaca `.env` bila ada). Server Windows (equal.senja.co.id): `npm run deploy:pack` membuat `deploy/equal-deploy-<tanggal>.zip` (build + node_modules runtime + `.env`), lalu di server jalankan `pasang.ps1` — lihat `deploy/BACA-DULU.txt`. Equal berbagi server dengan Senja: port internal 3002, task `Equal-*`, dan HTTPS lewat Caddy milik Senja (Equal tidak menjalankan Caddy sendiri). Gunakan HTTPS di produksi agar cookie sesi hanya dikirim lewat koneksi aman. Bila dipasang di balik reverse proxy (IIS/nginx), set `ADDRESS_HEADER=X-Forwarded-For` (dan `XFF_DEPTH`) agar batas percobaan login memakai IP asli pengguna, bukan IP proxy.
 
 ### Deploy otomatis ke Windows Server
 
 Repo produksi adalah [`dinata007/equal`](https://github.com/dinata007/equal), branch `main`.
-Workflow `.github/workflows/deploy.yml` membuat artifact `senja-deploy` pada setiap push ke `main`. Server Windows dapat memeriksa artifact terbaru tiap 5 menit melalui `deploy/otomatis.ps1`; tidak diperlukan self-hosted runner. Paket GitHub tidak berisi `.env`, jadi kredensial database tetap hanya tersimpan di server.
+Workflow `.github/workflows/deploy.yml` membuat artifact `equal-deploy` pada setiap push ke `main`. Server Windows dapat memeriksa artifact terbaru tiap 5 menit melalui `deploy/otomatis.ps1`; tidak diperlukan self-hosted runner. Paket GitHub tidak berisi `.env`, jadi kredensial database tetap hanya tersimpan di server.
 
-Untuk instalasi pertama, unduh artifact dari **Actions → Deploy**, ekstrak paket deploy ke folder server, buat `.env` server dengan koneksi database, lalu jalankan `pasang.ps1` sebagai Administrator. Setelah aplikasi aktif, jalankan `pasang.ps1 -Otomatis` dan masukkan fine-grained GitHub token dengan permission **Actions: Read-only** untuk repo tersebut. Lihat langkah lengkap, domain, log, dan pemulihan di [deploy/BACA-DULU.txt](deploy/BACA-DULU.txt). Workflow `Deploy to Windows Server` hanya manual dan bukan jalur update otomatis yang direkomendasikan.
+Untuk instalasi pertama, unduh artifact dari **Actions → Deploy**, ekstrak paket deploy ke folder server, buat `.env` server dengan koneksi database, lalu jalankan `pasang.ps1` sebagai Administrator. Setelah aplikasi aktif, jalankan `pasang.ps1 -Otomatis` dan masukkan fine-grained GitHub token dengan permission **Actions: Read-only** untuk repo tersebut. Lihat langkah lengkap, domain, log, dan pemulihan di [deploy/BACA-DULU.txt](deploy/BACA-DULU.txt).
 
 **Keamanan login:** password di-hash scrypt (tidak bisa dikembalikan ke teks asli); 5× salah password → akun dikunci 15 menit, plus batas 50 login gagal per IP per 15 menit; sesi berakhir setelah 12 jam tidak dipakai atau maksimal 7 hari; ganti password / nonaktifkan akun langsung mencabut sesi di perangkat lain; semua kejadian penting tercatat di `dbo.AppAuditLog`.
 

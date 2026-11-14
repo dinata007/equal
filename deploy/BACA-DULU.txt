@@ -1,98 +1,111 @@
-Senja ERP - paket deploy server Windows
+Equal - paket deploy server Windows
 ============================================
+
+Equal jalan di server yang sama dengan Senja, tetapi terpisah total:
+
+                    Senja                         Equal
+  Domain            senja.co.id (+ www)           equal.senja.co.id
+  Folder            folder Senja                  folder sendiri, mis. D:\Equal
+  Port internal     3001                          3002            (3000 dipakai aplikasi lain)
+  Database          SENJA                         EQUAL
+  Scheduled Task    Senja-app, Senja-https,       Equal-app, Equal-update
+                    Senja-update
+  Data server       C:\ProgramData\Senja          C:\ProgramData\Equal  (token GitHub)
+  Paket             senja-deploy-*.zip            equal-deploy-*.zip
+
+  HTTPS (port 80/443) hanya bisa dipegang satu program, yaitu Caddy milik Senja (task Senja-https).
+  Equal TIDAK menjalankan Caddy sendiri: pasang.ps1 menulis C:\ProgramData\Caddy\sites\equal.caddy
+  (equal.senja.co.id -> 127.0.0.1:3002) lalu me-reload Caddy Senja. Caddyfile Senja memuat file itu lewat
+      import C:/ProgramData/Caddy/sites/*.caddy
+  Baris import itu ditambahkan oleh pasang.ps1 Senja (versi terbaru), jadi Senja harus sudah di-update dulu.
+  Selama Senja di-update (Caddy Senja restart beberapa detik), Equal juga tidak bisa dibuka sebentar.
 
 Isi paket
   build\, node_modules\    aplikasi siap jalan (tidak perlu npm install)
-  .env                     koneksi database SENJA_DEMO  (BERISI PASSWORD DATABASE - jangan dibagikan)
+  .env                     koneksi database EQUAL  (BERISI PASSWORD DATABASE - jangan dibagikan)
                            hanya di paket buatan npm run deploy:pack; paket dari GitHub tanpa .env (memakai .env di server)
-  caddy.exe                Caddy 2.11.7 - HTTPS otomatis (sertifikat Let's Encrypt)
   db\, scripts\, src\      migrasi database (tabel App*, aman diulang)
   pasang.ps1               script pemasangan / update
   update.bat               update ke versi baru (klik dua kali, atau seret zip baru ke file ini)
-  berhenti.bat             hentikan aplikasi & Caddy
+  berhenti.bat             hentikan Equal (Senja tetap jalan)
   otomatis.ps1             update otomatis dari GitHub tiap merge ke main (lihat di bawah)
   VERSION                  commit git paket ini
+  EQUAL                    penanda paket Equal (pasang.ps1 menolak folder/zip tanpa file ini)
 
 Syarat di server
-  1. Node.js 22 LTS atau lebih baru (https://nodejs.org) - sekali saja
-  2. Domain senja.co.id mengarah ke IP server ini (sudah: 103.164.173.118)
-  3. Port 80 & 443 bisa diakses dari internet. Firewall Windows dibuka oleh script;
-     kalau server di belakang router / firewall penyedia, port 80 & 443 juga harus dibuka di sana.
-  4. Port 80 & 443 di server belum dipakai program lain (mis. IIS). Script akan mengecek.
+  1. Node.js 22 LTS atau lebih baru (sudah ada, dipakai Senja)
+  2. DNS equal.senja.co.id mengarah ke IP server ini (sudah: 103.164.173.118)
+  3. Senja sudah di-update ke versi yang Caddyfile-nya memuat C:/ProgramData/Caddy/sites/*.caddy
+     Cek:  Select-String <folder Senja>\Caddyfile -Pattern 'ProgramData/Caddy/sites'
+  4. Port 3002 belum dipakai program lain. Script akan mengecek.
 
-Aplikasi jalan dari folder tempat zip diekstrak (drive & nama folder bebas, mis. D:\Senja).
-Contoh di bawah memakai D:\Senja - ganti dengan folder Anda.
+Aplikasi jalan dari folder tempat zip diekstrak. JANGAN ekstrak ke folder Senja.
+Contoh di bawah memakai D:\Equal - ganti dengan folder Anda.
 
 Pasang pertama kali
-  0. Di PC dev (folder project): npm run deploy:pack  ->  deploy\senja-deploy-<tanggal>.zip
-  1. Salin zip ke server, ekstrak ke folder aplikasi, mis. D:\Senja
-  2. Buka PowerShell dengan "Run as Administrator", lalu:
-       cd D:\Senja
+  1. Push ke main -> GitHub Actions -> workflow "Deploy" -> unduh artifact "equal-deploy".
+     (Atau di PC dev: npm run deploy:pack  ->  deploy\equal-deploy-<tanggal>.zip, sudah berisi .env dari PC dev.)
+  2. Ekstrak artifact -> equal-deploy-*.zip, lalu ekstrak zip itu ke D:\Equal
+  3. Buat D:\Equal\.env (paket dari GitHub tidak berisi .env; jangan kirim/commit file ini):
+       DB_SERVER=...
+       DB_NAME=EQUAL
+       DB_USER=...
+       DB_PASSWORD="..."
+     HOST/PORT tidak perlu diisi; pasang.ps1 menambahkannya (PORT=3002).
+  4. PowerShell "Run as Administrator":
+       cd D:\Equal
        powershell -ExecutionPolicy Bypass -File .\pasang.ps1
-  3. Tunggu sampai muncul "SELESAI: buka https://senja.co.id"
+  5. Tunggu sampai muncul "SELESAI: buka https://equal.senja.co.id"
+  6. Admin pertama: bila belum ada, buat dari PC dev dengan .env ke database EQUAL:  npm run db:admin
+     (db-admin.mjs tidak ikut paket.)
 
-  Setelah itu aplikasi jalan sendiri saat server menyala (Scheduled Task, tidak perlu ada yang login).
+  Setelah itu Equal jalan sendiri saat server menyala (Scheduled Task Equal-app, tidak perlu ada yang login).
 
-Update ke versi baru
-  1. Di PC dev: npm run deploy:pack  ->  deploy\senja-deploy-<tanggal>.zip
-  2. Salin zip ke server (ke folder aplikasi, folder di atasnya, Downloads, atau Desktop)
-  3. Klik dua kali update.bat di folder aplikasi (izin Administrator diminta otomatis),
-     atau seret file zip ke update.bat bila zip ada di tempat lain.
-     update.bat = hentikan -> pindah versi sekarang ke D:\Senja-sebelumnya -> ekstrak zip terbaru ke folder aplikasi
-                  -> pasang.ps1 versi baru. Bila versi baru gagal jalan, versi sebelumnya dikembalikan & dijalankan lagi.
-  4. Tunggu sampai muncul "SELESAI: buka https://senja.co.id", lalu tekan tombol apa saja.
-  Catatan: .env dari zip (bila ada) menimpa .env server; pengaturan server di .env diisi ulang otomatis oleh pasang.ps1.
-
-  Bila update.bat belum ada di server (paket lama), sekali ini update manual:
-    1. cd D:\Senja
-       powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -Berhenti
-    2. Ekstrak zip versi baru ke folder yang sama (timpa semua)
-    3. powershell -ExecutionPolicy Bypass -File .\pasang.ps1
+Update ke versi baru (manual)
+  1. Salin equal-deploy-*.zip ke server (ke D:\Equal, D:\, Downloads, atau Desktop)
+  2. Klik dua kali D:\Equal\update.bat (izin Administrator diminta otomatis), atau seret zip ke update.bat.
+     update.bat = hentikan Equal -> pindah versi sekarang ke D:\Equal-sebelumnya -> ekstrak zip -> pasang.ps1 versi baru.
+                  Bila versi baru gagal jalan, versi sebelumnya dikembalikan & dijalankan lagi.
+  3. Tunggu sampai muncul "SELESAI: buka https://equal.senja.co.id", lalu tekan tombol apa saja.
 
 Update otomatis tiap push ke main (GitHub Actions + otomatis.ps1)
-  Repo produksi: https://github.com/dinata007/equal (branch main).
-  Tiap push ke main, GitHub Actions (.github/workflows/deploy.yml) membuat paket tanpa .env (artifact "senja-deploy").
-  Server mengecek tiap 5 menit (Scheduled Task Senja-update): ada commit baru -> unduh paket -> update seperti update.bat
-  (migrasi, cek aplikasi, kembali ke versi sebelumnya bila gagal). Commit yang gagal tidak dicoba lagi sampai ada commit baru.
-  Pertama kali: push perubahan deploy ke main, lalu unduh artifact "senja-deploy" dari Actions → workflow "Deploy".
-  Extract artifact ZIP untuk mendapat senja-deploy-*.zip, lalu ekstrak ZIP itu ke folder aplikasi.
-  Buat .env di folder itu dengan DB_SERVER, DB_NAME, DB_USER, DB_PASSWORD (jangan kirim/commit file ini).
-  Jalankan pasang.ps1 sebagai Administrator dengan domain Anda, misalnya:
-       powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -Domain senja.co.id
-  Setelah aplikasi terpasang dan bisa dibuka:
-    1. Buat fine-grained Personal Access Token dengan akses ke repo dinata007/equal dan permission Actions: Read-only.
-       Token diperlukan server untuk membaca workflow run dan mengunduh artifact. Jangan gunakan token write/admin.
+  Repo: https://github.com/dinata007/equal (branch main).
+  Tiap push ke main, GitHub Actions (.github/workflows/deploy.yml) membuat paket tanpa .env (artifact "equal-deploy").
+  Server mengecek tiap 5 menit (Scheduled Task Equal-update): ada commit baru -> unduh paket -> update seperti update.bat.
+  Commit yang gagal tidak dicoba lagi sampai ada commit baru.
+  Aktifkan setelah Equal terpasang dan bisa dibuka:
+    1. Buat fine-grained Personal Access Token dengan akses ke repo dinata007/equal saja, permission Actions: Read-only.
+       (Token Senja tidak dipakai; Equal menyimpan tokennya sendiri.)
     2. PowerShell Administrator:
-         cd D:\Senja
+         cd D:\Equal
          powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -Otomatis
-       lalu tempel token (tidak tampil di layar). Token disimpan terenkripsi di C:\ProgramData\Senja\github-token.bin.
-  Log                 Get-Content D:\Senja\logs\otomatis.log -Tail 50
+       lalu tempel token (tidak tampil di layar). Token disimpan terenkripsi di C:\ProgramData\Equal\github-token.bin.
+  Log                 Get-Content D:\Equal\logs\otomatis.log -Tail 50
                       (hanya ditulis saat ada versi baru atau error; kosong/belum ada = belum ada update, normal)
-  Pantau langsung     Get-Content D:\Senja\logs\otomatis.log -Wait   (Ctrl+C untuk berhenti)
-  Versi terpasang     Get-Content D:\Senja\VERSION
-  Status task         Get-ScheduledTaskInfo Senja-update   (LastTaskResult 0 = OK)
-  Cek sekarang        Start-ScheduledTask Senja-update
+  Versi terpasang     Get-Content D:\Equal\VERSION
+  Status task         Get-ScheduledTaskInfo Equal-update   (LastTaskResult 0 = OK)
+  Cek sekarang        Start-ScheduledTask Equal-update
   Ulangi commit gagal powershell -ExecutionPolicy Bypass -File .\otomatis.ps1 -Paksa
   Ganti token         jalankan -Otomatis lagi
   Matikan             powershell -ExecutionPolicy Bypass -File .\pasang.ps1 -OtomatisMati
 
-  Untuk deploy otomatis gunakan workflow "Deploy" (membuat artifact) dan polling server di atas.
-  Workflow "Deploy to Windows Server" hanya tersedia untuk Run workflow manual; tidak berjalan setiap push.
-
-Hentikan aplikasi: klik dua kali berhenti.bat.
+Hentikan Equal: klik dua kali berhenti.bat (Senja tetap jalan).
 Menyalakan lagi tanpa versi baru: powershell -ExecutionPolicy Bypass -File .\pasang.ps1  (Administrator)
 
 Perintah berguna (PowerShell Administrator)
-  Lihat log          Get-Content D:\Senja\logs\app.log -Tail 50
-                     Get-Content D:\Senja\logs\caddy.log -Tail 50
-  Restart aplikasi   Stop-ScheduledTask Senja-app;  Start-ScheduledTask Senja-app
-  Matikan            Stop-ScheduledTask Senja-app;  Stop-ScheduledTask Senja-https
-  Cek database       Invoke-RestMethod http://127.0.0.1:3001/api/health
+  Lihat log          Get-Content D:\Equal\logs\app.log -Tail 50
+                     Get-Content D:\Equal\logs\caddy-reload.log -Tail 20
+                     Get-Content <folder Senja>\logs\caddy.log -Tail 50     (sertifikat HTTPS, dipakai bersama)
+  Restart Equal      Stop-ScheduledTask Equal-app;  Start-ScheduledTask Equal-app
+  Cek database       Invoke-RestMethod http://127.0.0.1:3002/api/health
+  Situs di Caddy     Get-Content C:\ProgramData\Caddy\sites\equal.caddy
 
 Pilihan script
-  -Domain erp.senja.co.id   pakai domain/subdomain lain (DNS-nya harus sudah mengarah ke server)
-  -Port 3002                port internal aplikasi (bawaan 3001; 3000 di server ini dipakai aplikasi lain)
+  -Domain x.senja.co.id     pakai domain/subdomain lain (DNS-nya harus sudah mengarah ke server).
+                            Cukup sekali: domain diingat dari C:\ProgramData\Caddy\sites\equal.caddy,
+                            jadi update.bat & update otomatis tetap memakainya. Bawaan: equal.senja.co.id.
+  -Port 3003                port internal aplikasi (bawaan 3002; 3000 aplikasi lain, 3001 Senja). Diingat dari .env.
   -TanpaMigrasi             lewati migrasi database
-  -Berhenti                 hanya hentikan aplikasi & Caddy (= berhenti.bat)
+  -Berhenti                 hanya hentikan Equal (= berhenti.bat)
   -Update [-Zip <zip>]      hentikan, ekstrak zip baru, pasang ulang (= update.bat)
   -Otomatis / -OtomatisMati nyalakan / matikan update otomatis dari GitHub
