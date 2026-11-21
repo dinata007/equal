@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { BadgeDollarSign, ChevronRight, Plus, ReceiptText, RotateCcw, Sparkles, TrendingDown, TrendingUp } from '@lucide/svelte';
 	import KategoriSheet from '#lib/pages/beranda/KategoriSheet.svelte';
+	import RekapHutangCustomer from '#lib/pages/beranda/RekapHutangCustomer.svelte';
 	import StokKategoriSheet from '#lib/pages/beranda/StokKategoriSheet.svelte';
 	import { MAX_DAYS, MIN_DATE, buckets, loadSales, pctChange, stats, type Sales } from '#lib/pages/beranda/penjualan.ts';
 	import { loadPurchases, type Purchases } from '#lib/pages/beranda/pembelian.ts';
@@ -26,6 +27,7 @@
 
 	const showSales = $derived(auth.canAny('/toko'));
 	const showStock = $derived(auth.canAny('/inventory'));
+	const showDebt = $derived(auth.canAny('/akunting/ar'));
 
 	/* ---------------- filter (berlaku untuk semua angka penjualan di bawahnya) ---------------- */
 	let from = $state(monthStart(T));
@@ -309,6 +311,10 @@
 	</div>
 </div>
 
+{#if showDebt && !showSales}
+	<RekapHutangCustomer />
+{/if}
+
 {#if showSales && !data}
 	<div class="card mb-4 grid place-items-center px-4 py-16 text-center">
 		{#if error}
@@ -339,40 +345,38 @@
 
 	<!-- KPI -->
 	<div class="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-5">
-		<div class="flex min-w-0 flex-col gap-3">
-			{@render kpi(BadgeDollarSign, 'var(--viz-1)', 'Total Penjualan', short(s.sales), money(s.sales), pctChange(s.sales, p.sales), series.map((x) => x.sales), undefined, true, () => (catOpen = true), `${num(s.qty)} pcs`)}
-			{#if showStock}
-				<div class="card min-w-0 p-3.5 sm:p-4">
-					<div class="flex items-center justify-between gap-2">
-						<p class="text-xs text-stone-500">Stok Toko per {fdate(per.to)}</p>
-						{#if stockNow}
-							<button type="button" class="btn btn-ghost btn-sm shrink-0" onclick={() => (stockCatOpen = true)}>
-								Detail <ChevronRight class="size-3.5" />
-							</button>
-						{/if}
-					</div>
+		{@render kpi(BadgeDollarSign, 'var(--viz-1)', 'Total Penjualan', short(s.sales), money(s.sales), pctChange(s.sales, p.sales), series.map((x) => x.sales), undefined, true, () => (catOpen = true), `${num(s.qty)} pcs`)}
+		{#if showStock}
+			<div class="card min-w-0 p-3.5 sm:p-4">
+				<div class="flex items-center justify-between gap-2">
+					<p class="text-xs text-stone-500">Stok Toko per {fdate(per.to)}</p>
 					{#if stockNow}
-						<div class="mt-2 grid grid-cols-2 gap-3">
-							<div class="min-w-0">
-								<p class="text-[11px] text-stone-400">Jumlah stok</p>
-								<p class="truncate text-lg font-semibold tabular-nums">{num(stockNow.qty)} <span class="text-xs font-normal text-stone-500">pcs</span></p>
-							</div>
-							<div class="min-w-0">
-								<p class="text-[11px] text-stone-400">Nilai persediaan</p>
-								<p class="truncate text-lg font-semibold tabular-nums" title={money(stockNow.nilai)}>{short(stockNow.nilai)}</p>
-							</div>
-						</div>
-					{:else}
-						<div class="mt-2 rounded-xl bg-stone-50 px-3 py-2 text-xs text-stone-500 dark:bg-stone-800/50">
-							Saldo stok belum tersedia untuk periode ini karena saldo awal bulan belum ada.
-						</div>
+						<button type="button" class="btn btn-ghost btn-sm shrink-0" onclick={() => (stockCatOpen = true)}>
+							Detail <ChevronRight class="size-3.5" />
+						</button>
 					{/if}
 				</div>
-			{/if}
-		</div>
+				{#if stockNow}
+					<div class="mt-2 grid grid-cols-2 gap-3">
+						<div class="min-w-0">
+							<p class="text-[11px] text-stone-400">Jumlah stok</p>
+							<p class="truncate text-lg font-semibold tabular-nums">{num(stockNow.qty)} <span class="text-xs font-normal text-stone-500">pcs</span></p>
+						</div>
+						<div class="min-w-0">
+							<p class="text-[11px] text-stone-400">Nilai persediaan</p>
+							<p class="truncate text-lg font-semibold tabular-nums" title={money(stockNow.nilai)}>{short(stockNow.nilai)}</p>
+						</div>
+					</div>
+				{:else}
+					<div class="mt-2 rounded-xl bg-stone-50 px-3 py-2 text-xs text-stone-500 dark:bg-stone-800/50">
+						Saldo stok belum tersedia untuk periode ini karena saldo awal bulan belum ada.
+					</div>
+				{/if}
+			</div>
+		{/if}
 		{@render kpi(ReceiptText, 'var(--viz-3)', 'Jumlah Transaksi', num(s.trx), `${num(s.qty)} pcs terjual`, pctChange(s.trx, p.trx), series.map((x) => x.trx))}
 		{#if month}
-			<div class="card col-span-2 flex flex-col p-3.5 sm:p-4 lg:col-span-1">
+			<div class="card flex min-w-0 flex-col p-3.5 sm:p-4">
 				<div class="flex items-start gap-3">
 					<span class="grid size-10 shrink-0 place-items-center rounded-xl" style="background:color-mix(in oklab, var(--viz-4) 15%, transparent);color:var(--viz-4)"><TrendingUp class="size-5" /></span>
 					<div class="min-w-0 flex-1">
@@ -409,6 +413,10 @@
 				</div>
 			{/each}
 		</div>
+	{/if}
+
+	{#if showDebt}
+		<RekapHutangCustomer />
 	{/if}
 
 	<div class="mb-4 grid gap-4 xl:grid-cols-12">
