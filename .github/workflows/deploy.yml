@@ -1,5 +1,5 @@
 # Paket deploy server Windows (tanpa .env) untuk tiap commit di main.
-# Server mengambil paket ini sendiri lewat deploy/otomatis.ps1 (Scheduled Task Senja-update), lihat deploy/BACA-DULU.txt.
+# Server mengambil paket ini sendiri lewat deploy/otomatis.ps1 (Scheduled Task Equal-update), lihat deploy/BACA-DULU.txt.
 # Pull request ikut dibuat paketnya: cek build & bisa diunduh untuk uji manual.
 name: Deploy
 
@@ -24,15 +24,11 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - uses: actions/cache@v6
-        with:
-          path: deploy/caddy.exe
-          key: caddy-2.11.7
       - run: npm run deploy:pack -- --ci
       - uses: actions/upload-artifact@v7
         with:
-          name: senja-deploy
-          path: deploy/senja-deploy-*.zip
+          name: equal-deploy
+          path: deploy/equal-deploy-*.zip
           if-no-files-found: error
           retention-days: ${{ github.event_name == 'pull_request' && 3 || 14 }}
           compression-level: 0

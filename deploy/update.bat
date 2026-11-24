@@ -1,7 +1,7 @@
 @echo off
-rem Update Senja ke versi baru: hentikan -> ekstrak zip -> pasang ulang (pasang.ps1 -Update).
-rem   - seret file senja-deploy-*.zip ke file ini, atau
-rem   - klik dua kali: dipakai senja-deploy-*.zip terbaru di folder ini, folder di atasnya, Downloads, atau Desktop.
+rem Update Equal ke versi baru: hentikan -> ekstrak zip -> pasang ulang (pasang.ps1 -Update). Senja tidak disentuh.
+rem   - seret file equal-deploy-*.zip ke file ini, atau
+rem   - klik dua kali: dipakai equal-deploy-*.zip terbaru di folder ini, folder di atasnya, Downloads, atau Desktop.
 rem Izin Administrator diminta otomatis.
 rem Semua perintah dibungkus ( ) agar cmd membacanya sekaligus: file ini ikut tertimpa saat zip diekstrak.
 (
