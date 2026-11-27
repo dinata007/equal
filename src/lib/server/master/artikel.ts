@@ -4,6 +4,7 @@
  * kombinasi warna × size yang belum ada. Seperti aplikasi lama, artikel yang sudah ada tidak diubah
  * dan tidak dihapus walau warna/size-nya tidak dipilih lagi.
  */
+import * as M from '#lib/domain/defs/masters.ts';
 import type { SessionUser } from '#lib/domain/types.ts';
 import { audit } from '../auth/audit.ts';
 import { AuthError } from '../auth/users.ts';
@@ -41,17 +42,15 @@ export async function palette(user: SessionUser, modelId: string) {
 		ORDER BY RTRIM(w.nama);
 
 		SELECT RTRIM(s.size_id) AS id, RTRIM(s.nama) AS nama, s.urut, CAST(IIF(m3.size_id IS NULL, 0, 1) AS bit) AS [on],
-			CAST(ISNULL(s.flag_aktif, 0) AS bit) AS active, CAST(IIF(ms.size_id IS NULL, 0, 1) AS bit) AS saved,
-			ms.hbeli, ms.hjual, ms.hgrosir, ms.pembilang, ms.penyebut, ms.hjual_barcode, ms.mall_barcode
+			CAST(ISNULL(s.flag_aktif, 0) AS bit) AS active, CAST(0 AS bit) AS saved
 		FROM dbo.M_PRODUK_SIZE s
 			LEFT JOIN dbo.M_PRODUK_MODEL3 m3 ON m3.size_id = s.size_id AND m3.model_id = @m
-			LEFT JOIN dbo.M_PRODUK_MODEL_SIZE ms ON ms.size_id = s.size_id AND ms.model_id = @m
-		WHERE s.flag_aktif = 1 OR m3.size_id IS NOT NULL OR ms.size_id IS NOT NULL
+		WHERE s.flag_aktif = 1 OR m3.size_id IS NOT NULL
 		ORDER BY ISNULL(s.urut, 999), s.size_id;
 
 		SELECT RTRIM(warna_id) AS w, RTRIM(size_id) AS s FROM dbo.M_PRODUK WHERE model_id = @m`);
 	const [warna, sizes, skus] = r.recordsets as unknown as [ArtikelWarna[], ArtikelSize[], { w: string; s: string }[]];
-	// pb_retrieve: harga per size yang masih kosong diisi harga model
+	// database EQUAL tidak menyimpan harga per size: harga awal tiap size = harga model
 	for (const s of sizes) for (const k of PRICES) if (!s[k]) s[k] = model[k] ?? null;
 	return { warna, sizes, skus: skus.map((x) => `${x.w}|${x.s}`) };
 }
@@ -64,6 +63,7 @@ const num = (v: unknown, label: string, scale: number) => {
 };
 
 export async function process(user: SessionUser, modelId: string, input: Record<string, unknown>, ip: string) {
+	if (M.productModel.readOnly) throw new AuthError('Master produk hanya bisa dilihat, artikel tidak bisa diproses.', 405);
 	const model = await modelOf(user, modelId);
 	const warna = Array.isArray(input.warna) ? [...new Set(input.warna.map(String))] : [];
 	const sizes = Array.isArray(input.sizes) ? (input.sizes as Record<string, unknown>[]) : [];
@@ -90,12 +90,11 @@ export async function process(user: SessionUser, modelId: string, input: Record<
 		// nama warna & size dari master; yang dipilih harus aktif atau sudah terpasang di model ini
 		const w = await q().query(`SELECT RTRIM(w.warna_id) AS id, RTRIM(w.nama) AS nama FROM dbo.M_PRODUK_WARNA w
 			WHERE w.flag_aktif = 1 OR EXISTS (SELECT 1 FROM dbo.M_PRODUK_MODEL2 x WHERE x.model_id = @m AND x.warna_id = w.warna_id)`);
-		const s = await q().query(`SELECT RTRIM(s.size_id) AS id, RTRIM(s.nama) AS nama,
-				CAST(IIF(EXISTS (SELECT 1 FROM dbo.M_PRODUK_MODEL_SIZE x WHERE x.model_id = @m AND x.size_id = s.size_id), 1, 0) AS bit) AS saved
+		const s = await q().query(`SELECT RTRIM(s.size_id) AS id, RTRIM(s.nama) AS nama
 			FROM dbo.M_PRODUK_SIZE s
 			WHERE s.flag_aktif = 1 OR EXISTS (SELECT 1 FROM dbo.M_PRODUK_MODEL3 x WHERE x.model_id = @m AND x.size_id = s.size_id)`);
 		const wName = new Map(w.recordset.map((x) => [x.id as string, x.nama as string]));
-		const sRow = new Map(s.recordset.map((x) => [x.id as string, x as { nama: string; saved: boolean }]));
+		const sRow = new Map(s.recordset.map((x) => [x.id as string, x as { nama: string }]));
 		for (const id of warna) if (!wName.has(id)) throw new AuthError(`Warna ${id} tidak ditemukan atau nonaktif`);
 		for (const id of prices.keys()) if (!sRow.has(id)) throw new AuthError(`Size ${id} tidak ditemukan atau nonaktif`);
 
@@ -113,14 +112,6 @@ export async function process(user: SessionUser, modelId: string, input: Record<
 		await sync('dbo.M_PRODUK_MODEL2', 'warna_id', warna);
 		await sync('dbo.M_PRODUK_MODEL3', 'size_id', [...prices.keys()]);
 
-		// harga per size: hanya size yang belum punya harga (harga tersimpan tidak diubah, seperti PB)
-		for (const [id, p] of prices) {
-			if (sRow.get(id)!.saved) continue;
-			const r = q().input('s', sql.VarChar(2), id);
-			for (const k of PRICES) r.input(k, k === 'pembilang' || k === 'penyebut' ? sql.Numeric(15, 2) : sql.Numeric(15, 0), p[k]);
-			await r.query(`INSERT INTO dbo.M_PRODUK_MODEL_SIZE (model_id, size_id, ${PRICES.join(', ')}) VALUES (@m, @s, ${PRICES.map((k) => '@' + k).join(', ')})`);
-		}
-
 		// artikel baru: kode = model + warna + size
 		const existing = new Set((await q().query('SELECT RTRIM(warna_id) + \'|\' + RTRIM(size_id) AS k FROM dbo.M_PRODUK WHERE model_id = @m')).recordset.map((x) => x.k as string));
 		for (const wid of warna) {
@@ -133,11 +124,11 @@ export async function process(user: SessionUser, modelId: string, input: Record<
 					.input('s', sql.VarChar(2), sid);
 				for (const k of PRICES) r.input(k, k === 'pembilang' || k === 'penyebut' ? sql.Numeric(15, 2) : sql.Numeric(15, 0), p[k]);
 				await r.query(`
-					INSERT INTO dbo.M_PRODUK (produk_id, model_id, nama, nama_pendek, nama_pendek2, produk_id_lama, ${PRICES.join(', ')},
-						flag_aktif, brand_id, gender_id, grup_dept, dept_id, bahan_id, nomor, period, warna_id, size_id, tipe_id, jenis_id, aps_id,
+					INSERT INTO dbo.M_PRODUK (produk_id, model_id, nama, nama_pendek, produk_id_lama, ${PRICES.join(', ')},
+						brand_id, gender_id, grup_dept, dept_id, bahan_id, nomor, period, warna_id, size_id, tipe_id, jenis_id, aps_id,
 						model_produk, usrupd, usrtgl)
-					SELECT @id, model_id, @nama, nama_pendek, nama_pendek2, model_id_lama, ${PRICES.map((k) => '@' + k).join(', ')},
-						flag_aktif, brand_id, gender_id, grup_dept, dept_id, bahan_id, nomor, period, @w, @s, tipe_id, jenis_id, aps_id,
+					SELECT @id, model_id, @nama, nama_pendek, model_id_lama, ${PRICES.map((k) => '@' + k).join(', ')},
+						brand_id, gender_id, grup_dept, dept_id, bahan_id, nomor, period, @w, @s, tipe_id, jenis_id, aps_id,
 						model_produk, @u, GETDATE()
 					FROM dbo.M_PRODUK_MODEL WHERE model_id = @m`);
 				added++;

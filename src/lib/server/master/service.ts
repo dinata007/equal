@@ -27,13 +27,16 @@ const metaCache = new Map<string, Promise<Map<string, ColMeta>>>();
 function columns(table: string) {
 	let p = metaCache.get(table);
 	if (!p) {
-		const [schema, name] = table.split('.');
+		// `skema.tabel` atau `database.skema.tabel` (tabel di database lain di server yang sama, mis. SENJA)
+		const parts = table.split('.');
+		const [dbName, schema, name] = parts.length === 3 ? parts : ['', ...parts];
+		if (dbName && !/^[A-Za-z_][A-Za-z0-9_]*$/.test(dbName)) throw new Error(`Nama database tidak valid: ${dbName}`);
 		p = request()
 			.then((r) =>
 				r.input('s', sql.VarChar(128), schema).input('t', sql.VarChar(128), name).query(`
 					SELECT COLUMN_NAME AS name, DATA_TYPE AS type, CHARACTER_MAXIMUM_LENGTH AS length, NUMERIC_PRECISION AS precision,
 						NUMERIC_SCALE AS scale, CASE IS_NULLABLE WHEN 'YES' THEN 1 ELSE 0 END AS nullable
-					FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = @s AND TABLE_NAME = @t`)
+					FROM ${dbName ? `${dbName}.` : ''}INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = @s AND TABLE_NAME = @t`)
 			)
 			.then((r) => new Map(r.recordset.map((c) => [String(c.name).toLowerCase(), { ...c, nullable: !!c.nullable } as ColMeta])));
 		p.catch(() => metaCache.delete(table));
@@ -73,6 +76,11 @@ const canMenu = (u: SessionUser, path: string) => u.admin || u.menus.includes(pa
 
 function requireMenu(u: SessionUser, res: Resource) {
 	if (!canMenu(u, res.menu)) throw new AuthError('Anda tidak punya akses ke menu ini', 403);
+}
+
+/** master readOnly dikelola aplikasi lain (mis. Senja): tidak bisa diubah dari sini */
+function requireWritable(res: Resource) {
+	if (res.def.readOnly) throw new AuthError('Data ini hanya bisa dilihat, tidak bisa ditambah, diubah atau dihapus.', 405);
 }
 
 /** null = semua brand */
@@ -175,8 +183,10 @@ async function selectList(res: Resource, slim = false) {
 	return { meta, cols: [...cols] };
 }
 
+const fieldMaps = new WeakMap<Resource, Map<string, FieldDef>>();
 function toRow(res: Resource, meta: Map<string, ColMeta>, cols: string[], raw: Record<string, unknown>) {
-	const byKey = new Map(res.def.fields.map((f) => [f.key, f]));
+	let byKey = fieldMaps.get(res);
+	if (!byKey) fieldMaps.set(res, (byKey = new Map(res.def.fields.map((f) => [f.key, f]))));
 	const out: Values = {};
 	for (const c of cols) out[c] = decode(byKey.get(c), meta.get(c.toLowerCase())!, raw[c]);
 	out.id = rowId(res, out);
@@ -323,6 +333,7 @@ function keyedRequest(tx: sql.Transaction, res: Resource, meta: Map<string, ColM
 export async function create(name: string, user: SessionUser, input: Values, ip: string) {
 	const res = resourceFor(name);
 	requireMenu(user, res);
+	requireWritable(res);
 	if (res.noCreate) throw new AuthError('Data ini tidak bisa ditambah lewat form ini', 405);
 	const { meta, values } = await readInput(res, user, input, null);
 	requireBrand(res, user, values);
@@ -361,6 +372,7 @@ export async function create(name: string, user: SessionUser, input: Values, ip:
 export async function update(name: string, user: SessionUser, id: unknown, input: Values, ip: string) {
 	const res = resourceFor(name);
 	requireMenu(user, res);
+	requireWritable(res);
 	const keys = parseId(res, id);
 	const cur = await findOne(res, user, keys, await request());
 	const { meta, values } = await readInput(res, user, input, cur.row);
@@ -415,6 +427,7 @@ async function usage(res: Resource, meta: Map<string, ColMeta>, keys: Values) {
 export async function remove(name: string, user: SessionUser, id: unknown, ip: string) {
 	const res = resourceFor(name);
 	requireMenu(user, res);
+	requireWritable(res);
 	const keys = parseId(res, id);
 	const cur = await findOne(res, user, keys, await request());
 	const used = await usage(res, cur.meta, keys);
@@ -438,6 +451,7 @@ export async function remove(name: string, user: SessionUser, id: unknown, ip: s
 export async function setActive(name: string, user: SessionUser, ids: unknown, active: boolean, ip: string) {
 	const res = resourceFor(name);
 	requireMenu(user, res);
+	requireWritable(res);
 	const field = res.def.fields.find((f) => f.key === res.def.activeField);
 	if (!field) throw new AuthError('Data ini tidak punya status aktif');
 	if (!Array.isArray(ids) || !ids.length || ids.length > 1000) throw new AuthError('Pilih data terlebih dahulu');

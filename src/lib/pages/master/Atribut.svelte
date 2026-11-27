@@ -47,8 +47,8 @@
 {#key cur.key}
 	{#if 'custom' in cur}
 		{@const Page = CUSTOM[cur.custom]}
-		<Page {leaf} {nav} />
+		<Page {leaf} nav={TABS.length > 1 ? nav : undefined} />
 	{:else}
-		<MasterPage {leaf} page={cur.def} label={cur.label} {nav} />
+		<MasterPage {leaf} page={cur.def} label={cur.label} nav={TABS.length > 1 ? nav : undefined} />
 	{/if}
 {/key}

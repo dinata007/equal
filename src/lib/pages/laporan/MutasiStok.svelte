@@ -28,7 +28,7 @@
 	let onlyMoving = $state(s0.onlyMoving);
 	$effect(() => saveSession(sKey, { from, to, storeId, onlyMoving }));
 
-	const priceKey = $derived(itemTable === 'products' ? 'buyPrice' : 'price');
+	const priceKey = 'buyPrice';
 	const data = $derived(
 		stockMutation(itemTable, locMatch(scope, storeId), from, to).filter((r) => !onlyMoving || r.open || r.in || r.out)
 	);
@@ -39,7 +39,7 @@
 			{ open: 0, in: 0, out: 0, close: 0, value: 0 }
 		)
 	);
-	const location = $derived(scope === 'MAT' ? 'Gudang Material' : scope === 'INV' ? 'Gudang Inventory' : storeId ? db.name('stores', storeId) : 'Semua Toko');
+	const location = $derived(scope === 'INV' ? 'Gudang Inventory' : storeId ? db.name('stores', storeId) : 'Semua Toko');
 
 	const columns: Col<R>[] = [
 		{ key: 'code', label: 'Kode', value: (r) => r.item.code, class: 'font-mono text-xs' },

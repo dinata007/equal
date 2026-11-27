@@ -1,7 +1,7 @@
 {
-	"name": "Senja ERP",
-	"short_name": "Senja",
-	"description": "ERP Material, Inventory, Sales, Toko, Akunting & HR",
+	"name": "Equal ERP",
+	"short_name": "Equal",
+	"description": "ERP Inventory, Sales, Toko, Akunting & HR",
 	"id": "/",
 	"start_url": "/",
 	"scope": "/",
@@ -19,7 +19,6 @@
 		{ "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
 	],
 	"shortcuts": [
-		{ "name": "Penjualan Toko", "url": "/toko/transaksi/penjualan?id=new", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
-		{ "name": "Kartu Stok", "url": "/inventory/report/kartu-stok", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
+		{ "name": "Penjualan Toko", "url": "/toko/transaksi/penjualan?id=new", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
 	]
 }

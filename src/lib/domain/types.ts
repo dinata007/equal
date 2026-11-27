@@ -137,6 +137,8 @@ export interface MasterDef {
 	sortField?: string | string[];
 	/** tombol "Salin jadi baru": isian data terbuka disalin ke form tambah (kode otomatis dikosongkan) */
 	copyable?: boolean;
+	/** hanya bisa dilihat & dipilih (dikelola aplikasi lain, mis. Senja): tanpa tambah/ubah/hapus/aktif-nonaktif */
+	readOnly?: boolean;
 	/** isian turunan: dipanggil setelah pengguna mengubah `key` (mis. hitung harga per satuan) */
 	derive?: (form: Record<string, any>, key: string) => void;
 }
@@ -175,7 +177,7 @@ export interface LinesDef {
 }
 
 export interface StockEffect {
-	itemTable: 'raw_materials' | 'products';
+	itemTable: 'products';
 	loc: (doc: Doc) => string;
 	qty: (line: Line) => number; // bertanda: + masuk, - keluar
 }
@@ -225,7 +227,7 @@ export interface TxDef {
 	beforePost?: (doc: Doc) => void;
 	/** wajib seimbang debit=kredit (jurnal) */
 	balanced?: boolean;
-	closingScope?: 'MAT' | 'INV' | 'TOKO';
+	closingScope?: 'INV' | 'TOKO';
 	/** label tombol posting, mis. "Setujui" */
 	postLabel?: string;
 	statusLabels?: Partial<Record<DocStatus, string>>;

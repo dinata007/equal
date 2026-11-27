@@ -10,7 +10,7 @@ const itemCol = (label = 'Item'): LineField => ({ key: 'itemId', label, type: 'i
 const unitCol: LineField = { key: 'unit', label: 'Sat', type: 'text', readonly: true, width: 'min-w-20' };
 const qtyCol: LineField = { key: 'qty', label: 'Qty', type: 'number', required: true, width: 'min-w-24' };
 
-function priced(itemTable: 'raw_materials' | 'products', priceKey: string, label?: string): LinesDef {
+function priced(itemTable: 'products', priceKey: string, label?: string): LinesDef {
 	return {
 		itemTable,
 		itemLabel: label,
@@ -29,7 +29,7 @@ function priced(itemTable: 'raw_materials' | 'products', priceKey: string, label
 		}
 	};
 }
-function qtyOnly(itemTable: 'raw_materials' | 'products', label?: string): LinesDef {
+function qtyOnly(itemTable: 'products', label?: string): LinesDef {
 	return {
 		itemTable,
 		itemLabel: label,
@@ -102,123 +102,6 @@ const posKasbank = (d: Doc) => {
 	return (d.payment === 'Tunai' ? byCoa('1-1110') : byCoa('1-1200')) ?? kb.find((k) => k.type === (d.payment === 'Tunai' ? 'Kas' : 'Bank'))?.id ?? '';
 };
 const posCoa = (d: Doc) => kbCoa({ ...d, kasbankId: posKasbank(d) });
-
-function purchaseJournal(stockCoa: string) {
-	return (d: Doc): JournalLine[] => [
-		J(stockCoa, net(d), 0, 'Persediaan'),
-		...(d.tax ? [J('1-1500', d.tax, 0, 'PPN Masukan')] : []),
-		J('2-1100', 0, d.total ?? 0, db.name('suppliers', d.supplierId))
-	];
-}
-
-/* ====================== MATERIAL ====================== */
-export const matPO: TxDef = {
-	kind: 'transaction',
-	table: 'mat_po',
-	prefix: 'MPO',
-	party: { field: 'supplierId', ref: 'suppliers', label: 'Supplier' },
-	header: [supplierField, { key: 'deliveryDate', label: 'Tgl Kirim Diharapkan', type: 'date' }, { key: 'termDays', label: 'Termin (hari)', type: 'number', default: 30 }],
-	lines: priced('raw_materials', 'price', 'Material'),
-	totals: { discount: true, tax: true },
-	postLabel: 'Approve',
-	statusLabels: { posted: 'Approved' }
-};
-
-export const matReceipt: TxDef = {
-	kind: 'transaction',
-	table: 'mat_receipt',
-	prefix: 'MRC',
-	party: { field: 'supplierId', ref: 'suppliers', label: 'Supplier' },
-	header: [supplierField, { key: 'sjNo', label: 'No. Surat Jalan', required: true }, expeditionField],
-	source: {
-		table: 'mat_po',
-		label: 'Order Pembelian (PO)',
-		filter: unused('mat_receipt'),
-		header: (s) => ({ supplierId: s.supplierId, discount: s.discount, taxRate: s.taxRate }),
-		line: copyLine
-	},
-	lines: priced('raw_materials', 'price', 'Material'),
-	totals: { discount: true, tax: true },
-	stock: { itemTable: 'raw_materials', loc: () => 'MAT', qty: (l) => +l.qty },
-	ledger: [{ kind: 'ap', partyField: 'supplierId', sign: 1 }],
-	journal: purchaseJournal('1-1400'),
-	closingScope: 'MAT'
-};
-
-/* ====================== INVENTORY ====================== */
-export const invPO: TxDef = {
-	...matPO,
-	table: 'inv_po',
-	prefix: 'IPO',
-	lines: priced('products', 'buyPrice', 'Produk')
-};
-
-export const invReceipt: TxDef = {
-	kind: 'transaction',
-	table: 'inv_receipt',
-	prefix: 'IRC',
-	party: { field: 'supplierId', ref: 'suppliers', label: 'Supplier' },
-	header: [supplierField, { key: 'sjNo', label: 'No. Surat Jalan', required: true }, expeditionField],
-	source: {
-		table: 'inv_po',
-		label: 'Order Pembelian (PO)',
-		filter: unused('inv_receipt'),
-		header: (s) => ({ supplierId: s.supplierId, discount: s.discount, taxRate: s.taxRate }),
-		line: copyLine
-	},
-	lines: priced('products', 'buyPrice', 'Produk'),
-	totals: { discount: true, tax: true },
-	stock: { itemTable: 'products', loc: () => 'INV', qty: (l) => +l.qty },
-	ledger: [{ kind: 'ap', partyField: 'supplierId', sign: 1 }],
-	journal: purchaseJournal('1-1410'),
-	closingScope: 'INV'
-};
-
-export const invPurchaseReturn: TxDef = {
-	kind: 'transaction',
-	table: 'inv_purchase_return',
-	prefix: 'IRB',
-	party: { field: 'supplierId', ref: 'suppliers', label: 'Supplier' },
-	header: [supplierField, { key: 'reason', label: 'Alasan Retur', type: 'select', options: ['Cacat Produksi', 'Salah Kirim', 'Kelebihan Kirim', 'Lainnya'], required: true }, expeditionField],
-	lines: priced('products', 'buyPrice', 'Produk'),
-	stock: { itemTable: 'products', loc: () => 'INV', qty: (l) => -l.qty },
-	ledger: [{ kind: 'ap', partyField: 'supplierId', sign: -1 }],
-	journal: (d) => [J('2-1100', d.total ?? 0, 0, db.name('suppliers', d.supplierId)), J('1-1410', 0, d.total ?? 0, 'Retur pembelian')],
-	closingScope: 'INV'
-};
-
-export const invStoreShipment: TxDef = {
-	kind: 'transaction',
-	table: 'inv_store_shipment',
-	prefix: 'KBT',
-	party: { field: 'storeId', ref: 'stores', label: 'Toko Tujuan' },
-	header: [{ ...storeField('Toko Tujuan'), default: undefined }, expeditionField, { key: 'driver', label: 'Pengemudi / No. Resi' }],
-	lines: qtyOnly('products', 'Produk'),
-	stock: { itemTable: 'products', loc: () => 'INV', qty: (l) => -l.qty },
-	noAmount: true,
-	closingScope: 'INV',
-	postLabel: 'Kirim'
-};
-
-export const invStoreReturnReceipt: TxDef = {
-	kind: 'transaction',
-	table: 'inv_store_return_receipt',
-	prefix: 'TRT',
-	party: { field: 'storeId', ref: 'stores', label: 'Dari Toko' },
-	header: [{ ...storeField('Dari Toko'), default: undefined }],
-	source: {
-		table: 'store_returns',
-		label: 'Dokumen Retur Toko',
-		filter: unused('inv_store_return_receipt'),
-		header: (s) => ({ storeId: s.storeId }),
-		line: (l) => ({ itemId: l.itemId, unit: l.unit, qty: l.qty, note: l.note }),
-		strictQty: true
-	},
-	lines: qtyOnly('products', 'Produk'),
-	stock: { itemTable: 'products', loc: () => 'INV', qty: (l) => +l.qty },
-	noAmount: true,
-	closingScope: 'INV'
-};
 
 /* ====================== SALES ====================== */
 export const salesOrder: TxDef = {

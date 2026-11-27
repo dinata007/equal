@@ -5,10 +5,11 @@ import type { FieldDef, MasterDef } from '../types';
 const aktif = { key: 'flag_aktif', label: 'Aktif', type: 'toggle', default: true, list: true } as const;
 const akun = (key: string, label: string): FieldDef => ({ key, label, type: 'lookup', source: 'akun' });
 
-/** dbo.M_SUPPLIER — PowerBuilder W_01_M02 */
+/** SENJA.dbo.M_SUPPLIER — PowerBuilder W_01_M02. Dikelola di aplikasi Senja; di Equal hanya dilihat & dipilih. */
 export const supplier: MasterDef = {
 	kind: 'master',
 	resource: 'supplier',
+	readOnly: true,
 	codeField: 'supp_id',
 	nameField: 'nama',
 	activeField: 'flag_aktif',
@@ -26,23 +27,6 @@ export const supplier: MasterDef = {
 		akun('coa_inv', 'Akun Persediaan'),
 		aktif,
 		akun('coa_ar', 'Akun Piutang')
-	]
-};
-
-/** dbo.M_EKSPEDISI — W_01_M03 */
-export const expedition: MasterDef = {
-	kind: 'master',
-	resource: 'ekspedisi',
-	codeField: 'ekspedisi_id',
-	nameField: 'nama',
-	activeField: 'flag_aktif',
-	fields: [
-		{ key: 'ekspedisi_id', label: 'Kode', auto: true, lockOnEdit: true, list: true, mobile: 'meta' },
-		{ key: 'nama', label: 'Nama Ekspedisi', required: true, maxLength: 50, list: true, mobile: 'title' },
-		{ key: 'alamat', label: 'Alamat', type: 'textarea', maxLength: 200, list: true, span: 2 },
-		{ key: 'kota', label: 'Kota', maxLength: 50, list: true, mobile: 'subtitle' },
-		{ key: 'telp', label: 'Telepon', type: 'tel', maxLength: 25, list: true },
-		aktif
 	]
 };
 
@@ -191,9 +175,11 @@ const kodeKetik = (key: string, maxLength: number, hint?: string): FieldDef => (
 const nama = (maxLength = 50): FieldDef => ({ key: 'nama', label: 'Nama', required: true, maxLength, list: true, mobile: 'title', span: 2 });
 const singkatan = (maxLength: number, hint = 'Dipakai menyusun Model Produk'): FieldDef => ({ key: 'nama_pendek', label: 'Singkatan', maxLength, list: true, mobile: 'subtitle', hint });
 
+/** atribut produk: hanya dilihat (master Produk di Equal hanya baca) */
 const attr = (resource: string, fields: FieldDef[], codeField = fields[0].key): MasterDef => ({
 	kind: 'master',
 	resource,
+	readOnly: true,
 	codeField,
 	nameField: 'nama',
 	activeField: 'flag_aktif',
@@ -201,7 +187,7 @@ const attr = (resource: string, fields: FieldDef[], codeField = fields[0].key): 
 });
 
 /** dbo.M_PRODUK_BRAND — w_m_brand */
-export const productBrand = attr('produk-brand', [kodeKetik('brand_id', 1, 'Satu huruf, huruf pertama kode model'), nama(), { ...akun('coa_inv', 'Akun Persediaan'), list: true }]);
+export const productBrand = attr('produk-brand', [kodeKetik('brand_id', 1, 'Satu huruf, huruf pertama kode model'), nama()]);
 /** dbo.M_PRODUK_GENDER — w_m_gender */
 export const productGender = attr('produk-gender', [kodeKetik('gender_id', 1, 'Satu karakter, bagian kode model'), nama()]);
 /** dbo.M_PRODUK_DEPT — w_m_dept (grup) */
@@ -247,20 +233,18 @@ export const productType: MasterDef = {
 export const productModel: MasterDef = {
 	kind: 'master',
 	resource: 'produk',
+	readOnly: true,
 	codeField: 'model_id',
 	nameField: 'nama',
-	activeField: 'flag_aktif',
 	// grid W_01_M01 (tabelnya di pages/produk/Produk.svelte)
-	columns: ['flag_aktif', 'model_id', 'model_id_lama', 'nama', 'nama_pendek', 'model_produk', 'nama_pendek2', 'supp_id', 'hbeli', 'hjual', 'hgrosir', 'hjual_barcode', 'mall_barcode', 'brand_id', 'gender_id', 'dept_id', 'tipe_id', 'jenis_id', 'bahan_id', 'aps_id'],
+	columns: ['model_id', 'model_id_lama', 'nama', 'nama_pendek', 'supp_id', 'hgrosir', 'hjual_barcode', 'brand_id', 'gender_id', 'dept_id', 'jenis_id', 'bahan_id', 'aps_id'],
 	sortField: 'model_id',
 	fields: [
 		{ key: 'model_id', label: 'Kode Model', auto: true, lockOnEdit: true, list: true, mobile: 'meta' },
 		{ key: 'brand_id', label: 'Brand', type: 'lookup', source: 'brand', required: true, lockOnEdit: true },
 		{ key: 'nama', label: 'Nama', maxLength: 50, span: 2, hint: 'Kosongkan = sama dengan Model Produk' },
 		{ key: 'nama_pendek', label: 'Nama Pendek', lockOnEdit: true, maxLength: 25, hint: 'Kosongkan = sama dengan Model Produk' },
-		{ key: 'nama_pendek2', label: 'Nama Retail', maxLength: 25, list: true, mobile: 'subtitle' },
 		{ key: 'model_produk', label: 'Model Produk', auto: true, maxLength: 25, list: true, mobile: 'title', hint: 'Disusun dari singkatan brand, tahun, dept, bahan, jenis & aplikasi + nomor urut' },
-		{ key: 'prioritas', label: 'Prioritas', type: 'select', default: 'NORMAL', options: ['NORMAL', 'PRIORITAS'] },
 		{ key: 'gender_id', label: 'Gender', type: 'lookup', source: 'produk-gender', required: true, lockOnEdit: true, list: true },
 		{ key: 'supp_id', label: 'Supplier', type: 'lookup', source: 'supplier', lockOnEdit: true, refFilter: (r, f) => r.brand === f.brand_id },
 		{ key: 'dept_id', label: 'Department', type: 'lookup', source: 'produk-dept', required: true, lockOnEdit: true, list: true },
@@ -278,8 +262,6 @@ export const productModel: MasterDef = {
 		{ key: 'model_id_lama', label: 'Kode Model Designer', maxLength: 20, list: true },
 		{ key: 'hjual_barcode', label: 'Harga Barcode', type: 'money', list: true, hint: 'Grosir + grosir × pembilang / penyebut' },
 		{ key: 'mall_barcode', label: 'Harga Mall', type: 'money', hint: 'Kosong = sama dengan Harga Barcode' },
-		{ key: 'sls_tipe', label: 'Tipe Sales', type: 'lookup', source: 'sls-tipe' },
-		aktif
 	]
 };
 
@@ -287,6 +269,7 @@ export const productModel: MasterDef = {
 export const productSku: MasterDef = {
 	kind: 'master',
 	resource: 'produk-artikel',
+	readOnly: true,
 	codeField: 'produk_id',
 	nameField: 'nama',
 	fields: [
@@ -295,8 +278,6 @@ export const productSku: MasterDef = {
 		{ key: 'size_id', label: 'Size', type: 'lookup', source: 'produk-size', readonly: true, list: true, mobile: 'subtitle' },
 		{ key: 'nama', label: 'Nama', required: true, maxLength: 50, list: true, mobile: 'title', span: 2 },
 		{ key: 'nama_pendek', label: 'Nama Pendek', maxLength: 25 },
-		{ key: 'nama_pendek2', label: 'Nama Retail', maxLength: 25, list: true },
-		{ key: 'kode_mall', label: 'Kode Mall', maxLength: 20, list: true },
 		{ key: 'hbeli', label: 'Harga Beli', type: 'money', readonly: true },
 		{ key: 'hjual', label: 'Harga Jual', type: 'money', readonly: true, list: true },
 		{ key: 'hgrosir', label: 'Harga Grosir', type: 'money', readonly: true },
@@ -305,121 +286,8 @@ export const productSku: MasterDef = {
 	]
 };
 
-/* ---------- raw material (tabel lama, PowerBuilder W_10_M01–M08) ---------- */
-
-const flagY = (key = 'flag'): FieldDef => ({ key, label: 'Aktif', type: 'toggle', default: true, list: true });
-/** `after` = field sesudah Aktif (urutan entry PB); `codeField` bila kode bukan field pertama */
-const bahanAttr = (resource: string, nameField: string, fields: FieldDef[], activeField: string | null = 'flag', { codeField = fields[0].key, after = [] as FieldDef[] } = {}): MasterDef => ({
-	kind: 'master',
-	resource,
-	codeField,
-	nameField,
-	...(activeField ? { activeField } : {}),
-	fields: activeField ? [...fields, flagY(activeField), ...after] : [...fields, ...after]
-});
+/** field nama standar master tabel lama */
 const namaBahan = (key: string, maxLength: number): FieldDef => ({ key, label: 'Nama', required: true, maxLength, list: true, mobile: 'title', span: 2 });
-
-/** dbo.m_bahan_induk — W_10_M01 */
-export const materialInduk: MasterDef = {
-	...bahanAttr(
-		'bahan-induk',
-		'induk_desc',
-		[
-			kodeKetik('induk_id', 1, 'Satu karakter, bagian kode raw material'),
-			namaBahan('induk_desc', 50),
-			{ key: 'brand_id', label: 'Brand', type: 'lookup', source: 'brand', required: true, list: true, mobile: 'subtitle' },
-			{ ...akun('coa', 'COA Persediaan'), section: 'Akun' },
-			akun('coa_biaya', 'COA Biaya'),
-			akun('coa_jual', 'COA Penjualan'),
-			akun('coa_hpp', 'COA HPP'),
-			akun('coa_ak_susut', 'COA Akum. Penyusutan')
-		],
-		'flag',
-		{ after: [{ key: 'cek_aset', label: 'Barang Aset', type: 'toggle' }] }
-	),
-	columns: ['induk_id', 'brand_id', 'induk_desc', 'coa', 'coa_biaya', 'coa_jual', 'coa_hpp', 'coa_ak_susut', 'cek_aset', 'flag']
-};
-/** dbo.m_bahan_jenis — W_10_M02 */
-export const materialJenis = bahanAttr('bahan-jenis', 'jenis_desc', [kodeKetik('jenis_id', 2, 'Dua karakter, bagian kode raw material'), namaBahan('jenis_desc', 40)]);
-/** dbo.m_bahan_tipe — W_10_M03 */
-export const materialTipe = bahanAttr('bahan-tipe', 'tipe_desc', [kodeKetik('tipe_id', 1, 'Satu karakter, bagian kode raw material'), namaBahan('tipe_desc', 40)]);
-/** W_10_M04 memakai tabel warna produk (dbo.M_PRODUK_WARNA) */
-export const materialColor: MasterDef = { ...productColor, resource: 'bahan-warna' };
-/** dbo.m_bahan_acc — W_10_M05 (jenis COA per brand) */
-export const materialCoa: MasterDef = {
-	...bahanAttr(
-		'bahan-coa',
-		'acc_ap_desc',
-		[
-			{ key: 'brand_id', label: 'Brand', type: 'lookup', source: 'brand', required: true, lockOnEdit: true, list: true, mobile: 'subtitle' },
-			kodeKetik('acc_ap_id', 2),
-			namaBahan('acc_ap_desc', 50),
-			{ ...akun('acc_ap', 'Akun COA'), list: true }
-		],
-		'flag',
-		{ codeField: 'acc_ap_id' }
-	),
-	sortField: 'acc_ap_id',
-	columns: ['brand_id', 'acc_ap_id', 'acc_ap_desc', 'acc_ap']
-};
-/** dbo.m_bahan_sat — W_10_M06 */
-export const materialUnit = bahanAttr('bahan-satuan', 'sat_desc', [kodeUrut('sat_id', 2), namaBahan('sat_desc', 10)], null);
-/** dbo.m_bahan_dept — W_10_M08 */
-export const materialDept = bahanAttr('bahan-dept', 'dept_desc', [kodeUrut('dept_id', 3), namaBahan('dept_desc', 30)], 'aktif');
-
-const round3 = (n: number) => Math.round(n * 1000) / 1000;
-const isNum = (v: unknown) => v !== '' && v != null && Number.isFinite(Number(v));
-
-/**
- * dbo.m_bahan_art — W_10_M07. Kode = brand + 3 digit akhir supplier + induk + jenis + tipe + tahun (2) + warna + urut (3).
- * Harga 1 per satuan kecil, harga 2 per satuan besar (isi = con_sat).
- */
-export const rawMaterial: MasterDef = {
-	kind: 'master',
-	resource: 'bahan',
-	codeField: 'art_id',
-	nameField: 'art_desc',
-	activeField: 'flag',
-	copyable: true,
-	sortField: 'art_id',
-	columns: ['brand_id', 'art_id', 'art_desc', 'art_pendek', 'supp_id', 'induk_id', 'dept_id', 'jenis_id', 'tipe_id', 'warna_id', 'thn', 'flag'],
-	// itemchanged W_10_M07_ENTRY: harga satuan kecil ↔ satuan besar
-	derive: (f, k) => {
-		const con = Number(f.con_sat) > 0 ? Number(f.con_sat) : 1;
-		for (const [kecil, besar] of [
-			['hbeli', 'hbeli2'],
-			['hjual', 'hjual2']
-		]) {
-			if ((k === besar || k === 'con_sat') && isNum(f[besar])) f[kecil] = round3(Number(f[besar]) / con);
-			else if (k === kecil && isNum(f[kecil])) f[besar] = round3(Number(f[kecil]) * con);
-		}
-	},
-	fields: [
-		{ key: 'brand_id', label: 'Brand', type: 'lookup', source: 'brand', required: true, lockOnEdit: true, list: true },
-		{ key: 'art_id', label: 'Kode', auto: true, lockOnEdit: true, list: true, mobile: 'meta', hint: 'Brand + supplier + induk + jenis + tipe + tahun + warna + nomor urut' },
-		{ key: 'art_desc', label: 'Nama Raw Material', required: true, maxLength: 60, list: true, mobile: 'title', span: 2 },
-		{ key: 'art_pendek', label: 'Nama Pendek', required: true, maxLength: 10, list: true, mobile: 'subtitle' },
-		{ key: 'supp_id', label: 'Supplier', type: 'lookup', source: 'supplier', required: true, lockOnEdit: true, list: true, refFilter: (r, f) => r.brand === f.brand_id },
-		{ key: 'induk_id', label: 'Induk', type: 'lookup', source: 'bahan-induk', required: true, lockOnEdit: true, list: true },
-		{ key: 'dept_id', label: 'Dept', type: 'lookup', source: 'bahan-dept', lockOnEdit: true, list: true },
-		{ key: 'jenis_id', label: 'Jenis', type: 'lookup', source: 'bahan-jenis', required: true, lockOnEdit: true, list: true },
-		{ key: 'tipe_id', label: 'Tipe', type: 'lookup', source: 'bahan-tipe', required: true, lockOnEdit: true },
-		{ key: 'thn', label: 'Tahun', type: 'date', required: true, lockOnEdit: true, default: (c) => c.today, hint: 'Dua digit tahun menjadi bagian kode' },
-		{ key: 'warna_id', label: 'Warna', type: 'lookup', source: 'produk-warna', required: true, lockOnEdit: true, list: true },
-		{ key: 'item_id', label: 'Jenis COA', type: 'lookup', source: 'bahan-coa', required: true, refFilter: (r, f) => r.brand === f.brand_id },
-		{ key: 'hbeli2', label: 'Harga Beli / Sat. Besar', type: 'number', decimals: 3, lockOnEdit: true, section: 'Satuan & harga' },
-		{ key: 'hjual2', label: 'Harga Jual / Sat. Besar', type: 'number', decimals: 3, lockOnEdit: true },
-		{ key: 'sat_id2', label: 'Satuan Besar', type: 'lookup', source: 'bahan-satuan' },
-		{ key: 'con_sat', label: 'Isi per Satuan Besar', type: 'number', decimals: 3, lockOnEdit: true, hint: 'Jumlah satuan kecil dalam 1 satuan besar' },
-		{ key: 'hbeli', label: 'Harga Beli / Sat. Kecil', type: 'number', decimals: 3, lockOnEdit: true, list: true },
-		{ key: 'hjual', label: 'Harga Jual / Sat. Kecil', type: 'number', decimals: 3, lockOnEdit: true },
-		{ key: 'sat_id', label: 'Satuan Kecil', type: 'lookup', source: 'bahan-satuan', list: true },
-		{ key: 'lkain', label: 'Ukuran', maxLength: 15, section: 'Lainnya' },
-		{ key: 'berat', label: 'Berat', maxLength: 15 },
-		flagY()
-	]
-};
-
 
 /* ---------- HR (tabel lama, PowerBuilder W_MS_08, W_100_06, W_100_07 & w_ms_*) ---------- */
 
@@ -602,29 +470,8 @@ export type AttributeTab = { key: string; label: string } & ({ def: MasterDef } 
 
 /** tab per menu bertab (pages/master/Atribut.svelte); tab pertama = data utama menu */
 export const ATTRIBUTES: Record<string, AttributeTab[]> = {
-	produk: [
-		{ key: 'produk', label: 'Produk', custom: 'produk' },
-		{ key: 'brand', label: 'Brand', def: productBrand },
-		{ key: 'gender', label: 'Gender', def: productGender },
-		// Grup Dept + Department = master-detail (w_m_dept)
-		{ key: 'dept', label: 'Department', custom: 'dept' },
-		{ key: 'bahan', label: 'Bahan', def: productMaterial },
-		{ key: 'warna', label: 'Warna', def: productColor },
-		{ key: 'size', label: 'Size', def: productSize },
-		{ key: 'aplikasi', label: 'Aplikasi', def: productApplication },
-		{ key: 'jenis', label: 'Jenis', def: productKind },
-		{ key: 'tipe', label: 'Tipe', def: productType }
-	],
-	material: [
-		{ key: 'raw-material', label: 'Raw Material', def: rawMaterial },
-		{ key: 'induk', label: 'Induk', def: materialInduk },
-		{ key: 'dept', label: 'Dept', def: materialDept },
-		{ key: 'jenis', label: 'Jenis', def: materialJenis },
-		{ key: 'tipe', label: 'Tipe', def: materialTipe },
-		{ key: 'warna', label: 'Warna', def: materialColor },
-		{ key: 'coa', label: 'Jenis COA', def: materialCoa },
-		{ key: 'satuan', label: 'Satuan', def: materialUnit }
-	],
+	// atribut (Brand, Gender, Department, …) tidak ditampilkan sebagai tab; tetap dipakai sebagai pilihan & nama di form model
+	produk: [{ key: 'produk', label: 'Produk', custom: 'produk' }],
 	pegawai: [
 		{ key: 'jabatan', label: 'Jabatan', def: employeePosition },
 		{ key: 'divisi', label: 'Divisi', def: employeeDivision },

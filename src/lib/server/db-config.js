@@ -25,7 +25,7 @@ export function dbConfig(env) {
 			instanceName: instance,
 			encrypt: bool(env.DB_ENCRYPT, false),
 			trustServerCertificate: bool(env.DB_TRUST_CERT, true),
-			appName: 'Senja Web',
+			appName: 'Equal Web',
 			// tanggal dari kolom datetime dibaca apa adanya (tanpa geser zona waktu)
 			useUTC: false
 		},

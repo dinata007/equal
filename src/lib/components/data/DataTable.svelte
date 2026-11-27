@@ -7,7 +7,7 @@
 	 * - centang banyak baris + aksi massal, navigasi keyboard penuh
 	 * HP: daftar kartu dengan muat otomatis saat menggulir.
 	 */
-	import { ArrowDown, ArrowUp, Check, ChevronDown, Columns3, Funnel, Inbox, ListFilter, Minus, Pin, RotateCcw, Rows3, Rows4, Search, X } from '@lucide/svelte';
+	import { ArrowDown, ArrowUp, Check, ChevronDown, Columns3, Funnel, Inbox, ListFilter, Minus, Pin, RotateCcw, Rows3, Rows4, Search, UnfoldHorizontal, X } from '@lucide/svelte';
 	import type { Snippet } from 'svelte';
 	import { flushSync, onDestroy, tick, untrack } from 'svelte';
 	import type { Attachment } from 'svelte/attachments';
@@ -47,7 +47,8 @@
 		bulk = [],
 		selectable = true,
 		exportName,
-		smallText = false
+		smallText = false,
+		maxHeight
 	}: {
 		rows: T[];
 		columns: Col<T>[];
@@ -75,6 +76,8 @@
 		exportName?: string;
 		/** smaller body text for dense, wide tables */
 		smallText?: boolean;
+		/** tinggi maksimum area gulir (CSS); default = sisa tinggi layar */
+		maxHeight?: string;
 	} = $props();
 
 	/* ---------------- preferensi tersimpan per user ---------------- */
@@ -470,6 +473,14 @@
 		filterPop?.show(el);
 	}
 	let filterMenuBtn = $state<HTMLButtonElement>();
+	/* ---------------- autofit (gaya Excel): lebar kolom pas dengan isi yang tampil ---------------- */
+	function autofit(c: Col<T>) {
+		prefs.widths[c.key] = fitWidth(c, filtered, smallText ? 0.857 : 1) / (uiScale * 0.9);
+	}
+	function autofitAll() {
+		for (const c of visible) autofit(c);
+	}
+
 	const filterItems = $derived<MenuItem[]>(
 		ordered
 			.filter((c) => kinds[c.key])
@@ -720,6 +731,9 @@
 				{/snippet}
 				<ColumnsPanel columns={ordered.map((c) => ({ key: c.key, label: c.label, hideable: c.hideable !== false }))} hidden={prefs.hidden} ontoggle={toggleHidden} onmove={moveCol} onreset={resetCols} />
 			</Popover>
+			<button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Autofit lebar semua kolom" {@attach tooltip()} onclick={autofitAll}>
+				<UnfoldHorizontal class="size-4" />
+			</button>
 			<button
 				type="button"
 				class="btn btn-ghost btn-icon btn-sm"
@@ -760,8 +774,8 @@
 			bind:clientHeight={viewH}
 			onpointerdown={startPan}
 			class="dg-scroll overflow-auto overscroll-x-contain outline-none {scrolledX ? 'is-scrolled-x' : ''} {resizing ? 'cursor-col-resize select-none' : ''} {panning || colDrag ? 'is-dragging' : ''}"
-			style="max-height: {fitH ? `${fitH}px` : 'calc(100dvh - 12.5rem)'}"
-			{@attach fitScreen}
+			style="max-height: {maxHeight ?? (fitH ? `${fitH}px` : 'calc(100dvh - 12.5rem)')}"
+			{@attach maxHeight ? undefined : fitScreen}
 			tabindex="0"
 			role="region"
 			aria-label="Tabel data · panah atas/bawah untuk berpindah baris"
@@ -825,7 +839,7 @@
 									</button>
 								</div>
 								<!-- svelte-ignore a11y_no_static_element_interactions -->
-								<span class="dg-resize {resizing === c.key ? 'is-on' : ''}" onpointerdown={(e) => startResize(e, c)} ondblclick={() => (prefs.widths[c.key] = fitWidth(c, filtered, smallText ? 0.857 : 1) / (uiScale * 0.9))}></span>
+								<span class="dg-resize {resizing === c.key ? 'is-on' : ''}" onpointerdown={(e) => startResize(e, c)} ondblclick={() => autofit(c)}></span>
 							</th>
 						{/each}
 						<th class="dg-fill" aria-hidden="true"></th>

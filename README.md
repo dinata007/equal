@@ -18,7 +18,7 @@ Login memakai database (lihat **Koneksi database** di bawah). Data master & tran
 
 ## Modul
 
-Material · Inventory · Sales · Toko · Akunting (AR, AP, Kas & Bank, GL) · HR · Pengaturan (Pengguna & Hak Akses).
+Inventory · Sales · Toko · Akunting (AR, AP, Kas & Bank, GL) · HR · Pengaturan (Pengguna & Hak Akses).
 
 ## Arsitektur (config-driven)
 

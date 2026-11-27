@@ -18,6 +18,8 @@ export interface PenjualanData {
 	rows: [string, string, string, string, string, number, number][];
 	/** jumlah dokumen berbeda; kategori '' = seluruh dokumen channel itu pada tanggal tsb: [tanggal, channel, kategori, jenis bayar, jumlah] */
 	docs: [string, string, string, string, number][];
+	/** nama produk di `rows` → kode model (untuk foto produk) */
+	models: Record<string, string>;
 }
 
 const TTL = 5 * 60_000;
@@ -67,6 +69,7 @@ async function run(from: string, to: string, scope: string[] | null, brandOverri
 		       CASE WHEN NULLIF(LTRIM(RTRIM(m.model_id_lama)), '') IS NOT NULL THEN m.model_id_lama
 		            WHEN NULLIF(LTRIM(RTRIM(p.model_produk)), '') IS NOT NULL THEN p.model_produk
 		            ELSE s.produk_id END item,
+		       RTRIM(p.model_id) model,
 		       s.qty, ISNULL(s.amount, s.raw) amount
 		INTO #s
 		FROM #s0 s
@@ -85,9 +88,10 @@ async function run(from: string, to: string, scope: string[] | null, brandOverri
 			WHERE a.site_id = c.site_id AND a.cust_id = c.cust_id
 			  AND a.tipe_trans IN ('JUAL', 'JUAL OL')
 			  AND ${customerBrand} ${customerBrandFilter}
-		);`);
+		);
+		SELECT item, MIN(model) model FROM #s WHERE model IS NOT NULL GROUP BY item;`);
 
-	const [rows, docsCat, docsAll, customers] = r.recordsets as unknown as Record<string, any>[][];
+	const [rows, docsCat, docsAll, customers, itemModels] = r.recordsets as unknown as Record<string, any>[][];
 	const used = new Set([...rows].map((x) => x.ch as string));
 	const customer = new Map(customers.map((c) => [c.id as string, c]));
 	const channels = [...used].map((id) =>
@@ -102,7 +106,8 @@ async function run(from: string, to: string, scope: string[] | null, brandOverri
 			city: c.city as string
 		})),
 		rows: rows.map((x) => [x.d, x.ch, x.cat, String(x.item).trim(), String(x.payment), +x.qty || 0, Math.round(+x.amount || 0)] as PenjualanData['rows'][number]),
-		docs: [...docsCat, ...docsAll].map((x) => [x.d, x.ch, x.cat, String(x.payment), +x.n] as PenjualanData['docs'][number])
+		docs: [...docsCat, ...docsAll].map((x) => [x.d, x.ch, x.cat, String(x.payment), +x.n] as PenjualanData['docs'][number]),
+		models: Object.fromEntries(itemModels.map((x) => [String(x.item).trim(), String(x.model).trim()]))
 	};
 }
 

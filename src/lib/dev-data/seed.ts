@@ -37,10 +37,10 @@ export function seed(): Record<string, Row[]> {
 	].map(([code, name, type, city]) => ({ id: 'site-' + code, code, name, type, city, address: '', active: true }));
 
 	const stores = [
-		['T01', 'Senja Dago', 'Bandung', 'Rina Marlina', 'S03', 'Jl. Ir. H. Juanda No. 88'],
-		['T02', 'Senja Kemang', 'Jakarta Selatan', 'Fajar Nugroho', 'S04', 'Jl. Kemang Raya No. 21'],
-		['T03', 'Senja Malioboro', 'Yogyakarta', 'Wulan Sari', 'S05', 'Jl. Malioboro No. 112'],
-		['T04', 'Senja Tunjungan', 'Surabaya', 'Hendra Wijaya', 'S06', 'Jl. Tunjungan No. 45']
+		['T01', 'Equal Dago', 'Bandung', 'Rina Marlina', 'S03', 'Jl. Ir. H. Juanda No. 88'],
+		['T02', 'Equal Kemang', 'Jakarta Selatan', 'Fajar Nugroho', 'S04', 'Jl. Kemang Raya No. 21'],
+		['T03', 'Equal Malioboro', 'Yogyakarta', 'Wulan Sari', 'S05', 'Jl. Malioboro No. 112'],
+		['T04', 'Equal Tunjungan', 'Surabaya', 'Hendra Wijaya', 'S06', 'Jl. Tunjungan No. 45']
 	].map(([code, name, city, manager, site, address]) => ({
 		id: 'store-' + code,
 		code,
@@ -81,22 +81,9 @@ export function seed(): Record<string, Row[]> {
 		['EXP-05', 'Deliveree', 'Express']
 	].map(([code, name, service]) => ({ id: 'exp-' + code, code, name, service, phone: '0800-' + ri(1000000, 9999999), active: true }));
 
-	const raw_materials = [
-		['RM-0001', 'Kain Katun Combed 30s Hitam', 'Kain', 'Kg', 128000],
-		['RM-0002', 'Kain Katun Combed 30s Putih', 'Kain', 'Kg', 122000],
-		['RM-0003', 'Kain Flanel Kotak', 'Kain', 'Meter', 38500],
-		['RM-0004', 'Kain Denim 14oz Indigo', 'Kain', 'Yard', 56000],
-		['RM-0005', 'Kain Fleece Cotton', 'Kain', 'Kg', 137000],
-		['RM-0006', 'Benang Jahit Polyester 40/2', 'Benang', 'Cone', 18500],
-		['RM-0007', 'Kancing Kemeja 18L', 'Aksesoris', 'Lusin', 6000],
-		['RM-0008', 'Resleting YKK 20cm', 'Aksesoris', 'Pcs', 4500],
-		['RM-0009', 'Label Woven Senja', 'Aksesoris', 'Pcs', 850],
-		['RM-0010', 'Polybag Packing 30x40', 'Packaging', 'Pack', 26000]
-	].map(([code, name, category, unit, price]) => ({ id: 'rm-' + code, code, name, category, unit, price, minStock: 20, active: true }));
-
 	const products = [
-		['PRD-0001', 'Kaos Polos Senja Hitam', 'Atasan', 45000, 99000],
-		['PRD-0002', 'Kaos Polos Senja Putih', 'Atasan', 45000, 99000],
+		['PRD-0001', 'Kaos Polos Equal Hitam', 'Atasan', 45000, 99000],
+		['PRD-0002', 'Kaos Polos Equal Putih', 'Atasan', 45000, 99000],
 		['PRD-0003', 'Kaos Graphic Golden Hour', 'Atasan', 55000, 129000],
 		['PRD-0004', 'Kemeja Flanel Kotak Merah', 'Atasan', 95000, 229000],
 		['PRD-0005', 'Kemeja Oxford Biru Muda', 'Atasan', 90000, 219000],
@@ -107,7 +94,7 @@ export function seed(): Record<string, Row[]> {
 		['PRD-0010', 'Hoodie Zipper Charcoal', 'Outer', 140000, 329000],
 		['PRD-0011', 'Jaket Denim Classic', 'Outer', 175000, 399000],
 		['PRD-0012', 'Cardigan Rajut Cream', 'Outer', 120000, 279000],
-		['PRD-0013', 'Topi Baseball Senja', 'Aksesoris', 30000, 79000],
+		['PRD-0013', 'Topi Baseball Equal', 'Aksesoris', 30000, 79000],
 		['PRD-0014', 'Totebag Kanvas', 'Aksesoris', 25000, 69000],
 		['PRD-0015', 'Kaus Kaki Isi 3', 'Aksesoris', 18000, 49000],
 		['PRD-0016', 'Sweater Crewneck Sage', 'Outer', 115000, 269000]
@@ -152,7 +139,7 @@ export function seed(): Record<string, Row[]> {
 		['BNK-02', 'Mandiri', 'EDC Kredit', '0012345602', 1.8],
 		['BNK-03', 'QRIS (Semua Bank)', 'QRIS', 'ID1023456789', 0.3],
 		['BNK-04', 'BCA Transfer', 'Transfer', '7770011223', 0]
-	].map(([code, name, channel, accountNo, mdr]) => ({ id: 'bnk-' + code, code, name, channel, accountNo, accountName: 'PT Senja Busana Indonesia', mdr, active: true }));
+	].map(([code, name, channel, accountNo, mdr]) => ({ id: 'bnk-' + code, code, name, channel, accountNo, accountName: 'PT Equal Busana Indonesia', mdr, active: true }));
 
 	const coaRaw: [string, string, string][] = [
 		['1-1100', 'Kas Besar', 'Aset'],
@@ -251,7 +238,6 @@ export function seed(): Record<string, Row[]> {
 	const tables: Record<string, Row[]> = {};
 	const counters: Record<string, number> = {};
 	const P = (id: string) => products.find((p) => p.id === id)!;
-	const M = (id: string) => raw_materials.find((p) => p.id === id)!;
 
 	function doc(table: string, prefix: string, date: string, head: Record<string, any>, lines: Record<string, any>[], opt: { status?: string; priced?: boolean; taxRate?: number; discount?: number } = {}) {
 		const head2 = `${prefix}/${date.slice(2, 4)}${date.slice(5, 7)}/`;
@@ -285,20 +271,6 @@ export function seed(): Record<string, Row[]> {
 	const inv = new Map<string, number>();
 	const tok = new Map<string, Map<string, number>>(stores.map((s) => [s.id, new Map()]));
 	const add = (m: Map<string, number>, id: string, q: number) => m.set(id, (m.get(id) ?? 0) + q);
-
-	// Material
-	const matPlan: [number, string, string[], number?][] = [
-		[72, 'sup-SUP-001', ['rm-RM-0001', 'rm-RM-0002', 'rm-RM-0005'], 4],
-		[46, 'sup-SUP-002', ['rm-RM-0006', 'rm-RM-0007', 'rm-RM-0009', 'rm-RM-0010'], 4],
-		[21, 'sup-SUP-001', ['rm-RM-0003', 'rm-RM-0004'], 5],
-		[6, 'sup-SUP-003', ['rm-RM-0008', 'rm-RM-0009']],
-		[3, 'sup-SUP-002', ['rm-RM-0006', 'rm-RM-0010']]
-	];
-	matPlan.forEach(([day, sup, items, recv], i) => {
-		const lines = items.map((id) => ({ itemId: id, unit: M(id).unit, qty: ri(4, 20) * 10, price: M(id).price, disc: 0 }));
-		const po = doc('mat_po', 'MPO', D(day), { supplierId: sup, termDays: 30, deliveryDate: D(day - 5) }, lines, { taxRate: 11, status: i === 3 ? 'draft' : 'posted' });
-		if (recv) doc('mat_receipt', 'MRC', D(day - recv), { supplierId: sup, sourceId: po.id, sjNo: 'SJ-' + ri(10000, 99999), expeditionId: 'exp-EXP-02' }, lines, { taxRate: 11 });
-	});
 
 	// Inventory PO & penerimaan
 	const invPlan: [number, string, boolean][] = [
@@ -401,7 +373,7 @@ export function seed(): Record<string, Row[]> {
 	});
 
 	// Pembayaran hutang
-	for (const r of (tables.inv_receipt ?? []).slice(0, 2).concat((tables.mat_receipt ?? []).slice(0, 1))) {
+	for (const r of (tables.inv_receipt ?? []).slice(0, 2)) {
 		const day = Math.round((+new Date(T0) - +new Date(r.date)) / 864e5);
 		doc('cash_out', 'BKK', D(Math.max(0, day - 25)), { kasbankId: 'kb-03', kind: 'Pembayaran Hutang', supplierId: r.supplierId, to: suppliers.find((s) => s.id === r.supplierId)!.name }, [{ coaId: C('2-1100'), desc: 'Pembayaran ' + r.no, amount: r.total }]);
 	}
@@ -484,14 +456,13 @@ export function seed(): Record<string, Row[]> {
 	d2.setDate(1);
 	d2.setMonth(d2.getMonth() - 2);
 	const period = iso(d2).slice(0, 7);
-	const closings = ['MAT', 'INV', 'TOKO'].map((scope) => ({ id: 'cls-' + scope, scope, period, closedAt: now, closedBy: 'admin' }));
+	const closings = ['INV', 'TOKO'].map((scope) => ({ id: 'cls-' + scope, scope, period, closedAt: now, closedBy: 'admin' }));
 
 	return {
 		sites,
 		stores,
 		suppliers,
 		expeditions,
-		raw_materials,
 		products,
 		customers,
 		banks,
