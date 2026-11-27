@@ -215,7 +215,7 @@ Get-ChildItem -Recurse -File $Folder | Unblock-File
 # .env: pengaturan server (aplikasi di belakang Caddy). Paket dari GitHub tidak berisi .env -> memakai .env yang sudah ada di server.
 $envFile = Join-Path $Folder '.env'
 if (-not (Test-Path -LiteralPath $envFile)) { Gagal ".env tidak ada di $Folder. Buat file .env berisi koneksi database (DB_SERVER, DB_NAME=EQUAL, DB_USER, DB_PASSWORD), atau pasang dari paket buatan npm run deploy:pack." }
-$set = [ordered]@{ HOST = '127.0.0.1'; PORT = "$Port"; PROTOCOL_HEADER = 'x-forwarded-proto'; ADDRESS_HEADER = 'x-forwarded-for'; XFF_DEPTH = '1' }
+$set = [ordered]@{ HOST = '127.0.0.1'; PORT = "$Port"; PROTOCOL_HEADER = 'x-forwarded-proto'; ADDRESS_HEADER = 'x-forwarded-for'; XFF_DEPTH = '1'; BODY_SIZE_LIMIT = '4M' }
 $mark = '# ---------- server (diisi pasang.ps1) ----------'
 $lines = @(Get-Content -Encoding UTF8 $envFile | Where-Object { $_ -ne $mark -and $_ -notmatch "^\s*($($set.Keys -join '|'))\s*=" })
 $lines += $mark

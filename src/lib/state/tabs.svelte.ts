@@ -19,7 +19,7 @@ export interface PageTab {
 export interface TabInfo {
 	label: string;
 	icon?: Component<any>;
-	/** jalur menu untuk tooltip, mis. "Material › Master › Raw Material" */
+	/** jalur menu untuk tooltip, mis. "Inventory › Master › Produk" */
 	trail: string;
 }
 

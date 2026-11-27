@@ -9,11 +9,11 @@
 	import { ask, toast } from '#lib/state/ui.svelte.ts';
 	import PageHeader from '#lib/components/data/PageHeader.svelte';
 
-	let { leaf, scope }: { leaf: Leaf; scope: 'MAT' | 'INV' | 'TOKO' } = $props();
+	let { leaf, scope }: { leaf: Leaf; scope: 'INV' | 'TOKO' } = $props();
 
-	const scopeName = $derived({ MAT: 'Gudang Material', INV: 'Gudang Inventory', TOKO: 'Seluruh Toko' }[scope]);
-	const itemTable = $derived(scope === 'MAT' ? 'raw_materials' : 'products');
-	const priceKey = $derived(scope === 'MAT' ? 'price' : 'buyPrice');
+	const scopeName = $derived(scope === 'INV' ? 'Gudang Inventory' : 'Seluruh Toko');
+	const itemTable = 'products';
+	const priceKey = 'buyPrice';
 	const canPost = $derived(auth.can(leaf.path, 'post'));
 
 	const last = $derived(lastClosing(scope));

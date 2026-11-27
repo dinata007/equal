@@ -22,7 +22,7 @@
 </script>
 
 <svelte:head>
-	<title>Senja ERP</title>
+	<title>Equal ERP</title>
 </svelte:head>
 
 {@render children()}

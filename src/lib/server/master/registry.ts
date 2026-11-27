@@ -8,8 +8,8 @@ import type { MasterDef } from '#lib/domain/types.ts';
 import type { sql } from '../db.ts';
 import { seq, yy } from './codes.ts';
 import { HR } from './hr.ts';
-import { MATERIAL } from './material.ts';
 import { PRODUK } from './produk.ts';
+import { senja } from '../senja.ts';
 
 export type Values = Record<string, any>;
 
@@ -55,34 +55,11 @@ export const RESOURCES: Record<string, Resource> = {
 	supplier: {
 		def: M.supplier,
 		menu: '/inventory/master/supplier',
-		table: 'dbo.M_SUPPLIER',
+		// dikelola di aplikasi Senja (def.readOnly): Equal hanya membaca
+		table: senja('M_SUPPLIER'),
 		keys: ['supp_id', 'brand_id'],
 		brand: { column: 'brand_id' },
-		order: 'supp_id',
-		// W_01_M02: "S" + 3 digit, satu urutan untuk semua brand
-		next: async (req, v) => void (v.supp_id = await seq(req(), 'dbo.M_SUPPLIER', 'supp_id', 'S', 3)),
-		usedIn: [
-			['Pembelian barang', 'dbo.T_BELI1 WHERE supp_id = @supp_id'],
-			['Penerimaan gudang', 'dbo.T_GUDANG1 WHERE supp_id = @supp_id'],
-			['PO material', 'dbo.ob_bahan_po_hdr WHERE supp_id = @supp_id'],
-			['Penerimaan material', 'dbo.ob_bahan_gd_hdr WHERE supp_id = @supp_id'],
-			['Hutang (AP)', 'dbo.ap_trans1 WHERE supp_id = @supp_id'],
-			['Model produk', 'dbo.M_PRODUK_MODEL WHERE supp_id = @supp_id'],
-			['Article raw material', 'dbo.m_bahan_art WHERE supp_id = @supp_id']
-		]
-	},
-	ekspedisi: {
-		def: M.expedition,
-		menu: '/inventory/master/ekspedisi',
-		table: 'dbo.M_EKSPEDISI',
-		keys: ['ekspedisi_id'],
-		order: 'ekspedisi_id',
-		// W_01_M03: "E" + 2 digit
-		next: async (req, v) => void (v.ekspedisi_id = await seq(req(), 'dbo.M_EKSPEDISI', 'ekspedisi_id', 'E', 2)),
-		usedIn: [
-			['Kirim barang (GIT)', 'dbo.T_GIT1 WHERE ekspedisi_id = @ekspedisi_id'],
-			['Transaksi gudang', 'dbo.T_GUDANG1 WHERE ekspedisi_id = @ekspedisi_id']
-		]
+		order: 'supp_id'
 	},
 	toko: {
 		def: M.store,
@@ -186,7 +163,6 @@ export const RESOURCES: Record<string, Resource> = {
 		]
 	},
 	...PRODUK,
-	...MATERIAL,
 	...HR
 };
 

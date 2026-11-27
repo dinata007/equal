@@ -31,7 +31,7 @@
 	const totIn = $derived(rows.reduce((s, r) => s + Math.max(0, r.qty), 0));
 	const totOut = $derived(rows.reduce((s, r) => s + Math.max(0, -r.qty), 0));
 	const closing = $derived(opening + totIn - totOut);
-	const location = $derived(scope === 'MAT' ? 'Gudang Material' : scope === 'INV' ? 'Gudang Inventory' : db.name('stores', storeId) || 'Semua Toko');
+	const location = $derived(scope === 'INV' ? 'Gudang Inventory' : db.name('stores', storeId) || 'Semua Toko');
 
 	function exportData() {
 		return tableOf(`Kartu Stok ${item?.code} ${from} sd ${to}`, ['Tanggal', 'No', 'Transaksi', 'Masuk', 'Keluar', 'Saldo'], [
@@ -47,7 +47,7 @@
 	<ReportShell {leaf} subtitle="{item?.name ?? '-'} · {location} · {fdate(from)} – {fdate(to)}" exportTable={exportData}>
 		{#snippet filters()}
 			<div class="lg:w-72">
-				<span class="label">{itemTable === 'products' ? 'Produk' : 'Material'}</span>
+				<span class="label">Produk</span>
 				<Lookup table={itemTable} bind:value={itemId} />
 			</div>
 			<PeriodFilter bind:from bind:to />

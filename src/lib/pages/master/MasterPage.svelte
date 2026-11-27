@@ -58,9 +58,9 @@
 	const codeKey = $derived(def.codeField ?? 'code');
 	const activeKey = $derived(def.activeField ?? 'active');
 	const can = $derived({
-		create: auth.can(leaf.path, 'create'),
-		edit: auth.can(leaf.path, 'edit'),
-		delete: auth.can(leaf.path, 'delete')
+		create: !def.readOnly && auth.can(leaf.path, 'create'),
+		edit: !def.readOnly && auth.can(leaf.path, 'edit'),
+		delete: !def.readOnly && auth.can(leaf.path, 'delete')
 	});
 
 	/* ---------------- data ---------------- */

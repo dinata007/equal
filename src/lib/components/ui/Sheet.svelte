@@ -17,14 +17,14 @@
 		open?: boolean;
 		title: string;
 		subtitle?: string;
-		size?: 'md' | 'lg' | 'xl';
+		size?: 'sm' | 'md' | 'lg' | 'xl';
 		children: Snippet;
 		footer?: Snippet;
 		onclose?: () => void;
 	} = $props();
 
 	const desktop = matchMedia('(min-width: 640px)').matches;
-	const widths = { md: 'sm:max-w-lg', lg: 'sm:max-w-2xl', xl: 'sm:max-w-4xl' };
+	const widths = { sm: 'sm:max-w-sm', md: 'sm:max-w-lg', lg: 'sm:max-w-2xl', xl: 'sm:max-w-4xl' };
 
 	function close() {
 		open = false;

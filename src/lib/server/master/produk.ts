@@ -8,6 +8,7 @@ import { AuthError } from '../auth/users.ts';
 import { request, sql } from '../db.ts';
 import { kodeUrut, letters3, likeEscape } from './codes.ts';
 import type { Resource, Values } from './registry.ts';
+import { senja } from '../senja.ts';
 
 /** model & atributnya dikelola dari satu menu bertab Produk (tab pertama = model) */
 const PRODUK_MENU = '/inventory/master/produk';
@@ -28,15 +29,8 @@ const SKU_TABLES: [string, string][] = [
 	['Penjualan', 'dbo.T_JUAL2'],
 	['Saldo awal gudang', 'dbo.S_AWAL_GUDANG'],
 	['Saldo awal toko', 'dbo.S_AWAL_TOKO'],
-	['Stok opname gudang', 'dbo.T_OPNAME'],
 	['Stok opname toko', 'dbo.T_OPNAME_TOKO'],
-	['Rolling barang', 'dbo.T_ROLLING2'],
-	['Sales', 'dbo.T_SALES4'],
-	['Pembayaran sales', 'dbo.T_SALES_BYR'],
-	['Rencana produksi', 'dbo.T_PRO_PLAN2'],
-	['Arsip transaksi toko', 'dbo.T_TOKO2XX'],
-	['Arsip transaksi toko', 'dbo.T_TOKOX2'],
-	['Arsip transaksi toko', 'dbo.T_TOKOXX2']
+	['Rolling barang', 'dbo.T_ROLLING2']
 ];
 
 /** warna produk juga dipakai raw material (W_10_M04 memakai tabel yang sama) */
@@ -96,7 +90,7 @@ async function nextModel(req: () => sql.Request, v: Values) {
 }
 
 async function checkModel(req: () => sql.Request, v: Values) {
-	for (const k of ['nama', 'nama_pendek', 'nama_pendek2', 'model_produk']) if (typeof v[k] === 'string') v[k] = v[k].toUpperCase();
+	for (const k of ['nama', 'nama_pendek', 'model_produk']) if (typeof v[k] === 'string') v[k] = v[k].toUpperCase();
 	// kode model dibuat saat simpan; ada kode = ubah (kolom pembentuk kode terkunci, data lama tidak divalidasi ulang)
 	if (!v.model_id) {
 		const msg = await checkNewModel(req, v);
@@ -115,7 +109,7 @@ async function checkNewModel(req: () => sql.Request, v: Values) {
 		if (!r.recordset[0].n) return `Tipe ${v.tipe_id} bukan tipe brand ${v.brand_id}`;
 	}
 	if (v.supp_id) {
-		const r = await req().input('s', sql.VarChar(5), v.supp_id).input('b', sql.VarChar(1), v.brand_id).query('SELECT COUNT(*) AS n FROM dbo.M_SUPPLIER WHERE supp_id = @s AND RTRIM(brand_id) = @b');
+		const r = await req().input('s', sql.VarChar(5), v.supp_id).input('b', sql.VarChar(1), v.brand_id).query(`SELECT COUNT(*) AS n FROM ${senja('M_SUPPLIER')} WHERE supp_id = @s AND RTRIM(brand_id) = @b`);
 		if (!r.recordset[0].n) return `Supplier ${v.supp_id} bukan supplier brand ${v.brand_id}`;
 	}
 	// rasio bawaan dari diskon grup dept: pembilang = diskon, penyebut = 100 − diskon
@@ -159,7 +153,7 @@ export const PRODUK: Record<string, Resource> = {
 		usedIn: [
 			...dipakai('brand_id'),
 			['Tipe produk', 'dbo.M_PRODUK_TIPE WHERE brand_id = @brand_id'],
-			['Supplier', 'dbo.M_SUPPLIER WHERE brand_id = @brand_id'],
+			['Supplier', `${senja('M_SUPPLIER')} WHERE brand_id = @brand_id`],
 			['Toko', 'dbo.M_TOKO WHERE brand_id = @brand_id'],
 			['COA', 'dbo.gl_coa WHERE brand_id = @brand_id'],
 			['Master kas/bank', 'dbo.cb_master WHERE brand_id = @brand_id']
@@ -221,7 +215,6 @@ export const PRODUK: Record<string, Resource> = {
 		stamp,
 		usedIn: [
 			['Size model', 'dbo.M_PRODUK_MODEL3 WHERE size_id = @size_id'],
-			['Harga per size', 'dbo.M_PRODUK_MODEL_SIZE WHERE size_id = @size_id'],
 			['Artikel produk', 'dbo.M_PRODUK WHERE size_id = @size_id']
 		]
 	},
@@ -264,15 +257,11 @@ export const PRODUK: Record<string, Resource> = {
 		brand: { column: 'brand_id' },
 		order: 'model_id',
 		stamp,
-		// 33 ribu model: daftar per brand & status seperti window lama, kolom ringkas
-		filters: { columns: ['brand_id', 'flag_aktif'] },
+		// 33 ribu model: daftar per brand seperti window lama, kolom ringkas
+		filters: { columns: ['brand_id'] },
 		slim: true,
 		next: nextModel,
 		check: checkModel,
-		// pb_save: status aktif model ikut ke semua artikelnya
-		afterUpdate: async (req, changed) => {
-			if ('flag_aktif' in changed) await req().input('a', sql.Bit, changed.flag_aktif).query('UPDATE dbo.M_PRODUK SET flag_aktif = @a WHERE model_id = @model_id');
-		},
 		// artikel model dicek dengan daftar kodenya (subquery ke 233 ribu artikel per tabel jauh lebih lambat)
 		usedIn: async (req, keys) => {
 			const r = await (await request()).input('m', sql.VarChar(20), keys.model_id).query('SELECT produk_id FROM dbo.M_PRODUK WHERE model_id = @m');
@@ -280,18 +269,14 @@ export const PRODUK: Record<string, Resource> = {
 			return [
 				...(ids.length ? SKU_TABLES.map(([label, table]): [string, string] => [label, `${table} WHERE produk_id IN (${ids.join(', ')})`]) : []),
 				['Pembelian barang', 'dbo.T_BELI1 WHERE model_id = @model_id'],
-				['Cetak PO', 'dbo.T_PO_PRINT WHERE model_id = @model_id'],
-				['Rencana produksi', 'dbo.T_PRO_PLAN1 WHERE model_id = @model_id'],
-				['Kirim bahan produksi', 'dbo.ob_bahan_kirim_hdr WHERE model_id = @model_id']
+				['Cetak PO', 'dbo.T_PO_PRINT WHERE model_id = @model_id']
 			];
 		},
-		// cb_delete window produk: artikel, warna, size & harga per size ikut terhapus
+		// cb_delete window produk: artikel, warna & size ikut terhapus
 		cascade: [
 			'dbo.M_PRODUK WHERE model_id = @model_id',
 			'dbo.M_PRODUK_MODEL3 WHERE model_id = @model_id',
-			'dbo.M_PRODUK_MODEL2 WHERE model_id = @model_id',
-			'dbo.M_PRODUK_MODEL_SIZE WHERE model_id = @model_id',
-			'dbo.M_PRODUK_MODELX WHERE model_id = @model_id'
+			'dbo.M_PRODUK_MODEL2 WHERE model_id = @model_id'
 		]
 	},
 	'produk-artikel': {
@@ -306,7 +291,7 @@ export const PRODUK: Record<string, Resource> = {
 		filters: { columns: ['model_id'], required: ['model_id'] },
 		noCreate: true,
 		check: async (_req, v) => {
-			for (const k of ['nama', 'nama_pendek', 'nama_pendek2']) if (typeof v[k] === 'string') v[k] = v[k].toUpperCase();
+			for (const k of ['nama', 'nama_pendek']) if (typeof v[k] === 'string') v[k] = v[k].toUpperCase();
 			return null;
 		},
 		usedIn: SKU_TABLES.map(([label, table]) => [label, `${table} WHERE produk_id = @produk_id`])

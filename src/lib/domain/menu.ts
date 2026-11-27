@@ -1,6 +1,6 @@
 /**
  * Struktur menu = sumber tunggal untuk navigasi, routing, breadcrumb & hak akses.
- * Path halaman (mis. /inventory/transaksi/order-pembelian) sekaligus menjadi kunci izin.
+ * Path halaman (mis. /toko/transaksi/penjualan) sekaligus menjadi kunci izin.
  */
 import {
 	ArrowLeftRight,
@@ -17,26 +17,22 @@ import {
 	ClipboardList,
 	Coins,
 	CreditCard,
-	Factory,
 	FileMinus,
 	FilePlus,
 	FileText,
 	HandCoins,
 	KeyRound,
 	Landmark,
-	Layers,
 	Lock,
 	MapPin,
 	Package,
 	PackageCheck,
 	PackageMinus,
-	PackagePlus,
 	Scale,
 	Settings,
 	ShoppingCart,
 	Store,
 	Tags,
-	Truck,
 	Undo2,
 	UserCheck,
 	Users,
@@ -62,31 +58,6 @@ const closing = (scope: string): MenuNode => ({ slug: 'closing-stok', label: 'Cl
 
 export const MENU: MenuNode[] = [
 	{
-		slug: 'material',
-		label: 'Material',
-		icon: Factory,
-		description: 'Bahan baku & pembelian material',
-		children: [
-			{
-				slug: 'master',
-				label: 'Master',
-				children: [
-					{ slug: 'raw-material', label: 'Raw Material', icon: Layers, page: C('atribut', { set: 'material' }) }
-				]
-			},
-			{
-				slug: 'transaksi',
-				label: 'Transaksi',
-				children: [
-					{ slug: 'order-pembelian', label: 'Order Pembelian (PO)', icon: ShoppingCart, page: T.matPO },
-					{ slug: 'penerimaan-po', label: 'Penerimaan Pembelian PO', icon: PackageCheck, page: T.matReceipt }
-				]
-			},
-			stockReports('raw_materials', 'MAT'),
-			{ slug: 'utility', label: 'Utility', children: [closing('MAT')] }
-		]
-	},
-	{
 		slug: 'inventory',
 		label: 'Inventory',
 		icon: Warehouse,
@@ -97,23 +68,9 @@ export const MENU: MenuNode[] = [
 				label: 'Master',
 				children: [
 					{ slug: 'produk', label: 'Produk', icon: Package, page: C('atribut', { set: 'produk' }) },
-					{ slug: 'supplier', label: 'Supplier', icon: Building, page: M.supplier },
-					{ slug: 'ekspedisi', label: 'Ekspedisi', icon: Truck, page: M.expedition }
+					{ slug: 'supplier', label: 'Supplier', icon: Building, page: M.supplier }
 				]
-			},
-			{
-				slug: 'transaksi',
-				label: 'Transaksi',
-				children: [
-					{ slug: 'order-pembelian', label: 'Order Pembelian (PO)', icon: ShoppingCart, page: T.invPO },
-					{ slug: 'penerimaan-barang', label: 'Penerimaan Barang Pembelian', icon: PackageCheck, page: T.invReceipt },
-					{ slug: 'retur-pembelian', label: 'Retur Pembelian', icon: Undo2, page: T.invPurchaseReturn },
-					{ slug: 'kirim-barang-toko', label: 'Kirim Barang Toko', icon: Truck, page: T.invStoreShipment },
-					{ slug: 'terima-retur-toko', label: 'Terima Retur Toko', icon: PackagePlus, page: T.invStoreReturnReceipt }
-				]
-			},
-			stockReports('products', 'INV'),
-			{ slug: 'utility', label: 'Utility', children: [closing('INV')] }
+			}
 		]
 	},
 	{

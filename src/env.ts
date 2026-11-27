@@ -16,5 +16,6 @@ export const variables = defineEnvVars({
 	DB_PASSWORD: optional('Password login SQL Server'),
 	DB_DOMAIN: optional('Domain untuk login Windows (autentikasi NTLM)'),
 	DB_ENCRYPT: optional('true bila koneksi wajib terenkripsi'),
-	DB_TRUST_CERT: optional('true untuk menerima sertifikat self-signed')
+	DB_TRUST_CERT: optional('true untuk menerima sertifikat self-signed'),
+	PRODUK_FOTO_DIR: optional('Folder penyimpanan foto produk (satu subfolder per kode model), mis. D:\\Equal-data\\foto-produk')
 });

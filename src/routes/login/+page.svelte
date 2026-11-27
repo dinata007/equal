@@ -29,7 +29,7 @@
 	}
 </script>
 
-<svelte:head><title>Login · Senja ERP</title></svelte:head>
+<svelte:head><title>Login · Equal ERP</title></svelte:head>
 
 <div class="grid min-h-dvh lg:grid-cols-[1.1fr_1fr]">
 	<!-- panel brand -->
@@ -39,7 +39,7 @@
 			<span class="text-xs font-semibold tracking-[.3em] text-stone-400 uppercase">ERP Suite</span>
 			<div>
 				<Logo size="lg" />
-				<p class="mt-8 max-w-md text-lg leading-relaxed text-stone-600 dark:text-stone-300">Satu ruang untuk material, gudang, toko, keuangan & SDM — rapi, ringan, nyaman dipakai dari kantor maupun genggaman.</p>
+				<p class="mt-8 max-w-md text-lg leading-relaxed text-stone-600 dark:text-stone-300">Satu ruang untuk gudang, toko, keuangan & SDM — rapi, ringan, nyaman dipakai dari kantor maupun genggaman.</p>
 			</div>
 			<p class="text-xs text-stone-400">{copyright}</p>
 		</div>

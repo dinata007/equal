@@ -47,7 +47,7 @@ export async function verifyDummy(/** @type {string} */ password) {
 	return false;
 }
 
-const COMMON = new Set(['password', 'password1', '12345678', '123456789', '1234567890', 'qwerty123', 'qwertyuiop', 'admin123', 'senja123', 'iloveyou', '11111111', '00000000', 'abc12345', 'p@ssw0rd', 'passw0rd', 'bismillah']);
+const COMMON = new Set(['password', 'password1', '12345678', '123456789', '1234567890', 'qwerty123', 'qwertyuiop', 'admin123', 'senja123', 'equal123', 'iloveyou', '11111111', '00000000', 'abc12345', 'p@ssw0rd', 'passw0rd', 'bismillah']);
 
 /** Pesan bila password tidak memenuhi syarat, atau null bila boleh dipakai */
 export function passwordProblem(/** @type {string} */ password, /** @type {string} */ username = '') {

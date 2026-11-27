@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { BadgeDollarSign, ChevronRight, Plus, ReceiptText, RotateCcw, Sparkles, TrendingDown, TrendingUp } from '@lucide/svelte';
+	import { BadgeDollarSign, ChevronRight, ImageOff, ReceiptText, RotateCcw, Sparkles, TrendingDown, TrendingUp } from '@lucide/svelte';
 	import KategoriSheet from '#lib/pages/beranda/KategoriSheet.svelte';
 	import RekapHutangCustomer from '#lib/pages/beranda/RekapHutangCustomer.svelte';
 	import StokKategoriSheet from '#lib/pages/beranda/StokKategoriSheet.svelte';
@@ -7,10 +7,12 @@
 	import { loadPurchases, type Purchases } from '#lib/pages/beranda/pembelian.ts';
 	import { loadStock, type Stock } from '#lib/pages/beranda/stok.ts';
 	import { auth } from '#lib/state/auth.svelte.ts';
-	import { ApiError } from '#lib/util/api.ts';
+	import { ApiError, api } from '#lib/util/api.ts';
+	import Sheet from '#lib/components/ui/Sheet.svelte';
+	import FotoPanel from '#lib/pages/produk/FotoPanel.svelte';
+	import type { Row } from '#lib/domain/types.ts';
 	import { addDays, date as fdate, monthStart, money, num, short, today } from '#lib/util/format.ts';
-	import { LEAVES, MENU, visibleTree } from '#lib/domain/menu.ts';
-	import Menu from '#lib/components/ui/Menu.svelte';
+	import { MENU, visibleTree } from '#lib/domain/menu.ts';
 	import DateRangePicker from '#lib/components/ui/DateRangePicker.svelte';
 	import Select from '#lib/components/ui/Select.svelte';
 	import Delta from '#lib/components/chart/Delta.svelte';
@@ -222,8 +224,25 @@
 		}
 		const rows = [...m.entries()].map(([name, r]) => ({ name, ...r })).sort((a, b) => b[prodSort] - a[prodSort]);
 		const max = rows[0]?.[prodSort] ?? 1;
-		return rows.slice(0, 10).map((r) => ({ ...r, bar: (r[prodSort] / max) * 100 }));
+		return rows.slice(0, 10).map((r) => ({ ...r, bar: (r[prodSort] / max) * 100, model: data?.models[r.name] ?? '' }));
 	});
+
+	/* foto produk (folder PRODUK_FOTO_DIR): hanya untuk pengguna dengan akses menu Produk */
+	const canFoto = $derived(auth.can('/inventory/master/produk'));
+	let fotoCounts = $state.raw<Record<string, number>>({});
+	$effect(() => {
+		if (!showSales || !canFoto) return;
+		api<{ counts: Record<string, number> }>('/api/produk-foto')
+			.then((r) => (fotoCounts = r.counts))
+			.catch(() => {});
+	});
+	const hasFoto = (model: string) => !!model && (fotoCounts[model] ?? 0) > 0;
+	let fotoOpen = $state(false);
+	let fotoProduk = $state.raw<{ model: Row; name: string } | null>(null);
+	function openFoto(name: string, model: string) {
+		fotoProduk = { model: { id: model, model_id: model }, name };
+		fotoOpen = true;
+	}
 
 	/* ---------------- insight otomatis ---------------- */
 	const insights = $derived.by(() => {
@@ -242,7 +261,6 @@
 		return out.slice(0, 4);
 	});
 
-	const shortcuts = $derived(LEAVES.filter((l) => l.page.kind === 'transaction' && auth.can(l.path, 'create')).map((l) => ({ label: l.label, icon: l.icon, href: `${l.path}?id=new`, section: l.module.label })));
 	const modules = $derived(visibleTree(MENU, (pth) => auth.can(pth)));
 	const filtered = $derived(!!channel || !!category || !!payment);
 	const shortDate = (s: string) => new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(s + 'T00:00:00')).replace(/\./g, '');
@@ -250,7 +268,7 @@
 	const prevPeriodText = $derived(`${shortDate(per.prevFrom)} s/d ${shortDate(per.prevTo)}`);
 </script>
 
-<svelte:head><title>Dashboard · Senja</title></svelte:head>
+<svelte:head><title>Dashboard · Equal</title></svelte:head>
 
 {#snippet seg<K extends string>(opts: { key: K; label: string }[], value: K, set: (k: K) => void, label: string)}
 	<div class="inline-flex rounded-xl bg-stone-100 p-0.5 dark:bg-stone-800" role="group" aria-label={label}>
@@ -301,13 +319,6 @@
 	</div>
 	<div class="flex items-center gap-2">
 		{#if showSales && data}<button class="btn btn-ghost btn-sm" onclick={() => load(true)} disabled={loading}><RotateCcw class="size-3.5 {loading ? 'animate-spin' : ''}" /> Refresh<span class="hidden text-stone-400 sm:inline">· {updatedAt}</span></button>{/if}
-		{#if shortcuts.length}
-			<Menu items={shortcuts}>
-				{#snippet trigger(props)}
-					<button {...props} class="btn btn-primary"><Plus class="size-4" /> Buat Baru</button>
-				{/snippet}
-			</Menu>
-		{/if}
 	</div>
 </div>
 
@@ -562,6 +573,15 @@
 				{#each topProducts as r, i (r.name)}
 					<li class="flex items-center gap-3 rounded-xl px-1 py-1.5">
 						<span class="grid size-7 shrink-0 place-items-center rounded-lg text-xs font-semibold {i === 0 ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900' : 'bg-stone-100 text-stone-500 dark:bg-stone-800'}">{i + 1}</span>
+						{#if canFoto}
+							{#if hasFoto(r.model)}
+								<button type="button" class="size-11 shrink-0 overflow-hidden rounded-lg border border-stone-200 bg-stone-100 transition hover:ring-2 hover:ring-brand-400 dark:border-stone-700 dark:bg-stone-800" onclick={() => openFoto(r.name, r.model)} aria-label="Lihat foto {r.name}">
+									<img src="/api/produk-foto/{encodeURIComponent(r.model)}/utama" alt="" loading="lazy" decoding="async" class="size-full object-cover" />
+								</button>
+							{:else}
+								<span class="grid size-11 shrink-0 place-items-center rounded-lg bg-stone-100 text-stone-300 dark:bg-stone-800 dark:text-stone-600" aria-hidden="true"><ImageOff class="size-4" /></span>
+							{/if}
+						{/if}
 						<div class="min-w-0 flex-1">
 							<div class="flex items-baseline justify-between gap-3">
 								<span class="truncate text-sm font-medium">{r.name}</span>
@@ -601,3 +621,15 @@
 	<KategoriSheet bind:open={catOpen} {data} {per} {channel} {payment} channelName={channels.find((c) => c.id === channel)?.name ?? ''} {category} color={catColor} />
 	{#if stock}<StokKategoriSheet bind:open={stockCatOpen} {stock} date={per.to} />{/if}
 {/if}
+
+<Sheet bind:open={fotoOpen} size="sm" title={fotoProduk?.name ?? 'Foto produk'} subtitle={fotoProduk?.model.model_id ?? ''}>
+	{#if fotoProduk}
+		{#key fotoProduk.model.id}
+			<FotoPanel model={fotoProduk.model} canEdit={false} />
+		{/key}
+	{/if}
+	{#snippet footer()}
+		<div class="flex-1"></div>
+		<button class="btn btn-secondary" onclick={() => (fotoOpen = false)}>Tutup</button>
+	{/snippet}
+</Sheet>

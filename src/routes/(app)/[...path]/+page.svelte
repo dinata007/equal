@@ -44,7 +44,7 @@
 	});
 </script>
 
-<svelte:head><title>{node?.label ?? 'Tidak ditemukan'} · Senja</title></svelte:head>
+<svelte:head><title>{node?.label ?? 'Tidak ditemukan'} · Equal</title></svelte:head>
 
 {#if !node}
 	<div class="grid place-items-center py-24 text-center">

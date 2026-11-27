@@ -6,7 +6,8 @@ import { api } from '../util/api';
 import type { LookupOption } from '../domain/types';
 
 class Lookups {
-	#data = $state<Record<string, LookupOption[]>>({});
+	// $state.raw: daftar besar (mis. 7 ribu department) tidak perlu dibuat reaktif per item; isi diganti utuh
+	#data = $state.raw<Record<string, LookupOption[]>>({});
 	#index: Record<string, Map<string, LookupOption>> = {};
 	#loading = new Map<string, Promise<LookupOption[]>>();
 
@@ -24,7 +25,7 @@ class Lookups {
 		const p = api<{ options: LookupOption[] }>(`/api/lookup/${encodeURIComponent(name)}`)
 			.then((r) => {
 				this.#index[name] = new Map(r.options.map((o) => [o.id, o]));
-				this.#data[name] = r.options;
+				this.#data = { ...this.#data, [name]: r.options };
 				return r.options;
 			})
 			.finally(() => this.#loading.delete(name));

@@ -5,6 +5,8 @@
  *
  * Setiap SQL mengembalikan kolom: id, code, name, hint, active (+ atribut tambahan, mis. site / brand).
  */
+import { senja } from '../senja.ts';
+
 export interface LookupDef {
 	sql: string;
 	/** kolom hasil berisi brand → disaring sesuai cakupan brand pengguna; `open`: '%' / kosong = semua brand */
@@ -64,17 +66,14 @@ export const LOOKUPS: Record<string, LookupDef> = {
 	// dddw_supp_toko: supplier (kode terkecil per nama) + toko
 	'supp-toko': {
 		sql: `SELECT MIN(RTRIM(supp_id)) AS id, MIN(RTRIM(supp_id)) AS code, nama AS name, 'Supplier' AS hint, CAST(MAX(CAST(ISNULL(flag_aktif, 0) AS int)) AS bit) AS active
-				FROM dbo.M_SUPPLIER GROUP BY nama
+				FROM ${senja('M_SUPPLIER')} GROUP BY nama
 			UNION ALL
 			SELECT RTRIM(toko_id), RTRIM(toko_id), nama, 'Toko', ${bit('flag_aktif')} FROM dbo.M_TOKO`
 	},
 	supplier: {
 		sql: `SELECT RTRIM(supp_id) AS id, RTRIM(supp_id) AS code, nama AS name, kota AS hint, ${bit('flag_aktif')} AS active, RTRIM(brand_id) AS brand
-			FROM dbo.M_SUPPLIER`,
+			FROM ${senja('M_SUPPLIER')}`,
 		brand: { column: 'brand' }
-	},
-	ekspedisi: {
-		sql: `SELECT RTRIM(ekspedisi_id) AS id, RTRIM(ekspedisi_id) AS code, nama AS name, kota AS hint, ${bit('flag_aktif')} AS active FROM dbo.M_EKSPEDISI`
 	},
 	bank: {
 		sql: `SELECT RTRIM(bank_id) AS id, RTRIM(bank_id) AS code, bank_desc AS name, NULL AS hint, ${bit('flag_aktif')} AS active FROM dbo.M_BANK`
@@ -114,32 +113,6 @@ export const LOOKUPS: Record<string, LookupDef> = {
 		sql: `SELECT RTRIM(tipe_id) AS id, RTRIM(tipe_id) AS code, nama AS name, RTRIM(brand_id) AS hint, ${bit('flag_aktif')} AS active, RTRIM(brand_id) AS brand
 			FROM dbo.M_PRODUK_TIPE`,
 		brand: { column: 'brand' }
-	},
-	'sls-tipe': {
-		sql: `SELECT RTRIM(sls_tipe) AS id, RTRIM(sls_tipe) AS code, nama AS name, NULL AS hint, CAST(1 AS bit) AS active FROM dbo.M_PRODUK_SLS_TIPE`
-	},
-	/* ---- atribut raw material (dddw form article W_10_M07_ENTRY) ---- */
-	'bahan-induk': {
-		sql: `SELECT RTRIM(i.induk_id) AS id, RTRIM(i.induk_id) AS code, i.induk_desc AS name, b.nama AS hint, ${yes('i.flag')} AS active, RTRIM(i.brand_id) AS brand
-			FROM dbo.m_bahan_induk i LEFT JOIN dbo.M_PRODUK_BRAND b ON b.brand_id = i.brand_id`
-	},
-	'bahan-jenis': {
-		sql: `SELECT RTRIM(jenis_id) AS id, RTRIM(jenis_id) AS code, jenis_desc AS name, NULL AS hint, ${yes('flag')} AS active FROM dbo.m_bahan_jenis`
-	},
-	'bahan-tipe': {
-		sql: `SELECT RTRIM(tipe_id) AS id, RTRIM(tipe_id) AS code, tipe_desc AS name, NULL AS hint, ${yes('flag')} AS active FROM dbo.m_bahan_tipe`
-	},
-	// d_10_m05_coa: jenis COA per brand (kode sama dipakai beberapa brand)
-	'bahan-coa': {
-		sql: `SELECT RTRIM(acc_ap_id) AS id, RTRIM(acc_ap_id) AS code, acc_ap_desc AS name, RTRIM(brand_id) AS hint, ${yes('flag')} AS active, RTRIM(brand_id) AS brand
-			FROM dbo.m_bahan_acc`,
-		brand: { column: 'brand' }
-	},
-	'bahan-satuan': {
-		sql: `SELECT RTRIM(sat_id) AS id, RTRIM(sat_id) AS code, sat_desc AS name, NULL AS hint, CAST(1 AS bit) AS active FROM dbo.m_bahan_sat`
-	},
-	'bahan-dept': {
-		sql: `SELECT RTRIM(dept_id) AS id, RTRIM(dept_id) AS code, dept_desc AS name, NULL AS hint, ${yes('aktif')} AS active FROM dbo.m_bahan_dept`
 	},
 	/* ---- HR (dddw form pegawai W_MS_08_ENTRY) ---- */
 	jabatan: {

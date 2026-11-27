@@ -32,6 +32,7 @@ interface Raw {
 	customers: Channel[];
 	rows: [string, string, string, string, string, number, number][];
 	docs: [string, string, string, string, number][];
+	models?: Record<string, string>;
 }
 
 export class Sales {
@@ -44,6 +45,8 @@ export class Sales {
 	readonly payments: string[];
 	/** kategori urut tetap (warna mengikuti entitas, bukan peringkat) */
 	readonly categories: string[];
+	/** nama produk → kode model (foto produk) */
+	readonly models: Record<string, string>;
 	private rows = new Map<string, Sale[]>();
 	private docs = new Map<string, Docs[]>();
 
@@ -53,6 +56,7 @@ export class Sales {
 		this.to = to;
 		this.channels = [...raw.channels].sort((a, b) => a.name.localeCompare(b.name));
 		this.customers = [...raw.customers].sort((a, b) => a.name.localeCompare(b.name));
+		this.models = raw.models ?? {};
 		const total = new Map<string, number>();
 		const payments = new Set<string>(['BOOKING']);
 		for (const [date, ch, cat, item, payment, qty, amount] of raw.rows) {
